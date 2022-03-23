@@ -66,11 +66,12 @@ void UHoverComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 		// Linear interpolation between two values, functions as suspension.
 		float CompressionRatio = FMath::Lerp(HoverForce, 0.f, Alpha);
 
-
 		// Add force to Component Location
 		FVector Force = (CompressionRatio * SurfaceImpactNormal);
 		MeshComp->AddForceAtLocation(Force, GetComponentLocation());
 		//UE_LOG(LogTemp, Warning, TEXT("Force: X = %f, Force: Y = %f, Force: Z = %f"), Force.X, Force.Y, Force.Z);
+
+
 	}
 
 	else

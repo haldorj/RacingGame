@@ -6,6 +6,7 @@
 #include "Components/InputComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/PrimitiveComponent.h"
+#include "DrawDebugHelpers.h"
 #include "Bullet.h"
 //#include "Coin.h"
 //#include "HealthPack.h"
@@ -57,6 +58,8 @@ APlayerCar::APlayerCar()
 	LinearDamping = 3.0f;
 
 	ForwardForce = 5000.f;
+
+	TraceLength = 100.f;
 }
 
 // Called when the game starts or when spawned
@@ -71,7 +74,10 @@ void APlayerCar::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-
+	Raycast();
+	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("X :  %d "), static_cast<int>(SurfaceImpactNormal.X)));
+	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("Y:  %d "), static_cast<int>(SurfaceImpactNormal.Y)));
+	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("Z:  %d "), static_cast<int>(SurfaceImpactNormal.Z)));
 }
 
 // Called to bind functionality to input
@@ -89,7 +95,10 @@ void APlayerCar::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 
 void APlayerCar::MoveForward(float Value)
 {
-	FVector Force = (GetActorForwardVector() * ForwardForce * PlayerMesh->GetMass());
+	FRotator Rotate = FRotator(-90.f, 0.f, 0.f);
+	Rotate.Yaw += PlayerMesh->GetRelativeRotation().Yaw;
+	FVector ForwardVector = Rotate.RotateVector(SurfaceImpactNormal);
+	FVector Force = (ForwardVector * ForwardForce * PlayerMesh->GetMass());
 
 	PlayerMesh->AddForce(Force * Value);
 
@@ -164,6 +173,29 @@ void APlayerCar::Reload() {
 	UWorld* NewWorld = GetWorld();
 	UGameplayStatics::PlaySound2D(NewWorld, Reloading, 1.f, 1.f, 0.f, 0);
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Reloaded %d "), Ammo));
+}
+
+void APlayerCar::Raycast()
+{
+	FHitResult OutHit;
+	FVector Start = PlayerMesh->GetComponentLocation();
+	FVector End = Start + (PlayerMesh->GetUpVector() * (-TraceLength));
+
+	FCollisionQueryParams CollisionParams = FCollisionQueryParams();
+	CollisionParams.AddIgnoredActor(GetOwner());
+	CollisionParams.bTraceComplex = true;
+
+	bool bHit = (GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_Visibility, CollisionParams));
+	if (bHit) {
+		// Hit Information.
+		SurfaceImpactNormal = OutHit.ImpactNormal;
+	}
+
+	else {
+		SurfaceImpactNormal = FVector(0.f, 0.f, 1.f);
+	}
+
+	DrawDebugLine(GetWorld(), Start, End, FColor::Cyan, false, -1, 0, 3);
 }
 
 void APlayerCar::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent,

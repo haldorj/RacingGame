@@ -55,7 +55,6 @@ public:
 	// For spawning Bullets:
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"));
 	TSubclassOf<AActor> ActorToSpawn;
-	//
 
 private:
 	void MoveForward(float Value);
@@ -65,6 +64,7 @@ private:
 	// Functions
 	void Shoot();
 	void Reload();
+	void Raycast();
 
 	// For interacting with other classes / collision.
 	UFUNCTION()
@@ -72,10 +72,11 @@ private:
 			UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex, bool bFromSweep,
 			const FHitResult& SweepResult);
 
-	bool Forwards;
 	//
 	//	Player Stats
 	//
+	bool Forwards;
+	FVector SurfaceImpactNormal;
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerStats")
@@ -98,6 +99,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerStats")
 		float ForwardForce;
+
+	UPROPERTY(Editanywhere, BlueprintReadOnly, Category = "PlayerStats")
+		float TraceLength;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerStats")
 		int32 Coins; // int32 = cross platform
