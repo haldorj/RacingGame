@@ -57,7 +57,7 @@ APlayerCar::APlayerCar()
 	AngularDamping = 5.0f;
 	LinearDamping = 3.0f;
 
-	ForwardForce = 5000.f;
+	ForwardForce = 3500.f;
 
 	TraceLength = 100.f;
 }
@@ -75,9 +75,6 @@ void APlayerCar::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	Raycast();
-	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("X :  %d "), static_cast<int>(SurfaceImpactNormal.X)));
-	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("Y:  %d "), static_cast<int>(SurfaceImpactNormal.Y)));
-	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("Z:  %d "), static_cast<int>(SurfaceImpactNormal.Z)));
 }
 
 // Called to bind functionality to input
@@ -95,10 +92,8 @@ void APlayerCar::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 
 void APlayerCar::MoveForward(float Value)
 {
-	FRotator Rotate = FRotator(-90.f, 0.f, 0.f);
-	Rotate.Yaw += PlayerMesh->GetRelativeRotation().Yaw;
-	FVector ForwardVector = Rotate.RotateVector(SurfaceImpactNormal);
-	FVector Force = (ForwardVector * ForwardForce * PlayerMesh->GetMass());
+	FVector Projection = UKismetMathLibrary::ProjectVectorOnToPlane(GetActorForwardVector(), SurfaceImpactNormal);
+	FVector Force = (ForwardForce * Projection * PlayerMesh->GetMass());
 
 	PlayerMesh->AddForce(Force * Value);
 
@@ -118,8 +113,6 @@ void APlayerCar::MoveRight(float Value)
 	float Select;
 	if (Forwards) { Select = 1; }
 	else if (!Forwards) { Select = -1; }
-	//float Product = FVector::DotProduct(PlayerMesh->GetPhysicsLinearVelocity(), GetActorForwardVector());
-	//float Select = UKismetMathLibrary::SelectFloat(1, -1, Product > 0);
 	FVector TorqueVector = FVector(0.f, 0.f, Select * Torque);
 
 	PlayerMesh->AddTorqueInRadians(TorqueVector * Value);
@@ -181,21 +174,27 @@ void APlayerCar::Raycast()
 	FVector Start = PlayerMesh->GetComponentLocation();
 	FVector End = Start + (PlayerMesh->GetUpVector() * (-TraceLength));
 
-	FCollisionQueryParams CollisionParams = FCollisionQueryParams();
-	CollisionParams.AddIgnoredActor(GetOwner());
-	CollisionParams.bTraceComplex = true;
+	FCollisionQueryParams CollisionParams;
+	CollisionParams.AddIgnoredActor(this);
+	//CollisionParams.bTraceComplex = true;
 
 	bool bHit = (GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_Visibility, CollisionParams));
 	if (bHit) {
 		// Hit Information.
 		SurfaceImpactNormal = OutHit.ImpactNormal;
+
+		DrawDebugSolidBox(GetWorld(), OutHit.ImpactPoint, FVector(5, 5, 5), FColor::Cyan, false, -1);
+
+		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("X :  %f "), (SurfaceImpactNormal.X)));
+		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("Y:  %f "), (SurfaceImpactNormal.Y)));
+		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("Z:  %f "), (SurfaceImpactNormal.Z)));
 	}
 
-	else {
-		SurfaceImpactNormal = FVector(0.f, 0.f, 1.f);
-	}
+	//else {
+	//	SurfaceImpactNormal = FVector(0.f, 0.f, 1.f);
+	//}
 
-	DrawDebugLine(GetWorld(), Start, End, FColor::Cyan, false, -1, 0, 3);
+	DrawDebugLine(GetWorld(), Start, End, FColor::Cyan, false, -1, 0, 1);
 }
 
 void APlayerCar::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent,

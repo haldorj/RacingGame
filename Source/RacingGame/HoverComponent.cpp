@@ -46,7 +46,8 @@ void UHoverComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 	CollisionParams.bTraceComplex = true;
 
 	bool bHit = (GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_Visibility, CollisionParams));
-	if (bHit) {
+	if (bHit) 
+	{
 		// Hit Information.
 		FVector SurfaceImpactNormal = OutHit.ImpactNormal;
 		FVector HitLocation = OutHit.Location;
@@ -70,8 +71,6 @@ void UHoverComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 		FVector Force = (CompressionRatio * SurfaceImpactNormal);
 		MeshComp->AddForceAtLocation(Force, GetComponentLocation());
 		//UE_LOG(LogTemp, Warning, TEXT("Force: X = %f, Force: Y = %f, Force: Z = %f"), Force.X, Force.Y, Force.Z);
-
-
 	}
 
 	else
