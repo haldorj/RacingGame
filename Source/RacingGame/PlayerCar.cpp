@@ -2,6 +2,7 @@
 
 
 #include "PlayerCar.h"
+#include "HoverComponent.h"
 #include "GameFramework/PlayerInput.h"
 #include "Components/InputComponent.h"
 #include "Components/BoxComponent.h"
@@ -42,7 +43,7 @@ APlayerCar::APlayerCar()
 	SpringArm->bEnableCameraLag = true;
 	SpringArm->CameraLagSpeed = 7.f;
 
-	SpringArm->SetupAttachment(RootComponent);
+	SpringArm->SetupAttachment(PlayerMesh);
 
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(SpringArm, USpringArmComponent::SocketName);
@@ -94,7 +95,6 @@ void APlayerCar::MoveForward(float Value)
 {
 	FVector Projection = UKismetMathLibrary::ProjectVectorOnToPlane(GetActorForwardVector(), SurfaceImpactNormal);
 	FVector Force = (ForwardForce * Projection * PlayerMesh->GetMass());
-
 	PlayerMesh->AddForce(Force * Value);
 
 	PlayerMesh->SetAngularDamping(AngularDamping);
@@ -127,7 +127,6 @@ void APlayerCar::Shoot()
 {
 	if (Ammo > 0)
 	{
-
 		UWorld* World = GetWorld();
 		if (World)
 		{
@@ -179,7 +178,8 @@ void APlayerCar::Raycast()
 	//CollisionParams.bTraceComplex = true;
 
 	bool bHit = (GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_Visibility, CollisionParams));
-	if (bHit) {
+	if (bHit) 
+	{
 		// Hit Information.
 		SurfaceImpactNormal = OutHit.ImpactNormal;
 

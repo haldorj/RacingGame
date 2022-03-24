@@ -32,6 +32,9 @@ public:
 
 public:
 	UPROPERTY(VisibleAnywhere)
+		USceneComponent * Root = nullptr;
+
+	UPROPERTY(VisibleAnywhere)
 		UShapeComponent* CollisionBox = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerVariables")
