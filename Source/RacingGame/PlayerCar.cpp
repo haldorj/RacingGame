@@ -169,32 +169,62 @@ void APlayerCar::Reload() {
 
 void APlayerCar::Raycast()
 {
-	FHitResult OutHit;
-	FVector Start = PlayerMesh->GetComponentLocation();
-	FVector End = Start + (PlayerMesh->GetUpVector() * (-TraceLength));
+	if (Forwards) {
+		FHitResult OutHit;
+		FVector Start = PlayerMesh->GetComponentLocation() + PlayerMesh->GetForwardVector() * 50;
+		FVector End = Start + (PlayerMesh->GetUpVector() * (-TraceLength));
 
-	FCollisionQueryParams CollisionParams;
-	CollisionParams.AddIgnoredActor(this);
-	//CollisionParams.bTraceComplex = true;
+		FCollisionQueryParams CollisionParams;
+		CollisionParams.AddIgnoredActor(this);
+		//CollisionParams.bTraceComplex = true;
 
-	bool bHit = (GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_Visibility, CollisionParams));
-	if (bHit) 
-	{
-		// Hit Information.
-		SurfaceImpactNormal = OutHit.ImpactNormal;
+		bool bHit = (GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_Visibility, CollisionParams));
+		if (bHit)
+		{
+			// Hit Information.
+			SurfaceImpactNormal = OutHit.ImpactNormal;
 
-		DrawDebugSolidBox(GetWorld(), OutHit.ImpactPoint, FVector(5, 5, 5), FColor::Cyan, false, -1);
+			DrawDebugSolidBox(GetWorld(), OutHit.ImpactPoint, FVector(5, 5, 5), FColor::Cyan, false, -1);
 
-		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("X :  %f "), (SurfaceImpactNormal.X)));
-		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("Y:  %f "), (SurfaceImpactNormal.Y)));
-		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("Z:  %f "), (SurfaceImpactNormal.Z)));
+			GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("X :  %f "), (SurfaceImpactNormal.X)));
+			GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("Y:  %f "), (SurfaceImpactNormal.Y)));
+			GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("Z:  %f "), (SurfaceImpactNormal.Z)));
+		}
+
+		else {
+			SurfaceImpactNormal = FVector(0.f, 0.f, 1.f);
+		}
+
+		DrawDebugLine(GetWorld(), Start, End, FColor::Cyan, false, -1, 0, 1);
 	}
+	else if (!Forwards) {
+		FHitResult OutHit;
+		FVector Start = PlayerMesh->GetComponentLocation() + PlayerMesh->GetForwardVector() * -50;
+		FVector End = Start + (PlayerMesh->GetUpVector() * (-TraceLength));
 
-	//else {
-	//	SurfaceImpactNormal = FVector(0.f, 0.f, 1.f);
-	//}
+		FCollisionQueryParams CollisionParams;
+		CollisionParams.AddIgnoredActor(this);
+		//CollisionParams.bTraceComplex = true;
 
-	DrawDebugLine(GetWorld(), Start, End, FColor::Cyan, false, -1, 0, 1);
+		bool bHit = (GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_Visibility, CollisionParams));
+		if (bHit)
+		{
+			// Hit Information.
+			SurfaceImpactNormal = OutHit.ImpactNormal;
+
+			DrawDebugSolidBox(GetWorld(), OutHit.ImpactPoint, FVector(5, 5, 5), FColor::Cyan, false, -1);
+
+			GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("X :  %f "), (SurfaceImpactNormal.X)));
+			GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("Y:  %f "), (SurfaceImpactNormal.Y)));
+			GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("Z:  %f "), (SurfaceImpactNormal.Z)));
+		}
+
+		else {
+			SurfaceImpactNormal = FVector(0.f, 0.f, 1.f);
+		}
+
+		DrawDebugLine(GetWorld(), Start, End, FColor::Cyan, false, -1, 0, 1);
+	}
 }
 
 void APlayerCar::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent,
