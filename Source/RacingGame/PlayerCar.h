@@ -63,6 +63,7 @@ private:
 	void MoveForward(float Value);
 	void MoveRight(float Value);
 	void MoveCameraY(float Value);
+	void MoveCameraX(float Value);
 
 	// Functions
 	void Shoot();

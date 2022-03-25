@@ -91,6 +91,7 @@ void APlayerCar::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 	InputComponent->BindAxis(TEXT("MoveForward"), this, &APlayerCar::MoveForward);
 	InputComponent->BindAxis(TEXT("MoveRight"), this, &APlayerCar::MoveRight);
 	InputComponent->BindAxis(TEXT("MoveCameraY"), this, &APlayerCar::MoveCameraY);
+	InputComponent->BindAxis(TEXT("MoveCameraX"), this, &APlayerCar::MoveCameraX);
 
 	PlayerInputComponent->BindAction("Shoot", EInputEvent::IE_Pressed, this, &APlayerCar::Shoot);
 	PlayerInputComponent->BindAction("Reload", EInputEvent::IE_Pressed, this, &APlayerCar::Reload);
@@ -124,6 +125,11 @@ void APlayerCar::MoveRight(float Value)
 }
 
 void APlayerCar::MoveCameraY(float Value)
+{
+	SpringArm->AddRelativeRotation(FRotator(Value, 0.f, 0.f));
+}
+
+void APlayerCar::MoveCameraX(float Value) 
 {
 	SpringArm->AddRelativeRotation(FRotator(0.f, Value, 0.f));
 }

@@ -69,7 +69,7 @@ void UHoverComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 		//UE_LOG(LogTemp, Warning, TEXT("Alpha: %f"), Alpha);
 
 		// Linear interpolation between two values, functions as suspension.
-		float CompressionRatio = FMath::Lerp(HoverForce, 0.f, Alpha);
+		float CompressionRatio = FMath::Lerp(HoverForce * MeshComp->GetMass(), 0.f, Alpha);
 
 		// Add force to Component Location
 		FVector Force = (CompressionRatio * SurfaceImpactNormal);
@@ -82,7 +82,7 @@ void UHoverComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 
 	else
 	{
-		MeshComp->AddForce(FVector(0.f, 0.f, -1) * (InAirGravityForce));
+		MeshComp->AddForce(FVector(0.f, 0.f, -1) * (InAirGravityForce * MeshComp->GetMass()));
 		DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, -1, 0, 1);
 	}
 }
