@@ -58,6 +58,8 @@ public:
 	// For spawning Bullets:
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"));
 	TSubclassOf<AActor> ActorToSpawn;
+public:
+	bool bGameCanPlay = false;
 
 private:
 	void MoveForward(float Value);
@@ -69,6 +71,9 @@ private:
 	void Reload();
 	void Raycast();
 
+	bool Forwards;
+	FVector SurfaceImpactNormal;
+
 	// For interacting with other classes / collision.
 	UFUNCTION()
 		void OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
@@ -78,8 +83,7 @@ private:
 	//
 	//	Player Stats
 	//
-	bool Forwards;
-	FVector SurfaceImpactNormal;
+
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerStats")

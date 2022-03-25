@@ -211,7 +211,7 @@ void APlayerCar::Raycast()
 		{
 			// Hit Information.
 			SurfaceImpactNormal = OutHit.ImpactNormal;
-
+			
 			DrawDebugSolidBox(GetWorld(), OutHit.ImpactPoint, FVector(5, 5, 5), FColor::Cyan, false, -1);
 
 			GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("X :  %f "), (SurfaceImpactNormal.X)));
