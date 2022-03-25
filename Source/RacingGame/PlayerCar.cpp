@@ -58,9 +58,9 @@ APlayerCar::APlayerCar()
 	AngularDamping = 5.0f;
 	LinearDamping = 3.0f;
 
-	ForwardForce = 3500.f;
+	ForwardForce = 4100.f;
 
-	TraceLength = 100.f;
+	TraceLength = 60.f;
 }
 
 // Called when the game starts or when spawned
@@ -182,7 +182,7 @@ void APlayerCar::Raycast()
 {
 	if (bForwards) {
 		FHitResult OutHit;
-		FVector Start = PlayerMesh->GetComponentLocation() + PlayerMesh->GetForwardVector() * 50;
+		FVector Start = PlayerMesh->GetComponentLocation() + PlayerMesh->GetForwardVector() * 60;
 		FVector End = Start + (PlayerMesh->GetUpVector() * (-TraceLength));
 
 		FCollisionQueryParams CollisionParams;
@@ -210,7 +210,7 @@ void APlayerCar::Raycast()
 	}
 	else if (!bForwards) {
 		FHitResult OutHit;
-		FVector Start = PlayerMesh->GetComponentLocation() + PlayerMesh->GetForwardVector() * -50;
+		FVector Start = PlayerMesh->GetComponentLocation() + PlayerMesh->GetForwardVector() * -60;
 		FVector End = Start + (PlayerMesh->GetUpVector() * (-TraceLength));
 
 		FCollisionQueryParams CollisionParams;

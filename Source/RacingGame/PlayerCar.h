@@ -90,10 +90,10 @@ public:
 		float LinearDamping;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "PlayerStats")
-		int MaxAmmo;
+		int32 MaxAmmo;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerStats")
-		int Ammo;
+		int32 Ammo;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "PlayerStats")
 		float MaxHealth;
