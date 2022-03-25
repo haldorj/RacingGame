@@ -76,6 +76,7 @@ void UHoverComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 		MeshComp->AddForceAtLocation(Force, GetComponentLocation());
 		//UE_LOG(LogTemp, Warning, TEXT("Force: X = %f, Force: Y = %f, Force: Z = %f"), Force.X, Force.Y, Force.Z);
 
+		DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, -1, 0, 1);
 		DrawDebugSolidBox(GetWorld(), OutHit.ImpactPoint, FVector(5, 5, 5), FColor::Green, false, -1);
 	}
 
