@@ -2,10 +2,13 @@
 
 
 #include "HoverComponent.h"
+#include "PlayerCar.h"
+
 #include "Engine/World.h"
 #include "DrawDebugHelpers.h"
 #include "Math/Vector.h"
 #include "Math/UnrealMathVectorCommon.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "Components/PrimitiveComponent.h"
 #include "Engine/Engine.h"
 #include "Engine/World.h"
@@ -46,9 +49,11 @@ void UHoverComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 	CollisionParams.bTraceComplex = true;
 
 	bool bHit = (GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_Visibility, CollisionParams));
-	if (bHit) {
+	if (bHit)
+	{
 		// Hit Information.
 		FVector SurfaceImpactNormal = OutHit.ImpactNormal;
+		FVector ImpactNormal = SurfaceImpactNormal;
 		FVector HitLocation = OutHit.Location;
 
 		/*UE_LOG(LogTemp, Warning, TEXT("Hit Location: X = %f, Hit Location: Y = %f, Hit Location: Z = %f"),
@@ -64,19 +69,20 @@ void UHoverComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 		//UE_LOG(LogTemp, Warning, TEXT("Alpha: %f"), Alpha);
 
 		// Linear interpolation between two values, functions as suspension.
-		float CompressionRatio = FMath::Lerp(HoverForce, 0.f, Alpha);
-
+		float CompressionRatio = FMath::Lerp(HoverForce * MeshComp->GetMass(), 0.f, Alpha);
 
 		// Add force to Component Location
 		FVector Force = (CompressionRatio * SurfaceImpactNormal);
 		MeshComp->AddForceAtLocation(Force, GetComponentLocation());
 		//UE_LOG(LogTemp, Warning, TEXT("Force: X = %f, Force: Y = %f, Force: Z = %f"), Force.X, Force.Y, Force.Z);
+
+		DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, -1, 0, 1);
+		DrawDebugSolidBox(GetWorld(), OutHit.ImpactPoint, FVector(5, 5, 5), FColor::Green, false, -1);
 	}
 
 	else
 	{
-		MeshComp->AddForce(FVector(0.f, 0.f, -1) * (InAirGravityForce));
+		MeshComp->AddForce(FVector(0.f, 0.f, -1) * (InAirGravityForce * MeshComp->GetMass()));
+		DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, -1, 0, 1);
 	}
-
-	DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, -1, 0, 3);
 }

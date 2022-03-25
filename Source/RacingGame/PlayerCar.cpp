@@ -2,10 +2,12 @@
 
 
 #include "PlayerCar.h"
+#include "HoverComponent.h"
 #include "GameFramework/PlayerInput.h"
 #include "Components/InputComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/PrimitiveComponent.h"
+#include "DrawDebugHelpers.h"
 #include "Bullet.h"
 //#include "Coin.h"
 //#include "HealthPack.h"
@@ -41,7 +43,7 @@ APlayerCar::APlayerCar()
 	SpringArm->bEnableCameraLag = true;
 	SpringArm->CameraLagSpeed = 7.f;
 
-	SpringArm->SetupAttachment(RootComponent);
+	SpringArm->SetupAttachment(PlayerMesh);
 
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(SpringArm, USpringArmComponent::SocketName);
@@ -51,12 +53,14 @@ APlayerCar::APlayerCar()
 	Health = 25.f;
 	MaxHealth = 100.f;
 	Coins = 0;
-	Forwards = true;
+	bForwards = true;
 
 	AngularDamping = 5.0f;
 	LinearDamping = 3.0f;
 
-	ForwardForce = 5000.f;
+	ForwardForce = 4100.f;
+
+	TraceLength = 60.f;
 }
 
 // Called when the game starts or when spawned
@@ -71,7 +75,12 @@ void APlayerCar::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-
+	Raycast();
+	float Velocity;
+	Velocity = this->GetVelocity().Size();
+	Velocity /= 100;
+	Velocity *= 3.6f;
+	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("Speed :  %f "), Velocity));
 }
 
 // Called to bind functionality to input
@@ -82,6 +91,7 @@ void APlayerCar::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 	InputComponent->BindAxis(TEXT("MoveForward"), this, &APlayerCar::MoveForward);
 	InputComponent->BindAxis(TEXT("MoveRight"), this, &APlayerCar::MoveRight);
 	InputComponent->BindAxis(TEXT("MoveCameraY"), this, &APlayerCar::MoveCameraY);
+	InputComponent->BindAxis(TEXT("MoveCameraX"), this, &APlayerCar::MoveCameraX);
 
 	PlayerInputComponent->BindAction("Shoot", EInputEvent::IE_Pressed, this, &APlayerCar::Shoot);
 	PlayerInputComponent->BindAction("Reload", EInputEvent::IE_Pressed, this, &APlayerCar::Reload);
@@ -89,15 +99,15 @@ void APlayerCar::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 
 void APlayerCar::MoveForward(float Value)
 {
-	FVector Force = (GetActorForwardVector() * ForwardForce * PlayerMesh->GetMass());
-
+	FVector Projection = UKismetMathLibrary::ProjectVectorOnToPlane(GetActorForwardVector(), SurfaceImpactNormal);
+	FVector Force = (ForwardForce * Projection * PlayerMesh->GetMass());
 	PlayerMesh->AddForce(Force * Value);
 
 	PlayerMesh->SetAngularDamping(AngularDamping);
 	PlayerMesh->SetLinearDamping(LinearDamping);
 
-	if (Value < 0) { Forwards = false; }
-	else if (Value > 0) { Forwards = true; }
+	if (Value < 0) { bForwards = false; }
+	else if (Value > 0) { bForwards = true; }
 
 }
 
@@ -107,16 +117,19 @@ void APlayerCar::MoveRight(float Value)
 
 	// Backwards steering functionality
 	float Select;
-	if (Forwards) { Select = 1; }
-	else if (!Forwards) { Select = -1; }
-	//float Product = FVector::DotProduct(PlayerMesh->GetPhysicsLinearVelocity(), GetActorForwardVector());
-	//float Select = UKismetMathLibrary::SelectFloat(1, -1, Product > 0);
+	if (bForwards) { Select = 1; }
+	else if (!bForwards) { Select = -1; }
 	FVector TorqueVector = FVector(0.f, 0.f, Select * Torque);
 
 	PlayerMesh->AddTorqueInRadians(TorqueVector * Value);
 }
 
 void APlayerCar::MoveCameraY(float Value)
+{
+	SpringArm->AddRelativeRotation(FRotator(Value, 0.f, 0.f));
+}
+
+void APlayerCar::MoveCameraX(float Value) 
 {
 	SpringArm->AddRelativeRotation(FRotator(0.f, Value, 0.f));
 }
@@ -125,7 +138,6 @@ void APlayerCar::Shoot()
 {
 	if (Ammo > 0)
 	{
-
 		UWorld* World = GetWorld();
 		if (World)
 		{
@@ -164,6 +176,66 @@ void APlayerCar::Reload() {
 	UWorld* NewWorld = GetWorld();
 	UGameplayStatics::PlaySound2D(NewWorld, Reloading, 1.f, 1.f, 0.f, 0);
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Reloaded %d "), Ammo));
+}
+
+void APlayerCar::Raycast()
+{
+	if (bForwards) {
+		FHitResult OutHit;
+		FVector Start = PlayerMesh->GetComponentLocation() + PlayerMesh->GetForwardVector() * 60;
+		FVector End = Start + (PlayerMesh->GetUpVector() * (-TraceLength));
+
+		FCollisionQueryParams CollisionParams;
+		CollisionParams.AddIgnoredActor(this);
+		//CollisionParams.bTraceComplex = true;
+
+		bool bHit = (GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_Visibility, CollisionParams));
+		if (bHit)
+		{
+			// Hit Information.
+			SurfaceImpactNormal = OutHit.ImpactNormal;
+
+			DrawDebugSolidBox(GetWorld(), OutHit.ImpactPoint, FVector(5, 5, 5), FColor::Cyan, false, -1);
+
+			//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("X :  %f "), (SurfaceImpactNormal.X)));
+			//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("Y:  %f "), (SurfaceImpactNormal.Y)));
+			//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("Z:  %f "), (SurfaceImpactNormal.Z)));
+		}
+
+		else {
+			SurfaceImpactNormal = FVector(0.f, 0.f, 1.f);
+		}
+
+		DrawDebugLine(GetWorld(), Start, End, FColor::Cyan, false, -1, 0, 1);
+	}
+	else if (!bForwards) {
+		FHitResult OutHit;
+		FVector Start = PlayerMesh->GetComponentLocation() + PlayerMesh->GetForwardVector() * -60;
+		FVector End = Start + (PlayerMesh->GetUpVector() * (-TraceLength));
+
+		FCollisionQueryParams CollisionParams;
+		CollisionParams.AddIgnoredActor(this);
+		//CollisionParams.bTraceComplex = true;
+
+		bool bHit = (GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_Visibility, CollisionParams));
+		if (bHit)
+		{
+			// Hit Information.
+			SurfaceImpactNormal = OutHit.ImpactNormal;
+
+			DrawDebugSolidBox(GetWorld(), OutHit.ImpactPoint, FVector(5, 5, 5), FColor::Cyan, false, -1);
+
+			//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("X :  %f "), (SurfaceImpactNormal.X)));
+			//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("Y:  %f "), (SurfaceImpactNormal.Y)));
+			//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("Z:  %f "), (SurfaceImpactNormal.Z)));
+		}
+
+		else {
+			SurfaceImpactNormal = FVector(0.f, 0.f, 1.f);
+		}
+
+		DrawDebugLine(GetWorld(), Start, End, FColor::Cyan, false, -1, 0, 1);
+	}
 }
 
 void APlayerCar::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent,

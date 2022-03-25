@@ -32,6 +32,9 @@ public:
 
 public:
 	UPROPERTY(VisibleAnywhere)
+		USceneComponent * Root = nullptr;
+
+	UPROPERTY(VisibleAnywhere)
 		UShapeComponent* CollisionBox = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerVariables")
@@ -55,16 +58,17 @@ public:
 	// For spawning Bullets:
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"));
 	TSubclassOf<AActor> ActorToSpawn;
-	//
 
 private:
 	void MoveForward(float Value);
 	void MoveRight(float Value);
 	void MoveCameraY(float Value);
+	void MoveCameraX(float Value);
 
 	// Functions
 	void Shoot();
 	void Reload();
+	void Raycast();
 
 	// For interacting with other classes / collision.
 	UFUNCTION()
@@ -72,10 +76,11 @@ private:
 			UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex, bool bFromSweep,
 			const FHitResult& SweepResult);
 
-	bool Forwards;
 	//
 	//	Player Stats
 	//
+	bool bForwards;
+	FVector SurfaceImpactNormal;
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerStats")
@@ -85,10 +90,10 @@ public:
 		float LinearDamping;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "PlayerStats")
-		int MaxAmmo;
+		int32 MaxAmmo;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerStats")
-		int Ammo;
+		int32 Ammo;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "PlayerStats")
 		float MaxHealth;
@@ -98,6 +103,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerStats")
 		float ForwardForce;
+
+	UPROPERTY(Editanywhere, BlueprintReadOnly, Category = "PlayerStats")
+		float TraceLength;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerStats")
 		int32 Coins; // int32 = cross platform
