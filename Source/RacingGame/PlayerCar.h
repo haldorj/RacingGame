@@ -78,7 +78,7 @@ private:
 	//
 	//	Player Stats
 	//
-	bool Forwards;
+	bool bForwards;
 	FVector SurfaceImpactNormal;
 
 public:

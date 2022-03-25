@@ -53,7 +53,7 @@ APlayerCar::APlayerCar()
 	Health = 25.f;
 	MaxHealth = 100.f;
 	Coins = 0;
-	Forwards = true;
+	bForwards = true;
 
 	AngularDamping = 5.0f;
 	LinearDamping = 3.0f;
@@ -76,6 +76,11 @@ void APlayerCar::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	Raycast();
+	float Velocity;
+	Velocity = this->GetVelocity().Size();
+	Velocity /= 100;
+	Velocity *= 3.6f;
+	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("Speed :  %f "), Velocity));
 }
 
 // Called to bind functionality to input
@@ -100,8 +105,8 @@ void APlayerCar::MoveForward(float Value)
 	PlayerMesh->SetAngularDamping(AngularDamping);
 	PlayerMesh->SetLinearDamping(LinearDamping);
 
-	if (Value < 0) { Forwards = false; }
-	else if (Value > 0) { Forwards = true; }
+	if (Value < 0) { bForwards = false; }
+	else if (Value > 0) { bForwards = true; }
 
 }
 
@@ -111,8 +116,8 @@ void APlayerCar::MoveRight(float Value)
 
 	// Backwards steering functionality
 	float Select;
-	if (Forwards) { Select = 1; }
-	else if (!Forwards) { Select = -1; }
+	if (bForwards) { Select = 1; }
+	else if (!bForwards) { Select = -1; }
 	FVector TorqueVector = FVector(0.f, 0.f, Select * Torque);
 
 	PlayerMesh->AddTorqueInRadians(TorqueVector * Value);
@@ -169,7 +174,7 @@ void APlayerCar::Reload() {
 
 void APlayerCar::Raycast()
 {
-	if (Forwards) {
+	if (bForwards) {
 		FHitResult OutHit;
 		FVector Start = PlayerMesh->GetComponentLocation() + PlayerMesh->GetForwardVector() * 50;
 		FVector End = Start + (PlayerMesh->GetUpVector() * (-TraceLength));
@@ -186,9 +191,9 @@ void APlayerCar::Raycast()
 
 			DrawDebugSolidBox(GetWorld(), OutHit.ImpactPoint, FVector(5, 5, 5), FColor::Cyan, false, -1);
 
-			GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("X :  %f "), (SurfaceImpactNormal.X)));
-			GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("Y:  %f "), (SurfaceImpactNormal.Y)));
-			GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("Z:  %f "), (SurfaceImpactNormal.Z)));
+			//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("X :  %f "), (SurfaceImpactNormal.X)));
+			//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("Y:  %f "), (SurfaceImpactNormal.Y)));
+			//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("Z:  %f "), (SurfaceImpactNormal.Z)));
 		}
 
 		else {
@@ -197,7 +202,7 @@ void APlayerCar::Raycast()
 
 		DrawDebugLine(GetWorld(), Start, End, FColor::Cyan, false, -1, 0, 1);
 	}
-	else if (!Forwards) {
+	else if (!bForwards) {
 		FHitResult OutHit;
 		FVector Start = PlayerMesh->GetComponentLocation() + PlayerMesh->GetForwardVector() * -50;
 		FVector End = Start + (PlayerMesh->GetUpVector() * (-TraceLength));
@@ -214,9 +219,9 @@ void APlayerCar::Raycast()
 
 			DrawDebugSolidBox(GetWorld(), OutHit.ImpactPoint, FVector(5, 5, 5), FColor::Cyan, false, -1);
 
-			GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("X :  %f "), (SurfaceImpactNormal.X)));
-			GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("Y:  %f "), (SurfaceImpactNormal.Y)));
-			GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("Z:  %f "), (SurfaceImpactNormal.Z)));
+			//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("X :  %f "), (SurfaceImpactNormal.X)));
+			//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("Y:  %f "), (SurfaceImpactNormal.Y)));
+			//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("Z:  %f "), (SurfaceImpactNormal.Z)));
 		}
 
 		else {
