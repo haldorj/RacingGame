@@ -10,7 +10,7 @@
 #include "DrawDebugHelpers.h"
 #include "Bullet.h"
 //#include "Coin.h"
-//#include "HealthPack.h"
+#include "HealthPack.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
 #include "Camera/CameraActor.h"
@@ -257,18 +257,18 @@ void APlayerCar::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 	//		OtherActor->Destroy();
 	//	Coins++;
 	//}
-	//if (OtherActor->IsA(AHealthPack::StaticClass()))
-	//{
-	//	Health += 20;
+	if (OtherActor->IsA(AHealthPack::StaticClass()))
+	{
+		Health += 20;
 
-	//	if (Health > MaxHealth)
-	//	{
-	//		Health = MaxHealth;
-	//	}
-	//	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("Player Picked Up Health %f "), Health));
-	//	UE_LOG(LogTemp, Warning, TEXT("Player Picked Up Health %f "), Health)
-	//		OtherActor->Destroy();
-	//}
+		if (Health > MaxHealth)
+		{
+			Health = MaxHealth;
+		}
+		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("Player Picked Up Health %f "), Health));
+		UE_LOG(LogTemp, Warning, TEXT("Player Picked Up Health %f "), Health)
+			OtherActor->Destroy();
+	}
 }
 
 void APlayerCar::SwitchLevel(FName LevelName)
