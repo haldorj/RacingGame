@@ -80,7 +80,8 @@ void APlayerCar::Tick(float DeltaTime)
 	Velocity = this->GetVelocity().Size();
 	Velocity /= 100;
 	Velocity *= 3.6f;
-	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("Speed :  %f "), Velocity));
+	//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("Speed :  %f "), Velocity));
+
 }
 
 // Called to bind functionality to input
@@ -101,13 +102,21 @@ void APlayerCar::MoveForward(float Value)
 {
 	FVector Projection = UKismetMathLibrary::ProjectVectorOnToPlane(GetActorForwardVector(), SurfaceImpactNormal);
 	FVector Force = (ForwardForce * Projection * PlayerMesh->GetMass());
-	PlayerMesh->AddForce(Force * Value);
+
+	FVector Center = PlayerMesh->GetCenterOfMass();
+	FVector Varience(0.f, 0.f, 1.5f);
+	PlayerMesh->AddForceAtLocation((Force * Value), Center + Varience);
 
 	PlayerMesh->SetAngularDamping(AngularDamping);
 	PlayerMesh->SetLinearDamping(LinearDamping);
 
 	if (Value < 0) { bForwards = false; }
 	else if (Value > 0) { bForwards = true; }
+
+
+	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("x :  %f "), Center.X));
+	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("y :  %f "), Center.Y));
+	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("z :  %f "), Center.Z));
 
 }
 
