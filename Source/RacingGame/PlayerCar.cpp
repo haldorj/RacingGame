@@ -151,17 +151,12 @@ void APlayerCar::Shoot()
 		if (World)
 		{
 			Ammo--;
-			GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("Ammo :  %d "), Ammo));
-			// "Shotgun"
-			// Subject to change
-
+			GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("Ammo:  %d "), Ammo));
 			FVector Location = GetActorLocation();
 			FRotator Rotation = GetActorRotation();
-			World->SpawnActor<AActor>(ActorToSpawn, Location + FVector(0.f, 0.f, 80.f), Rotation + FRotator(0.f, -4.f, 0.f));
-			World->SpawnActor<AActor>(ActorToSpawn, Location + FVector(0.f, 0.f, 80.f), Rotation + FRotator(0.f, -2.f, 0.f));
-			World->SpawnActor<AActor>(ActorToSpawn, Location + FVector(0.f, 0.f, 80.f), Rotation + FRotator(0.f, 0.f, 0.f));
-			World->SpawnActor<AActor>(ActorToSpawn, Location + FVector(0.f, 0.f, 80.f), Rotation + FRotator(0.f, 2.f, 0.f));
-			World->SpawnActor<AActor>(ActorToSpawn, Location + FVector(0.f, 0.f, 80.f), Rotation + FRotator(0.f, 4.f, 0.f));
+
+			World->SpawnActor<AActor>(ActorToSpawn, Location + Rotation.RotateVector(FVector(160.f, 0.f, 85.f)), GetActorRotation());
+
 			UGameplayStatics::PlaySound2D(World, Shooting, 1.f, 1.f, 0.f, 0);
 		}
 	}
