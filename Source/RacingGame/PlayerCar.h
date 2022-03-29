@@ -68,6 +68,7 @@ private:
 	// Functions
 	void Shoot();
 	void Reload();
+	void Nitro();
 	void Raycast();
 
 	// For interacting with other classes / collision.
@@ -80,7 +81,9 @@ private:
 	//	Player Stats
 	//
 	bool bForwards;
+	bool bNitro;
 	FVector SurfaceImpactNormal;
+	float NitroTime;
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerStats")

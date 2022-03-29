@@ -54,6 +54,7 @@ APlayerCar::APlayerCar()
 	MaxHealth = 100.f;
 	Coins = 0;
 	bForwards = true;
+	bNitro = false;
 
 	AngularDamping = 5.0f;
 	LinearDamping = 3.0f;
@@ -74,13 +75,23 @@ void APlayerCar::BeginPlay()
 void APlayerCar::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	if (bNitro) {
+		if (NitroTime > 0) {
+			NitroTime -= DeltaTime;
+		}
+		else {
+			bNitro = false;
+			NitroTime = 0;
+			ForwardForce /= 1.3;
+		}
+	}
 
 	Raycast();
 	float Velocity;
 	Velocity = this->GetVelocity().Size();
 	Velocity /= 100;
 	Velocity *= 3.6f;
-	//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("Speed :  %f "), Velocity));
+	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("Speed :  %f "), Velocity));
 
 }
 
@@ -96,6 +107,7 @@ void APlayerCar::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 
 	PlayerInputComponent->BindAction("Shoot", EInputEvent::IE_Pressed, this, &APlayerCar::Shoot);
 	PlayerInputComponent->BindAction("Reload", EInputEvent::IE_Pressed, this, &APlayerCar::Reload);
+	PlayerInputComponent->BindAction("Nitro", EInputEvent::IE_Pressed, this, &APlayerCar::Nitro);
 }
 
 void APlayerCar::MoveForward(float Value)
@@ -180,6 +192,14 @@ void APlayerCar::Reload() {
 	UWorld* NewWorld = GetWorld();
 	UGameplayStatics::PlaySound2D(NewWorld, Reloading, 1.f, 1.f, 0.f, 0);
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Reloaded %d "), Ammo));
+}
+
+void APlayerCar::Nitro() {
+	if (!bNitro) {
+		bNitro = true;
+		NitroTime = 3.f;
+		ForwardForce *= 1.3f;
+	}
 }
 
 void APlayerCar::Raycast()
