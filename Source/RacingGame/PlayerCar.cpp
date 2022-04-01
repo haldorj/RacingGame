@@ -112,12 +112,6 @@ void APlayerCar::MoveForward(float Value)
 
 	if (Value < 0) { bForwards = false; }
 	else if (Value > 0) { bForwards = true; }
-
-
-	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("x :  %f "), Center.X));
-	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("y :  %f "), Center.Y));
-	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("z :  %f "), Center.Z));
-
 }
 
 void APlayerCar::MoveRight(float Value)
@@ -155,7 +149,7 @@ void APlayerCar::Shoot()
 			FVector Location = GetActorLocation();
 			FRotator Rotation = GetActorRotation();
 
-			World->SpawnActor<AActor>(ActorToSpawn, Location + Rotation.RotateVector(FVector(160.f, 0.f, 85.f)), GetActorRotation());
+			World->SpawnActor<AActor>(ActorToSpawn, Location + Rotation.RotateVector(FVector(300.f, 0.f, 85.f)), GetActorRotation());
 
 			UGameplayStatics::PlaySound2D(World, Shooting, 1.f, 1.f, 0.f, 0);
 		}
@@ -200,10 +194,6 @@ void APlayerCar::Raycast()
 			SurfaceImpactNormal = OutHit.ImpactNormal;
 
 			DrawDebugSolidBox(GetWorld(), OutHit.ImpactPoint, FVector(5, 5, 5), FColor::Cyan, false, -1);
-
-			//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("X :  %f "), (SurfaceImpactNormal.X)));
-			//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("Y:  %f "), (SurfaceImpactNormal.Y)));
-			//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("Z:  %f "), (SurfaceImpactNormal.Z)));
 		}
 
 		else {
@@ -228,10 +218,6 @@ void APlayerCar::Raycast()
 			SurfaceImpactNormal = OutHit.ImpactNormal;
 
 			DrawDebugSolidBox(GetWorld(), OutHit.ImpactPoint, FVector(5, 5, 5), FColor::Cyan, false, -1);
-
-			//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("X :  %f "), (SurfaceImpactNormal.X)));
-			//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("Y:  %f "), (SurfaceImpactNormal.Y)));
-			//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("Z:  %f "), (SurfaceImpactNormal.Z)));
 		}
 
 		else {
@@ -245,13 +231,6 @@ void APlayerCar::Raycast()
 void APlayerCar::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent,
 	int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	//if (OtherActor->IsA(ACoin::StaticClass()))
-	//{
-	//	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::White, FString::Printf(TEXT("Player Picked Up Coin")));
-	//	UE_LOG(LogTemp, Warning, TEXT("Player Picked Up Coin"))
-	//		OtherActor->Destroy();
-	//	Coins++;
-	//}
 	if (OtherActor->IsA(AHealthPack::StaticClass()))
 	{
 		Health += 20;

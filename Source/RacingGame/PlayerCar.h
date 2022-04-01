@@ -32,9 +32,6 @@ public:
 
 public:
 	UPROPERTY(VisibleAnywhere)
-		USceneComponent * Root = nullptr;
-
-	UPROPERTY(VisibleAnywhere)
 		UShapeComponent* CollisionBox = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerVariables")
@@ -46,13 +43,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerVariables")
 		UCameraComponent* Camera = nullptr;
 
-	UPROPERTY(EditAnywhere, Category = "PlayerVariables")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerVariables")
 		USoundBase* Shooting = nullptr;
 
-	UPROPERTY(EditAnywhere, Category = "PlayerVariables")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerVariables")
 		USoundBase* OutOfAmmo = nullptr;
 
-	UPROPERTY(EditAnywhere, Category = "PlayerVariables")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerVariables")
 		USoundBase* Reloading = nullptr;
 
 	// For spawning Bullets:
