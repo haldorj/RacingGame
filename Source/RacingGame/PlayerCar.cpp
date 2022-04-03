@@ -152,7 +152,7 @@ void APlayerCar::Shoot()
 				FRotator Rotation = GetActorRotation();
 
 				if (ActorToSpawn->GetName() == "Bullet_BP_C") {
-					World->SpawnActor<AActor>(ActorToSpawn, Location + Rotation.RotateVector(FVector(160.f, 0.f, 85.f)), GetActorRotation());
+					World->SpawnActor<AActor>(ActorToSpawn, Location + Rotation.RotateVector(FVector(160.f, 0.f, 85.f)), Rotation);
 				}
 
 				UGameplayStatics::PlaySound2D(World, Shooting, 1.f, 1.f, 0.f, 0);
@@ -267,8 +267,8 @@ void APlayerCar::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 	if (OtherActor->IsA(AWeaponCrate::StaticClass()))
 	{
 		ActorToSpawn = Cast<AWeaponCrate>(OtherActor)->Weapon;
-		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("Player Picked Up Weapon Crate Containing %s "), *ActorToSpawn->GetName()));
-		UE_LOG(LogTemp, Display, TEXT("Player Picked Up Weapon Crate Containing %s "), *ActorToSpawn->GetName());
+		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("Player Picked Up Weapon Crate Containing a %s "), *ActorToSpawn->GetName()));
+		UE_LOG(LogTemp, Display, TEXT("Player Picked Up Weapon Crate Containing a %s "), *ActorToSpawn->GetName());
 		OtherActor->Destroy();
 	}
 }
