@@ -10,8 +10,8 @@ AHealthPack::AHealthPack()
 	PrimaryActorTick.bCanEverTick = true;
 
 	RootComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxCollision"));
-	CoinMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("PickupMesh"));
-	CoinMesh->SetupAttachment(GetRootComponent());
+	HealthPackMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("PickupMesh"));
+	HealthPackMesh->SetupAttachment(GetRootComponent());
 	Cast<UShapeComponent>(RootComponent)->OnComponentBeginOverlap.AddDynamic(this, &AHealthPack::OnOverlap);
 
 }
