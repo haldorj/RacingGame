@@ -139,7 +139,7 @@ void APlayerCar::MoveCameraX(float Value)
 
 void APlayerCar::Shoot()
 {
-	if (ActorToSpawn != NULL && ActorToSpawn->GetName() == "Bullet_BP_C")
+	if (ActorToSpawn != NULL) 
 	{
 		if (Ammo > 0)
 		{
@@ -151,7 +151,9 @@ void APlayerCar::Shoot()
 				FVector Location = GetActorLocation();
 				FRotator Rotation = GetActorRotation();
 
-				World->SpawnActor<AActor>(ActorToSpawn, Location + Rotation.RotateVector(FVector(160.f, 0.f, 85.f)), GetActorRotation());
+				if (ActorToSpawn->GetName() == "Bullet_BP_C") {
+					World->SpawnActor<AActor>(ActorToSpawn, Location + Rotation.RotateVector(FVector(160.f, 0.f, 85.f)), GetActorRotation());
+				}
 
 				UGameplayStatics::PlaySound2D(World, Shooting, 1.f, 1.f, 0.f, 0);
 			}
