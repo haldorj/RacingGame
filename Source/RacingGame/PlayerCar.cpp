@@ -59,7 +59,7 @@ APlayerCar::APlayerCar()
 	AngularDamping = 5.0f;
 	LinearDamping = 3.0f;
 
-	ForwardForce = 4100.f;
+	ForwardForce = 4000.0f;
 
 	TraceLength = 60.f;
 }
@@ -91,7 +91,7 @@ void APlayerCar::Tick(float DeltaTime)
 	Velocity = this->GetVelocity().Size();
 	Velocity /= 100;
 	Velocity *= 3.6f;
-	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("Speed :  %f "), Velocity));
+	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("Speed :  %f km/h"), Velocity));
 
 }
 
@@ -123,13 +123,7 @@ void APlayerCar::MoveForward(float Value)
 	PlayerMesh->SetLinearDamping(LinearDamping);
 
 	if (Value < 0) { bForwards = false; }
-	else if (Value > 0) { bForwards = true; }
-
-
-	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("x :  %f "), Center.X));
-	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("y :  %f "), Center.Y));
-	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("z :  %f "), Center.Z));
-
+	else { bForwards = true; }
 }
 
 void APlayerCar::MoveRight(float Value)
@@ -195,7 +189,7 @@ void APlayerCar::Reload() {
 }
 
 void APlayerCar::Nitro() {
-	if (!bNitro) {
+	if (bNitro == false) {
 		bNitro = true;
 		NitroTime = 3.f;
 		ForwardForce *= 1.3f;
