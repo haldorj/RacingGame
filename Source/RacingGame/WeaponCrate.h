@@ -5,28 +5,30 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Components/BoxComponent.h"
-#include "HealthPack.generated.h"
+#include "WeaponCrate.generated.h"
 
 UCLASS()
-class RACINGGAME_API AHealthPack : public AActor
+class RACINGGAME_API AWeaponCrate : public AActor
 {
 	GENERATED_BODY()
-
-public:
+	
+public:	
 	// Sets default values for this actor's properties
-	AHealthPack();
+	AWeaponCrate();
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:
+public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-public:
+	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"));
+	TSubclassOf<AActor> Weapon;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HealthVars")
-		class UStaticMeshComponent* HealthPackMesh = nullptr;
+		class UStaticMeshComponent* WeaponCrateMesh = nullptr;
 
 	// Collision
 	UFUNCTION()

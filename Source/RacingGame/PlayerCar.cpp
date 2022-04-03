@@ -11,6 +11,7 @@
 #include "Bullet.h"
 //#include "Coin.h"
 #include "HealthPack.h"
+#include "WeaponCrate.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
 #include "Camera/CameraActor.h"
@@ -76,12 +77,11 @@ void APlayerCar::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	Raycast();
-	float Velocity;
-	Velocity = this->GetVelocity().Size();
-	Velocity /= 100;
-	Velocity *= 3.6f;
+	//float Velocity;
+	//Velocity = this->GetVelocity().Size();
+	//Velocity /= 100;
+	//Velocity *= 3.6f;
 	//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("Speed :  %f "), Velocity));
-
 }
 
 // Called to bind functionality to input
@@ -112,12 +112,6 @@ void APlayerCar::MoveForward(float Value)
 
 	if (Value < 0) { bForwards = false; }
 	else if (Value > 0) { bForwards = true; }
-
-
-	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("x :  %f "), Center.X));
-	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("y :  %f "), Center.Y));
-	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("z :  %f "), Center.Z));
-
 }
 
 void APlayerCar::MoveRight(float Value)
@@ -145,34 +139,37 @@ void APlayerCar::MoveCameraX(float Value)
 
 void APlayerCar::Shoot()
 {
-	if (Ammo > 0)
+	if (ActorToSpawn != NULL && ActorToSpawn->GetName() == "Bullet_BP_C")
 	{
-		UWorld* World = GetWorld();
-		if (World)
+		if (Ammo > 0)
 		{
-			Ammo--;
-			GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("Ammo:  %d "), Ammo));
-			FVector Location = GetActorLocation();
-			FRotator Rotation = GetActorRotation();
+			UWorld* World = GetWorld();
+			if (World)
+			{
+				Ammo--;
+				GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("Ammo:  %d "), Ammo));
+				FVector Location = GetActorLocation();
+				FRotator Rotation = GetActorRotation();
 
-			World->SpawnActor<AActor>(ActorToSpawn, Location + Rotation.RotateVector(FVector(160.f, 0.f, 85.f)), GetActorRotation());
+				World->SpawnActor<AActor>(ActorToSpawn, Location + Rotation.RotateVector(FVector(160.f, 0.f, 85.f)), GetActorRotation());
 
-			UGameplayStatics::PlaySound2D(World, Shooting, 1.f, 1.f, 0.f, 0);
+				UGameplayStatics::PlaySound2D(World, Shooting, 1.f, 1.f, 0.f, 0);
+			}
 		}
-	}
 
-	else if (Ammo <= 0)
-	{
-		Ammo = 0;
-		UWorld* World = GetWorld();
-		if (World)
+		else if (Ammo <= 0)
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("No ammo Reload %d "), Ammo));
-			UGameplayStatics::PlaySound2D(World, OutOfAmmo, 1.f, 1.f, 0.f, 0);
+			Ammo = 0;
+			UWorld* World = GetWorld();
+			if (World)
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("No ammo Reload %d "), Ammo));
+				UGameplayStatics::PlaySound2D(World, OutOfAmmo, 1.f, 1.f, 0.f, 0);
+			}
 		}
-	}
 
-	UE_LOG(LogTemp, Warning, TEXT("Shooting"));
+		UE_LOG(LogTemp, Warning, TEXT("Shooting"));
+	}
 }
 
 void APlayerCar::Reload() {
@@ -263,6 +260,14 @@ void APlayerCar::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("Player Picked Up Health %f "), Health));
 		UE_LOG(LogTemp, Warning, TEXT("Player Picked Up Health %f "), Health)
 			OtherActor->Destroy();
+	}
+
+	if (OtherActor->IsA(AWeaponCrate::StaticClass()))
+	{
+		ActorToSpawn = Cast<AWeaponCrate>(OtherActor)->Weapon;
+		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("Player Picked Up Weapon Crate Containing %s "), *ActorToSpawn->GetName()));
+		UE_LOG(LogTemp, Display, TEXT("Player Picked Up Weapon Crate Containing %s "), *ActorToSpawn->GetName());
+		OtherActor->Destroy();
 	}
 }
 
