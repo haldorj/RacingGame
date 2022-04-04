@@ -134,7 +134,8 @@ void APlayerCar::MoveRight(float Value)
 	float Select;
 	if (bForwards) { Select = 1; }
 	else if (!bForwards) { Select = -1; }
-	FVector TorqueVector = FVector(0.f, 0.f, Select * Torque);
+	FRotator Rotation = GetActorRotation();
+	FVector TorqueVector = Rotation.RotateVector(FVector(0.f, 0.f, Select * Torque));
 
 	PlayerMesh->AddTorqueInRadians(TorqueVector * Value);
 }
