@@ -51,7 +51,8 @@ APlayerCar::APlayerCar()
 
 	Ammo = 6;
 	MaxAmmo = 6;
-	Health = 25.f;
+	Health = 20.f;
+	Armour = 0.f;
 	MaxHealth = 100.f;
 	Coins = 0;
 	bForwards = true;
@@ -92,7 +93,7 @@ void APlayerCar::Tick(float DeltaTime)
 	Velocity = this->GetVelocity().Size();
 	Velocity /= 100;
 	Velocity *= 3.6f;
-	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("Speed :  %f km/h"), Velocity));
+	//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("Speed :  %f km/h"), Velocity));
 }
 
 // Called to bind functionality to input

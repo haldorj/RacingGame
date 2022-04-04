@@ -105,6 +105,9 @@ public:
 		float Health;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerStats")
+		float Armour;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerStats")
 		float ForwardForce;
 
 	UPROPERTY(Editanywhere, BlueprintReadOnly, Category = "PlayerStats")
