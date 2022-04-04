@@ -12,6 +12,7 @@
 //#include "Coin.h"
 #include "HealthPack.h"
 #include "ArmourPack.h"
+#include "EnergyPack.h"
 #include "WeaponCrate.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
@@ -181,7 +182,7 @@ void APlayerCar::Shoot()
 			UWorld* World = GetWorld();
 			if (World)
 			{
-				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("No Energy Reload %d "), Energy));
+				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("No Energy, Find Energy Crate. Energy : %d "), Energy));
 				UGameplayStatics::PlaySound2D(World, OutOfEnergy, 1.f, 1.f, 0.f, 0);
 			}
 		}
@@ -198,8 +199,10 @@ void APlayerCar::Reload() {
 }
 
 void APlayerCar::Nitro() {
-	if (bNitro == false) {
+	if (bNitro == false && Energy >= 2) {
 		bNitro = true;
+		Energy -= 2;
+
 		NitroTime = 3.f;
 		ForwardForce *= 1.3f;
 	}
@@ -271,8 +274,8 @@ void APlayerCar::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 	//if (OtherActor->IsA(ACoin::StaticClass()))
 	//{
 	//	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::White, FString::Printf(TEXT("Player Picked Up Coin")));
-	//	UE_LOG(LogTemp, Warning, TEXT("Player Picked Up Coin"))
-	//		OtherActor->Destroy();
+	//	UE_LOG(LogTemp, Warning, TEXT("Player Picked Up Coin"));
+	// 	OtherActor->Destroy();
 	//	Coins++;
 	//}
 	if (OtherActor->IsA(AHealthPack::StaticClass()))
@@ -301,6 +304,18 @@ void APlayerCar::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 		OtherActor->Destroy();
 	}
 
+	if (OtherActor->IsA(AEnergyPack::StaticClass()))
+	{
+		Energy++;
+
+		if (Energy > MaxEnergy)
+		{
+			Energy = MaxEnergy;
+		}
+		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("Player Picked Up Energy %f "), Energy));
+		UE_LOG(LogTemp, Warning, TEXT("Player Picked Up Energy %f "), Energy);
+		OtherActor->Destroy();
+	}
 
 	if (OtherActor->IsA(AWeaponCrate::StaticClass()))
 	{
