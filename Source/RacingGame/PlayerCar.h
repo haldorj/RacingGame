@@ -50,7 +50,7 @@ public:
 		USoundBase* Shooting = nullptr;
 
 	UPROPERTY(EditAnywhere, Category = "PlayerVariables")
-		USoundBase* OutOfAmmo = nullptr;
+		USoundBase* OutOfEnergy = nullptr;
 
 	UPROPERTY(EditAnywhere, Category = "PlayerVariables")
 		USoundBase* Reloading = nullptr;
@@ -93,16 +93,19 @@ public:
 		float LinearDamping;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "PlayerStats")
-		int32 MaxAmmo;
+		int32 MaxEnergy;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerStats")
-		int32 Ammo;
+		int32 Energy;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "PlayerStats")
 		float MaxHealth;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerStats")
 		float Health;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerStats")
+		float MaxArmour;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerStats")
 		float Armour;

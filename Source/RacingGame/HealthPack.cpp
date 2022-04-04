@@ -13,15 +13,12 @@ AHealthPack::AHealthPack()
 	HealthPackMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("PickupMesh"));
 	HealthPackMesh->SetupAttachment(GetRootComponent());
 	Cast<UShapeComponent>(RootComponent)->OnComponentBeginOverlap.AddDynamic(this, &AHealthPack::OnOverlap);
-
 }
 
 // Called when the game starts or when spawned
 void AHealthPack::BeginPlay()
 {
 	Super::BeginPlay();
-
-
 
 }
 

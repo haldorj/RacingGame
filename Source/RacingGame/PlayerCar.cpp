@@ -11,6 +11,7 @@
 #include "Bullet.h"
 //#include "Coin.h"
 #include "HealthPack.h"
+#include "ArmourPack.h"
 #include "WeaponCrate.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
@@ -49,11 +50,12 @@ APlayerCar::APlayerCar()
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(SpringArm, USpringArmComponent::SocketName);
 
-	Ammo = 6;
-	MaxAmmo = 6;
+	Energy = 3;
+	MaxEnergy = 3;
 	Health = 20.f;
-	Armour = 0.f;
 	MaxHealth = 100.f;
+	Armour = 0.f;
+	MaxArmour = 35.f;
 	Coins = 0;
 	bForwards = true;
 	bNitro = false;
@@ -155,13 +157,13 @@ void APlayerCar::Shoot()
 {
 	if (ActorToSpawn != NULL) 
 	{
-		if (Ammo > 0)
+		if (Energy > 0)
 		{
 			UWorld* World = GetWorld();
 			if (World)
 			{
-				Ammo--;
-				GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("Ammo:  %d "), Ammo));
+				Energy--;
+				GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("Energy:  %d "), Energy));
 				FVector Location = GetActorLocation();
 				FRotator Rotation = GetActorRotation();
 
@@ -173,14 +175,14 @@ void APlayerCar::Shoot()
 			}
 		}
 
-		else if (Ammo <= 0)
+		else if (Energy <= 0)
 		{
-			Ammo = 0;
+			Energy = 0;
 			UWorld* World = GetWorld();
 			if (World)
 			{
-				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("No ammo Reload %d "), Ammo));
-				UGameplayStatics::PlaySound2D(World, OutOfAmmo, 1.f, 1.f, 0.f, 0);
+				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("No Energy Reload %d "), Energy));
+				UGameplayStatics::PlaySound2D(World, OutOfEnergy, 1.f, 1.f, 0.f, 0);
 			}
 		}
 
@@ -189,10 +191,10 @@ void APlayerCar::Shoot()
 }
 
 void APlayerCar::Reload() {
-	Ammo = MaxAmmo;
+	Energy = MaxEnergy;
 	UWorld* NewWorld = GetWorld();
 	UGameplayStatics::PlaySound2D(NewWorld, Reloading, 1.f, 1.f, 0.f, 0);
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Reloaded %d "), Ammo));
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Reloaded %d "), Energy));
 }
 
 void APlayerCar::Nitro() {
@@ -275,16 +277,30 @@ void APlayerCar::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 	//}
 	if (OtherActor->IsA(AHealthPack::StaticClass()))
 	{
-		Health += 20;
+		Health += 30;
 
 		if (Health > MaxHealth)
 		{
 			Health = MaxHealth;
 		}
 		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("Player Picked Up Health %f "), Health));
-		UE_LOG(LogTemp, Warning, TEXT("Player Picked Up Health %f "), Health)
-			OtherActor->Destroy();
+		UE_LOG(LogTemp, Warning, TEXT("Player Picked Up Health %f "), Health);
+		OtherActor->Destroy();
 	}
+
+	if (OtherActor->IsA(AArmourPack::StaticClass()))
+	{
+		Armour += 20;
+
+		if (Armour > MaxArmour)
+		{
+			Armour = MaxArmour;
+		}
+		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("Player Picked Up Armour %f "), Armour));
+		UE_LOG(LogTemp, Warning, TEXT("Player Picked Up Armour %f "), Armour);
+		OtherActor->Destroy();
+	}
+
 
 	if (OtherActor->IsA(AWeaponCrate::StaticClass()))
 	{
