@@ -44,10 +44,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerVariables")
 		class USoundBase* ExplosionSound = nullptr;
 
-protected:
-	UPROPERTY()
-		class APawn* TargetInWorld;
-
 private:
 	// Target variables
 	bool HasTargetPosition;
@@ -62,6 +58,9 @@ private:
 	float ProjectileLifetime;
 	bool CanBeDestroyed;
 	void Explode();
+
+	UPROPERTY(EditAnywhere, Category = "ForceVariables")
+	float ImpulseForce = 50.f;
 
 	// Declare overlap begin function
 	UFUNCTION()

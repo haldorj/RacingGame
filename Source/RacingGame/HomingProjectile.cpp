@@ -7,6 +7,9 @@
 #include "Components/BoxComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "PhysicsEngine/RadialForceComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Containers/Array.h" 
 
 // Sets default values
 AHomingProjectile::AHomingProjectile()
@@ -27,13 +30,13 @@ AHomingProjectile::AHomingProjectile()
 	// Construct Projectile Movement Component
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovement"));
 	ProjectileMovement->UpdatedComponent = CollisionComp;
-	ProjectileMovement->InitialSpeed = 200.f;
-	ProjectileMovement->MaxSpeed = 300.f;
+	ProjectileMovement->InitialSpeed = 1800.f;
+	ProjectileMovement->MaxSpeed = 1800.f;
 	ProjectileMovement->bRotationFollowsVelocity = true;
 	ProjectileMovement->bInitialVelocityInLocalSpace = true;
 	ProjectileMovement->bShouldBounce = false;
 	ProjectileMovement->bIsHomingProjectile = true;
-	ProjectileMovement->HomingAccelerationMagnitude = 300.f;
+	ProjectileMovement->HomingAccelerationMagnitude = 10000.f;
 	ProjectileMovement->ProjectileGravityScale = 0.f;
 	//ProjectileMovement->Velocity = FVector(0, 0, 0);
 
@@ -45,12 +48,25 @@ AHomingProjectile::AHomingProjectile()
 void AHomingProjectile::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	// We want to find our target first.
-	AEnemy* Enemy = Cast<AEnemy>(this->GetOwner());
-	if (Enemy)
+	UWorld* World = GetWorld();
+	if (World)
 	{
-		ProjectileMovement->HomingTargetComponent = Enemy->GetRootComponent();
+		AActor* FoundActor = UGameplayStatics::GetActorOfClass(GetWorld(),
+		AEnemy::StaticClass());
+
+		//Enemy = Cast<AEnemy>(FoundActor);
+
+		if (FoundActor != nullptr)
+		{
+			ProjectileMovement->HomingTargetComponent = FoundActor->GetRootComponent();
+			UE_LOG(LogTemp, Warning, TEXT("FOUND ENEMY"))
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("NO ENEMY"))
+		}
 	}
 }
 
@@ -75,8 +91,20 @@ void AHomingProjectile::Explode()
 
 void AHomingProjectile::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	UStaticMeshComponent* MeshComponent = Cast<UStaticMeshComponent>(OtherActor->GetRootComponent());
+	FVector Forward = this->GetActorForwardVector();
+
 	if (OtherActor->IsA(AEnemy::StaticClass()))
 	{
+		if (MeshComponent)
+		{
+			MeshComponent->AddImpulse(Forward * ImpulseForce * MeshComponent->GetMass());
+			UE_LOG(LogTemp, Warning, TEXT("FOUND MESH"));
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("NO MESH"));
+		}
 	Explode();
 	}
 }
