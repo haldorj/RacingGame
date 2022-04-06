@@ -84,6 +84,8 @@ private:
 	bool bNitro;
 	FVector SurfaceImpactNormal;
 	float NitroTime;
+	float PiValue;
+	float YaValue;
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerStats")

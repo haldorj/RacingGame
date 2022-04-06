@@ -58,6 +58,8 @@ APlayerCar::APlayerCar()
 	Armour = 0.f;
 	MaxArmour = 35.f;
 	Coins = 0;
+	PiValue = 0.f;
+	YaValue = -10.f;
 	bForwards = true;
 	bNitro = false;
 
@@ -92,6 +94,13 @@ void APlayerCar::Tick(float DeltaTime)
 	}
 
 	Raycast();
+	//float Gravity;
+	//Gravity = 9.81f;
+	//PlayerMesh->AddForce(-SurfaceImpactNormal * Gravity * PlayerMesh->GetMass());
+
+	SpringArm->SetRelativeRotation(FRotator(PiValue, YaValue, 0.f));
+
+
 	float Velocity;
 	Velocity = this->GetVelocity().Size();
 	Velocity /= 100;
@@ -132,7 +141,7 @@ void APlayerCar::MoveForward(float Value)
 
 void APlayerCar::MoveRight(float Value)
 {
-	float Torque = 3000000.f;
+	float Torque = 30000.f * PlayerMesh->GetMass();
 
 	// Backwards steering functionality
 	float Select;
@@ -146,12 +155,12 @@ void APlayerCar::MoveRight(float Value)
 
 void APlayerCar::MoveCameraY(float Value)
 {
-	SpringArm->AddRelativeRotation(FRotator(Value, 0.f, 0.f));
+	PiValue += Value;
 }
 
 void APlayerCar::MoveCameraX(float Value) 
 {
-	SpringArm->AddRelativeRotation(FRotator(0.f, Value, 0.f));
+	YaValue += Value;
 }
 
 void APlayerCar::Shoot()
@@ -254,10 +263,6 @@ void APlayerCar::Raycast()
 			SurfaceImpactNormal = OutHit.ImpactNormal;
 
 			DrawDebugSolidBox(GetWorld(), OutHit.ImpactPoint, FVector(5, 5, 5), FColor::Cyan, false, -1);
-
-			//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("X :  %f "), (SurfaceImpactNormal.X)));
-			//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("Y:  %f "), (SurfaceImpactNormal.Y)));
-			//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("Z:  %f "), (SurfaceImpactNormal.Z)));
 		}
 
 		else {
