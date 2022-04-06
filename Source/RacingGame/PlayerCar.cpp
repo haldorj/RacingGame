@@ -3,6 +3,7 @@
 
 #include "PlayerCar.h"
 #include "HoverComponent.h"
+#include "HomingProjectile.h"
 #include "GameFramework/PlayerInput.h"
 #include "Components/InputComponent.h"
 #include "Components/BoxComponent.h"
@@ -11,14 +12,13 @@
 #include "Bullet.h"
 //#include "Coin.h"
 #include "HealthPack.h"
-#include "ArmourPack.h"
-#include "EnergyPack.h"
-#include "WeaponCrate.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
 #include "Camera/CameraActor.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Kismet/KismetSystemLibrary.h"
 #include "Engine/Engine.h"
+#include "Engine/StaticMeshActor.h"
 
 
 // Sets default values
@@ -42,8 +42,8 @@ APlayerCar::APlayerCar()
 	SpringArm->bDoCollisionTest = false;
 	SpringArm->SetUsingAbsoluteRotation(true);
 	SpringArm->SetRelativeRotation(FRotator(-10.f, 0.f, 0.f));
-	SpringArm->TargetArmLength = 500.f;
-	SpringArm->bEnableCameraLag = true;
+	SpringArm->TargetArmLength = 350.f;
+	SpringArm->bEnableCameraLag = false;
 	SpringArm->CameraLagSpeed = 7.f;
 
 	SpringArm->SetupAttachment(PlayerMesh);
@@ -51,20 +51,17 @@ APlayerCar::APlayerCar()
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(SpringArm, USpringArmComponent::SocketName);
 
-	Energy = 3;
-	MaxEnergy = 3;
-	Health = 20.f;
+	Ammo = 6;
+	MaxAmmo = 6;
+	Health = 25.f;
 	MaxHealth = 100.f;
-	Armour = 0.f;
-	MaxArmour = 35.f;
 	Coins = 0;
 	bForwards = true;
-	bNitro = false;
 
 	AngularDamping = 5.0f;
 	LinearDamping = 3.0f;
 
-	ForwardForce = 4000.0f;
+	ForwardForce = 4100.f;
 
 	TraceLength = 60.f;
 }
@@ -80,23 +77,14 @@ void APlayerCar::BeginPlay()
 void APlayerCar::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	if (bNitro) {
-		if (NitroTime > 0) {
-			NitroTime -= DeltaTime;
-		}
-		else {
-			bNitro = false;
-			NitroTime = 0;
-			ForwardForce /= 1.3;
-		}
-	}
 
 	Raycast();
 	float Velocity;
 	Velocity = this->GetVelocity().Size();
 	Velocity /= 100;
 	Velocity *= 3.6f;
-	//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("Speed :  %f km/h"), Velocity));
+	//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("Speed :  %f "), Velocity));
+
 }
 
 // Called to bind functionality to input
@@ -111,7 +99,7 @@ void APlayerCar::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 
 	PlayerInputComponent->BindAction("Shoot", EInputEvent::IE_Pressed, this, &APlayerCar::Shoot);
 	PlayerInputComponent->BindAction("Reload", EInputEvent::IE_Pressed, this, &APlayerCar::Reload);
-	PlayerInputComponent->BindAction("Nitro", EInputEvent::IE_Pressed, this, &APlayerCar::Nitro);
+	PlayerInputComponent->BindAction("Target", EInputEvent::IE_Pressed, this, &APlayerCar::Target);
 }
 
 void APlayerCar::MoveForward(float Value)
@@ -127,7 +115,7 @@ void APlayerCar::MoveForward(float Value)
 	PlayerMesh->SetLinearDamping(LinearDamping);
 
 	if (Value < 0) { bForwards = false; }
-	else { bForwards = true; }
+	else if (Value > 0) { bForwards = true; }
 }
 
 void APlayerCar::MoveRight(float Value)
@@ -138,8 +126,7 @@ void APlayerCar::MoveRight(float Value)
 	float Select;
 	if (bForwards) { Select = 1; }
 	else if (!bForwards) { Select = -1; }
-	FRotator Rotation = GetActorRotation();
-	FVector TorqueVector = Rotation.RotateVector(FVector(0.f, 0.f, Select * Torque));
+	FVector TorqueVector = FVector(0.f, 0.f, Select * Torque);
 
 	PlayerMesh->AddTorqueInRadians(TorqueVector * Value);
 }
@@ -156,56 +143,76 @@ void APlayerCar::MoveCameraX(float Value)
 
 void APlayerCar::Shoot()
 {
-	if (ActorToSpawn != NULL) 
+	if (Ammo > 0)
 	{
-		if (Energy > 0)
+		UWorld* World = GetWorld();
+		if (World)
 		{
-			UWorld* World = GetWorld();
-			if (World)
-			{
-				Energy--;
-				GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("Energy:  %d "), Energy));
-				FVector Location = GetActorLocation();
-				FRotator Rotation = GetActorRotation();
+			Ammo--;
+			GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("Ammo:  %d "), Ammo));
+			FVector Location = GetActorLocation();
+			FRotator Rotation = GetActorRotation();
 
-				if (ActorToSpawn->GetName() == "Bullet_BP_C") {
-					World->SpawnActor<AActor>(ActorToSpawn, Location + Rotation.RotateVector(FVector(160.f, 0.f, 85.f)), Rotation);
-				}
+			World->SpawnActor<AActor>(ActorToSpawn, Location + Rotation.RotateVector(FVector(300.f, 0.f, 85.f)), GetActorRotation());
 
-				UGameplayStatics::PlaySound2D(World, Shooting, 1.f, 1.f, 0.f, 0);
-			}
+			UGameplayStatics::PlaySound2D(World, Shooting, 1.f, 1.f, 0.f, 0);
 		}
-
-		else if (Energy <= 0)
-		{
-			Energy = 0;
-			UWorld* World = GetWorld();
-			if (World)
-			{
-				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("No Energy, Find Energy Crate. Energy : %d "), Energy));
-				UGameplayStatics::PlaySound2D(World, OutOfEnergy, 1.f, 1.f, 0.f, 0);
-			}
-		}
-
-		UE_LOG(LogTemp, Warning, TEXT("Shooting"));
 	}
+
+	else if (Ammo <= 0)
+	{
+		Ammo = 0;
+		UWorld* World = GetWorld();
+		if (World)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("No ammo Reload %d "), Ammo));
+			UGameplayStatics::PlaySound2D(World, OutOfAmmo, 1.f, 1.f, 0.f, 0);
+		}
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("Shooting"));
 }
 
 void APlayerCar::Reload() {
-	Energy = MaxEnergy;
+	Ammo = MaxAmmo;
 	UWorld* NewWorld = GetWorld();
 	UGameplayStatics::PlaySound2D(NewWorld, Reloading, 1.f, 1.f, 0.f, 0);
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Reloaded %d "), Energy));
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Reloaded %d "), Ammo));
 }
 
-void APlayerCar::Nitro() {
-	if (bNitro == false && Energy >= 2) {
-		bNitro = true;
-		Energy -= 2;
+void APlayerCar::Target()
+{
+	FHitResult OutHit;
+	FVector Start = Camera->GetComponentLocation();
+	FVector End = Start + (Camera->GetForwardVector()*5000.f);
 
-		NitroTime = 3.f;
-		ForwardForce *= 1.3f;
+	TArray<TEnumAsByte<EObjectTypeQuery>> objectTypesArray; // object types to trace
+	objectTypesArray.Add(UEngineTypes::ConvertToObjectType(ECC_PhysicsBody));
+
+	TArray< AActor* > ActorsToIgnore;
+	ActorsToIgnore.Add(this);
+
+	bool Hit = (UKismetSystemLibrary::LineTraceSingleForObjects(GetWorld(), Start, End, objectTypesArray, true, ActorsToIgnore, 
+		EDrawDebugTrace::Type::ForDuration, OutHit, true));
+
+	UStaticMeshComponent* HomingTarget = Cast<UStaticMeshComponent>(OutHit.GetComponent());
+
+	if (Hit)
+	{	
+		if (HomingTarget)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("mesh ")));
+		}
+		else
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("no mesh ")));
+		}
 	}
+	else
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("No Hit ")));
+	}
+
 }
 
 void APlayerCar::Raycast()
@@ -226,10 +233,6 @@ void APlayerCar::Raycast()
 			SurfaceImpactNormal = OutHit.ImpactNormal;
 
 			DrawDebugSolidBox(GetWorld(), OutHit.ImpactPoint, FVector(5, 5, 5), FColor::Cyan, false, -1);
-
-			//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("X :  %f "), (SurfaceImpactNormal.X)));
-			//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("Y:  %f "), (SurfaceImpactNormal.Y)));
-			//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("Z:  %f "), (SurfaceImpactNormal.Z)));
 		}
 
 		else {
@@ -254,10 +257,6 @@ void APlayerCar::Raycast()
 			SurfaceImpactNormal = OutHit.ImpactNormal;
 
 			DrawDebugSolidBox(GetWorld(), OutHit.ImpactPoint, FVector(5, 5, 5), FColor::Cyan, false, -1);
-
-			//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("X :  %f "), (SurfaceImpactNormal.X)));
-			//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("Y:  %f "), (SurfaceImpactNormal.Y)));
-			//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("Z:  %f "), (SurfaceImpactNormal.Z)));
 		}
 
 		else {
@@ -271,58 +270,17 @@ void APlayerCar::Raycast()
 void APlayerCar::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent,
 	int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	//if (OtherActor->IsA(ACoin::StaticClass()))
-	//{
-	//	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::White, FString::Printf(TEXT("Player Picked Up Coin")));
-	//	UE_LOG(LogTemp, Warning, TEXT("Player Picked Up Coin"));
-	// 	OtherActor->Destroy();
-	//	Coins++;
-	//}
 	if (OtherActor->IsA(AHealthPack::StaticClass()))
 	{
-		Health += 30;
+		Health += 20;
 
 		if (Health > MaxHealth)
 		{
 			Health = MaxHealth;
 		}
 		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("Player Picked Up Health %f "), Health));
-		UE_LOG(LogTemp, Warning, TEXT("Player Picked Up Health %f "), Health);
-		OtherActor->Destroy();
-	}
-
-	if (OtherActor->IsA(AArmourPack::StaticClass()))
-	{
-		Armour += 20;
-
-		if (Armour > MaxArmour)
-		{
-			Armour = MaxArmour;
-		}
-		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("Player Picked Up Armour %f "), Armour));
-		UE_LOG(LogTemp, Warning, TEXT("Player Picked Up Armour %f "), Armour);
-		OtherActor->Destroy();
-	}
-
-	if (OtherActor->IsA(AEnergyPack::StaticClass()))
-	{
-		Energy++;
-
-		if (Energy > MaxEnergy)
-		{
-			Energy = MaxEnergy;
-		}
-		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("Player Picked Up Energy %f "), Energy));
-		UE_LOG(LogTemp, Warning, TEXT("Player Picked Up Energy %f "), Energy);
-		OtherActor->Destroy();
-	}
-
-	if (OtherActor->IsA(AWeaponCrate::StaticClass()))
-	{
-		ActorToSpawn = Cast<AWeaponCrate>(OtherActor)->Weapon;
-		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("Player Picked Up Weapon Crate Containing a %s "), *ActorToSpawn->GetName()));
-		UE_LOG(LogTemp, Display, TEXT("Player Picked Up Weapon Crate Containing a %s "), *ActorToSpawn->GetName());
-		OtherActor->Destroy();
+		UE_LOG(LogTemp, Warning, TEXT("Player Picked Up Health %f "), Health)
+			OtherActor->Destroy();
 	}
 }
 
