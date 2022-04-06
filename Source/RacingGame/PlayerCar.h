@@ -32,6 +32,9 @@ public:
 
 public:
 	UPROPERTY(VisibleAnywhere)
+		USceneComponent * Root = nullptr;
+
+	UPROPERTY(VisibleAnywhere)
 		UShapeComponent* CollisionBox = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerVariables")
@@ -43,22 +46,18 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerVariables")
 		UCameraComponent* Camera = nullptr;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerVariables")
+	UPROPERTY(EditAnywhere, Category = "PlayerVariables")
 		USoundBase* Shooting = nullptr;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerVariables")
-		USoundBase* OutOfAmmo = nullptr;
+	UPROPERTY(EditAnywhere, Category = "PlayerVariables")
+		USoundBase* OutOfEnergy = nullptr;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerVariables")
+	UPROPERTY(EditAnywhere, Category = "PlayerVariables")
 		USoundBase* Reloading = nullptr;
 
 	// For spawning Bullets:
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"));
 	TSubclassOf<AActor> ActorToSpawn;
-
-public:
-	UPROPERTY()
-		UStaticMeshComponent* MeshComp;
 
 private:
 	void MoveForward(float Value);
@@ -69,7 +68,7 @@ private:
 	// Functions
 	void Shoot();
 	void Reload();
-	void Target();
+	void Nitro();
 	void Raycast();
 
 	// For interacting with other classes / collision.
@@ -82,7 +81,9 @@ private:
 	//	Player Stats
 	//
 	bool bForwards;
+	bool bNitro;
 	FVector SurfaceImpactNormal;
+	float NitroTime;
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerStats")
@@ -92,16 +93,22 @@ public:
 		float LinearDamping;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "PlayerStats")
-		int32 MaxAmmo;
+		int32 MaxEnergy;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerStats")
-		int32 Ammo;
+		int32 Energy;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "PlayerStats")
 		float MaxHealth;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerStats")
 		float Health;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerStats")
+		float MaxArmour;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerStats")
+		float Armour;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerStats")
 		float ForwardForce;
