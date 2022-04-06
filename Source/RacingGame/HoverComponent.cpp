@@ -73,7 +73,8 @@ void UHoverComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 
 		// Add force to Component Location
 		FVector Force = (CompressionRatio * SurfaceImpactNormal);
-		MeshComp->AddForceAtLocation(Force, GetComponentLocation());
+		FVector Location = MeshComp->GetCenterOfMass() + MeshComp->GetComponentRotation().RotateVector(GetRelativeLocation());
+		MeshComp->AddForceAtLocation(Force, Location);
 		//UE_LOG(LogTemp, Warning, TEXT("Force: X = %f, Force: Y = %f, Force: Z = %f"), Force.X, Force.Y, Force.Z);
 
 		DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, -1, 0, 1);
