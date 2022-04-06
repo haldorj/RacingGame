@@ -16,9 +16,7 @@
 #include "Engine/World.h"
 #include "Camera/CameraActor.h"
 #include "Kismet/KismetMathLibrary.h"
-#include "Kismet/KismetSystemLibrary.h"
 #include "Engine/Engine.h"
-#include "Engine/StaticMeshActor.h"
 
 
 // Sets default values
@@ -186,33 +184,23 @@ void APlayerCar::Target()
 	FVector Start = Camera->GetComponentLocation();
 	FVector End = Start + (Camera->GetForwardVector()*5000.f);
 
-	TArray<TEnumAsByte<EObjectTypeQuery>> objectTypesArray; // object types to trace
-	objectTypesArray.Add(UEngineTypes::ConvertToObjectType(ECC_PhysicsBody));
+	FCollisionQueryParams CollisionParams;
+	CollisionParams.AddIgnoredActor(this);
 
-	TArray< AActor* > ActorsToIgnore;
-	ActorsToIgnore.Add(this);
+	bool bHit = (GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_Visibility, CollisionParams));
 
-	bool Hit = (UKismetSystemLibrary::LineTraceSingleForObjects(GetWorld(), Start, End, objectTypesArray, true, ActorsToIgnore, 
-		EDrawDebugTrace::Type::ForDuration, OutHit, true));
-
-	UStaticMeshComponent* HomingTarget = Cast<UStaticMeshComponent>(OutHit.GetComponent());
-
-	if (Hit)
-	{	
-		if (HomingTarget)
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("mesh ")));
-		}
-		else
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("no mesh ")));
-		}
-	}
-	else
+	if (bHit)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("No Hit ")));
-	}
+		MeshComp = Cast<UStaticMeshComponent>(OutHit.GetActor());
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Mesh Name: %s "), OutHit.GetActor()));
 
+		if (MeshComp)
+		{
+			MeshComp->SetRenderCustomDepth(true);
+		}
+
+		DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, -1, 0, 1);
+	}
 }
 
 void APlayerCar::Raycast()

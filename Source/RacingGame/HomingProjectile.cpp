@@ -38,6 +38,7 @@ AHomingProjectile::AHomingProjectile()
 	ProjectileMovement->bIsHomingProjectile = true;
 	ProjectileMovement->HomingAccelerationMagnitude = 10000.f;
 	ProjectileMovement->ProjectileGravityScale = 0.f;
+	//ProjectileMovement->Velocity = FVector(0, 0, 0);
 
 	// Bind our OnOverlapBegin Event
 	CollisionComp->OnComponentBeginOverlap.AddDynamic(this, &AHomingProjectile::OnOverlapBegin);
@@ -74,6 +75,16 @@ void AHomingProjectile::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+}
+
+void AHomingProjectile::TargetToHit(UStaticMeshComponent* Target)
+{
+	UStaticMeshComponent* HomingTarget = Target;
+
+	if (HomingTarget != nullptr)
+	{
+		ProjectileMovement->HomingTargetComponent = HomingTarget;
+	}
 }
 
 void AHomingProjectile::Explode()

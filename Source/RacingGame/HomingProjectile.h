@@ -46,6 +46,7 @@ public:
 
 
 private:
+	void TargetToHit(UStaticMeshComponent *Target);
 	void Explode();
 
 	UPROPERTY(EditAnywhere, Category = "ForceVariables")
