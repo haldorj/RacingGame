@@ -44,23 +44,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerVariables")
 		class USoundBase* ExplosionSound = nullptr;
 
+
 private:
-	// Target variables
-	bool HasTargetPosition;
-	bool HasNoTarget;
-	class AActor* Target;
-
-	// Delay variables
-	float DelayTimer;
-	bool DelayFinished;
-
-	// Projectile lifetime variables
-	float ProjectileLifetime;
-	bool CanBeDestroyed;
+	void TargetToHit(UStaticMeshComponent *Target);
 	void Explode();
 
 	UPROPERTY(EditAnywhere, Category = "ForceVariables")
-	float ImpulseForce = 50.f;
+	float ImpulseForce = 750.f;
 
 	// Declare overlap begin function
 	UFUNCTION()

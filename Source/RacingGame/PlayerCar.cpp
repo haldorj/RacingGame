@@ -3,6 +3,7 @@
 
 #include "PlayerCar.h"
 #include "HoverComponent.h"
+#include "HomingProjectile.h"
 #include "GameFramework/PlayerInput.h"
 #include "Components/InputComponent.h"
 #include "Components/BoxComponent.h"
@@ -39,8 +40,8 @@ APlayerCar::APlayerCar()
 	SpringArm->bDoCollisionTest = false;
 	SpringArm->SetUsingAbsoluteRotation(true);
 	SpringArm->SetRelativeRotation(FRotator(-10.f, 0.f, 0.f));
-	SpringArm->TargetArmLength = 500.f;
-	SpringArm->bEnableCameraLag = true;
+	SpringArm->TargetArmLength = 350.f;
+	SpringArm->bEnableCameraLag = false;
 	SpringArm->CameraLagSpeed = 7.f;
 
 	SpringArm->SetupAttachment(PlayerMesh);
@@ -96,6 +97,7 @@ void APlayerCar::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 
 	PlayerInputComponent->BindAction("Shoot", EInputEvent::IE_Pressed, this, &APlayerCar::Shoot);
 	PlayerInputComponent->BindAction("Reload", EInputEvent::IE_Pressed, this, &APlayerCar::Reload);
+	PlayerInputComponent->BindAction("Target", EInputEvent::IE_Pressed, this, &APlayerCar::Target);
 }
 
 void APlayerCar::MoveForward(float Value)
@@ -174,6 +176,31 @@ void APlayerCar::Reload() {
 	UWorld* NewWorld = GetWorld();
 	UGameplayStatics::PlaySound2D(NewWorld, Reloading, 1.f, 1.f, 0.f, 0);
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Reloaded %d "), Ammo));
+}
+
+void APlayerCar::Target()
+{
+	FHitResult OutHit;
+	FVector Start = Camera->GetComponentLocation();
+	FVector End = Start + (Camera->GetForwardVector()*5000.f);
+
+	FCollisionQueryParams CollisionParams;
+	CollisionParams.AddIgnoredActor(this);
+
+	bool bHit = (GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_Visibility, CollisionParams));
+
+	if (bHit)
+	{
+		MeshComp = Cast<UStaticMeshComponent>(OutHit.GetActor());
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Mesh Name: %s "), OutHit.GetActor()));
+
+		if (MeshComp)
+		{
+			MeshComp->SetRenderCustomDepth(true);
+		}
+
+		DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, -1, 0, 1);
+	}
 }
 
 void APlayerCar::Raycast()

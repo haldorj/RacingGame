@@ -56,6 +56,10 @@ public:
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"));
 	TSubclassOf<AActor> ActorToSpawn;
 
+public:
+	UPROPERTY()
+		UStaticMeshComponent* MeshComp;
+
 private:
 	void MoveForward(float Value);
 	void MoveRight(float Value);
@@ -65,6 +69,7 @@ private:
 	// Functions
 	void Shoot();
 	void Reload();
+	void Target();
 	void Raycast();
 
 	// For interacting with other classes / collision.

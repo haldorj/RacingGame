@@ -77,6 +77,16 @@ void AHomingProjectile::Tick(float DeltaTime)
 
 }
 
+void AHomingProjectile::TargetToHit(UStaticMeshComponent* Target)
+{
+	UStaticMeshComponent* HomingTarget = Target;
+
+	if (HomingTarget != nullptr)
+	{
+		ProjectileMovement->HomingTargetComponent = HomingTarget;
+	}
+}
+
 void AHomingProjectile::Explode()
 {
 	// ParticleFX:
@@ -91,11 +101,12 @@ void AHomingProjectile::Explode()
 
 void AHomingProjectile::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+
 	UStaticMeshComponent* MeshComponent = Cast<UStaticMeshComponent>(OtherActor->GetRootComponent());
 	FVector Forward = this->GetActorForwardVector();
 
 	if (OtherActor->IsA(AEnemy::StaticClass()))
-	{
+	{	
 		if (MeshComponent)
 		{
 			MeshComponent->AddImpulse(Forward * ImpulseForce * MeshComponent->GetMass());
