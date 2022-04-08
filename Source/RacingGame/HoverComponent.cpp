@@ -2,8 +2,6 @@
 
 
 #include "HoverComponent.h"
-#include "PlayerCar.h"
-
 #include "Engine/World.h"
 #include "DrawDebugHelpers.h"
 #include "Math/Vector.h"
@@ -22,8 +20,8 @@ UHoverComponent::UHoverComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 
 	TraceLength = 100.f;
-	HoverForce = 35000.f;
-	InAirGravityForce = 200000.f;
+	HoverForce = 2000.f;
+	InAirGravityForce = 0.f;
 }
 
 
@@ -42,7 +40,7 @@ void UHoverComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 
 	FHitResult OutHit;
 	FVector Start = GetComponentLocation();
-	FVector End = Start + (GetUpVector() * (-TraceLength));
+	FVector End = Start + (-GetUpVector() * TraceLength);
 
 	FCollisionQueryParams CollisionParams = FCollisionQueryParams();
 	CollisionParams.AddIgnoredActor(GetOwner());
@@ -53,11 +51,8 @@ void UHoverComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 	{
 		// Hit Information.
 		FVector SurfaceImpactNormal = OutHit.ImpactNormal;
-		FVector ImpactNormal = SurfaceImpactNormal;
+		//FVector ImpactNormal = SurfaceImpactNormal;
 		FVector HitLocation = OutHit.Location;
-
-		/*UE_LOG(LogTemp, Warning, TEXT("Hit Location: X = %f, Hit Location: Y = %f, Hit Location: Z = %f"),
-		HitLocation.X, HitLocation.Y, HitLocation.Z);*/
 
 		// Get Length between hit and component.
 		FVector WorldLocation = (HitLocation - GetComponentLocation());
@@ -66,24 +61,28 @@ void UHoverComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 
 		// Value from 0 - 1.
 		float Alpha = (VectorLength / TraceLength);
-		//UE_LOG(LogTemp, Warning, TEXT("Alpha: %f"), Alpha);
 
 		// Linear interpolation between two values, functions as suspension.
 		float CompressionRatio = FMath::Lerp(HoverForce * MeshComp->GetMass(), 0.f, Alpha);
 
-		// Add force to Component Location
+		// Creates Force and Location to push the Actor
 		FVector Force = (CompressionRatio * SurfaceImpactNormal);
-		FVector Location = MeshComp->GetCenterOfMass() + MeshComp->GetComponentRotation().RotateVector(GetRelativeLocation());
-		MeshComp->AddForceAtLocation(Force, Location);
-		//UE_LOG(LogTemp, Warning, TEXT("Force: X = %f, Force: Y = %f, Force: Z = %f"), Force.X, Force.Y, Force.Z);
+		FRotator Rotation = MeshComp->GetComponentRotation();
+		FVector Location = MeshComp->GetCenterOfMass() + Rotation.RotateVector(GetRelativeLocation());
 
-		DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, -1, 0, 1);
-		DrawDebugSolidBox(GetWorld(), OutHit.ImpactPoint, FVector(5, 5, 5), FColor::Green, false, -1);
+		// Add force to Component Location
+		MeshComp->AddForceAtLocation(Force, Location);
+
+		// Debug Line and Impact Box
+		DrawDebugLine(GetWorld(), Start, End, FColor::Green);
+		DrawDebugSolidBox(GetWorld(), OutHit.ImpactPoint, FVector(5.f, 5.f, 5.f), FColor::Green);
 	}
 
 	else
 	{
-		MeshComp->AddForce(FVector(0.f, 0.f, -1) * (InAirGravityForce * MeshComp->GetMass()));
-		DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, -1, 0, 1);
+		MeshComp->AddForce(FVector(0.f, 0.f, -1) * InAirGravityForce);
+
+		// Displays a red Debug Line if the line doesn't hit a surface
+		DrawDebugLine(GetWorld(), Start, End, FColor::Red);
 	}
 }

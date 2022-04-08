@@ -3,22 +3,22 @@
 
 #include "PlayerCar.h"
 #include "HoverComponent.h"
-#include "GameFramework/PlayerInput.h"
-#include "Components/InputComponent.h"
-#include "Components/BoxComponent.h"
-#include "Components/PrimitiveComponent.h"
 #include "DrawDebugHelpers.h"
 #include "Bullet.h"
-//#include "Coin.h"
+#include "HoverComponent.h"
 #include "HealthPack.h"
 #include "ArmourPack.h"
 #include "EnergyPack.h"
 #include "WeaponCrate.h"
-#include "Kismet/GameplayStatics.h"
-#include "Engine/World.h"
+#include "GameFramework/PlayerInput.h"
 #include "Camera/CameraActor.h"
-#include "Kismet/KismetMathLibrary.h"
+#include "Components/InputComponent.h"
+#include "Components/BoxComponent.h"
+#include "Components/PrimitiveComponent.h"
 #include "Engine/Engine.h"
+#include "Engine/World.h"
+#include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 
 
 // Sets default values
@@ -27,30 +27,7 @@ APlayerCar::APlayerCar()
 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	//Root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
-	//SetRootComponent(Root);
-
-	PlayerMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("PlayerMesh"));
-	SetRootComponent(PlayerMesh);
-
-	CollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxCollider"));
-	CollisionBox->SetGenerateOverlapEvents(true);
-	CollisionBox->OnComponentBeginOverlap.AddDynamic(this, &APlayerCar::OnOverlap);
-	CollisionBox->SetupAttachment(PlayerMesh);
-
-	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComponent"));
-	SpringArm->bDoCollisionTest = false;
-	SpringArm->SetUsingAbsoluteRotation(true);
-	SpringArm->SetRelativeRotation(FRotator(-10.f, 0.f, 0.f));
-	SpringArm->TargetArmLength = 500.f;
-	SpringArm->bEnableCameraLag = true;
-	SpringArm->CameraLagSpeed = 7.f;
-
-	SpringArm->SetupAttachment(PlayerMesh);
-
-	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
-	Camera->SetupAttachment(SpringArm, USpringArmComponent::SocketName);
-
+	// Defining Variables
 	Energy = 3;
 	MaxEnergy = 3;
 	Health = 20.f;
@@ -63,12 +40,45 @@ APlayerCar::APlayerCar()
 	bForwards = true;
 	bNitro = false;
 
+	// Defining Force Variables
 	AngularDamping = 5.0f;
-	LinearDamping = 3.0f;
-
+	LinearDamping = 1.0f;
 	ForwardForce = 4000.0f;
-
 	TraceLength = 60.f;
+
+	// Creating & rooting Player Mesh
+	PlayerMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("PlayerMesh"));
+	SetRootComponent(PlayerMesh);
+
+	// Creating & attaching Collision Box
+	CollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxCollider"));
+	CollisionBox->SetGenerateOverlapEvents(true);
+	CollisionBox->OnComponentBeginOverlap.AddDynamic(this, &APlayerCar::OnOverlap);
+	CollisionBox->SetupAttachment(PlayerMesh);
+
+	// Creating & rotating Spring Arm
+	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComponent"));
+	SpringArm->bDoCollisionTest = false;
+	SpringArm->SetUsingAbsoluteRotation(true);
+	SpringArm->SetRelativeRotation(FRotator(-10.f, 0.f, 0.f));
+	SpringArm->TargetArmLength = 500.f;
+	SpringArm->bEnableCameraLag = true;
+	SpringArm->CameraLagSpeed = 7.f;
+	SpringArm->SetupAttachment(PlayerMesh);
+
+	// Creating & attaching Camera
+	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
+	Camera->SetupAttachment(SpringArm, USpringArmComponent::SocketName);
+
+	// Creating & attaching the Hover Components
+	HoverComponentFL = CreateDefaultSubobject<UHoverComponent>(TEXT("HoverComponentFL"));
+	HoverComponentFL->SetupAttachment(PlayerMesh);
+	HoverComponentFR = CreateDefaultSubobject<UHoverComponent>(TEXT("HoverComponentFR"));
+	HoverComponentFR->SetupAttachment(PlayerMesh);
+	HoverComponentHL = CreateDefaultSubobject<UHoverComponent>(TEXT("HoverComponentHL"));
+	HoverComponentHL->SetupAttachment(PlayerMesh);
+	HoverComponentHR = CreateDefaultSubobject<UHoverComponent>(TEXT("HoverComponentHR"));
+	HoverComponentHR->SetupAttachment(PlayerMesh);
 }
 
 // Called when the game starts or when spawned
@@ -76,12 +86,16 @@ void APlayerCar::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// Restriction physics
+	PlayerMesh->SetAngularDamping(AngularDamping);
+	PlayerMesh->SetLinearDamping(LinearDamping);
 }
 
 // Called every frame
 void APlayerCar::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	// If the Nitro is on, increase the forward force, else, reduce it back 
 	if (bNitro) {
 		if (NitroTime > 0) {
 			NitroTime -= DeltaTime;
@@ -89,23 +103,17 @@ void APlayerCar::Tick(float DeltaTime)
 		else {
 			bNitro = false;
 			NitroTime = 0;
-			ForwardForce /= 1.3;
+			ForwardForce /= 1.3f;
 		}
 	}
 
+	// Checking Surface Normal
 	Raycast();
+
+	//// Anti-Gravity Movement Prototype
 	//float Gravity;
-	//Gravity = 9.81f;
-	//PlayerMesh->AddForce(-SurfaceImpactNormal * Gravity * PlayerMesh->GetMass());
-
-	SpringArm->SetRelativeRotation(FRotator(PiValue, YaValue, 0.f));
-
-
-	float Velocity;
-	Velocity = this->GetVelocity().Size();
-	Velocity /= 100;
-	Velocity *= 3.6f;
-	//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("Speed :  %f km/h"), Velocity));
+	//Gravity = 981.f;
+	//PlayerMesh->AddForceAtLocation(-SurfaceImpactNormal * Gravity * PlayerMesh->GetMass(), PlayerMesh->GetCenterOfMass());
 }
 
 // Called to bind functionality to input
@@ -132,9 +140,6 @@ void APlayerCar::MoveForward(float Value)
 	FVector Varience(0.f, 0.f, 1.5f);
 	PlayerMesh->AddForceAtLocation((Force * Value), Center + Varience);
 
-	PlayerMesh->SetAngularDamping(AngularDamping);
-	PlayerMesh->SetLinearDamping(LinearDamping);
-
 	if (Value < 0) { bForwards = false; }
 	else { bForwards = true; }
 }
@@ -147,6 +152,7 @@ void APlayerCar::MoveRight(float Value)
 	float Select;
 	if (bForwards) { Select = 1; }
 	else if (!bForwards) { Select = -1; }
+
 	FRotator Rotation = GetActorRotation();
 	FVector TorqueVector = Rotation.RotateVector(FVector(0.f, 0.f, Select * Torque));
 
@@ -156,11 +162,13 @@ void APlayerCar::MoveRight(float Value)
 void APlayerCar::MoveCameraY(float Value)
 {
 	PiValue += Value;
+	SpringArm->SetRelativeRotation(FRotator(PiValue, YaValue, 0.f));
 }
 
 void APlayerCar::MoveCameraX(float Value) 
 {
 	YaValue += Value;
+	SpringArm->SetRelativeRotation(FRotator(PiValue, YaValue, 0.f));
 }
 
 void APlayerCar::Shoot()
@@ -173,7 +181,6 @@ void APlayerCar::Shoot()
 			if (World)
 			{
 				Energy--;
-				GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("Energy:  %d "), Energy));
 				FVector Location = GetActorLocation();
 				FRotator Rotation = GetActorRotation();
 
@@ -191,7 +198,6 @@ void APlayerCar::Shoot()
 			UWorld* World = GetWorld();
 			if (World)
 			{
-				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("No Energy, Find Energy Crate. Energy : %d "), Energy));
 				UGameplayStatics::PlaySound2D(World, OutOfEnergy, 1.f, 1.f, 0.f, 0);
 			}
 		}
@@ -204,7 +210,6 @@ void APlayerCar::Reload() {
 	Energy = MaxEnergy;
 	UWorld* NewWorld = GetWorld();
 	UGameplayStatics::PlaySound2D(NewWorld, Reloading, 1.f, 1.f, 0.f, 0);
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Reloaded %d "), Energy));
 }
 
 void APlayerCar::Nitro() {
@@ -219,42 +224,14 @@ void APlayerCar::Nitro() {
 
 void APlayerCar::Raycast()
 {
-	if (bForwards) {
 		FHitResult OutHit;
-		FVector Start = PlayerMesh->GetComponentLocation() + PlayerMesh->GetForwardVector() * 60;
+		FVector Start;
+		if (bForwards) { Start = PlayerMesh->GetComponentLocation() + PlayerMesh->GetForwardVector() * 60; }
+		else { Start = PlayerMesh->GetComponentLocation() + PlayerMesh->GetForwardVector() * -60; }
 		FVector End = Start + (PlayerMesh->GetUpVector() * (-TraceLength));
 
 		FCollisionQueryParams CollisionParams;
 		CollisionParams.AddIgnoredActor(this);
-		//CollisionParams.bTraceComplex = true;
-
-		bool bHit = (GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_Visibility, CollisionParams));
-		if (bHit)
-		{
-			// Hit Information.
-			SurfaceImpactNormal = OutHit.ImpactNormal;
-
-			DrawDebugSolidBox(GetWorld(), OutHit.ImpactPoint, FVector(5, 5, 5), FColor::Cyan, false, -1);
-
-			//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("X :  %f "), (SurfaceImpactNormal.X)));
-			//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("Y:  %f "), (SurfaceImpactNormal.Y)));
-			//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("Z:  %f "), (SurfaceImpactNormal.Z)));
-		}
-
-		else {
-			SurfaceImpactNormal = FVector(0.f, 0.f, 1.f);
-		}
-
-		DrawDebugLine(GetWorld(), Start, End, FColor::Cyan, false, -1, 0, 1);
-	}
-	else if (!bForwards) {
-		FHitResult OutHit;
-		FVector Start = PlayerMesh->GetComponentLocation() + PlayerMesh->GetForwardVector() * -60;
-		FVector End = Start + (PlayerMesh->GetUpVector() * (-TraceLength));
-
-		FCollisionQueryParams CollisionParams;
-		CollisionParams.AddIgnoredActor(this);
-		//CollisionParams.bTraceComplex = true;
 
 		bool bHit = (GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_Visibility, CollisionParams));
 		if (bHit)
@@ -270,19 +247,11 @@ void APlayerCar::Raycast()
 		}
 
 		DrawDebugLine(GetWorld(), Start, End, FColor::Cyan, false, -1, 0, 1);
-	}
 }
 
 void APlayerCar::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent,
 	int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	//if (OtherActor->IsA(ACoin::StaticClass()))
-	//{
-	//	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::White, FString::Printf(TEXT("Player Picked Up Coin")));
-	//	UE_LOG(LogTemp, Warning, TEXT("Player Picked Up Coin"));
-	// 	OtherActor->Destroy();
-	//	Coins++;
-	//}
 	if (OtherActor->IsA(AHealthPack::StaticClass()))
 	{
 		Health += 30;
