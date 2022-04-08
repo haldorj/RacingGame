@@ -19,6 +19,7 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Engine/Engine.h"
 #include "Engine/StaticMeshActor.h"
+#include "GameFramework/ProjectileMovementComponent.h"
 
 
 // Sets default values
@@ -99,7 +100,6 @@ void APlayerCar::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 
 	PlayerInputComponent->BindAction("Shoot", EInputEvent::IE_Pressed, this, &APlayerCar::Shoot);
 	PlayerInputComponent->BindAction("Reload", EInputEvent::IE_Pressed, this, &APlayerCar::Reload);
-	PlayerInputComponent->BindAction("Target", EInputEvent::IE_Pressed, this, &APlayerCar::Target);
 }
 
 void APlayerCar::MoveForward(float Value)
@@ -153,7 +153,11 @@ void APlayerCar::Shoot()
 			FVector Location = GetActorLocation();
 			FRotator Rotation = GetActorRotation();
 
-			World->SpawnActor<AActor>(ActorToSpawn, Location + Rotation.RotateVector(FVector(300.f, 0.f, 85.f)), GetActorRotation());
+			AHomingProjectile* HomingProjectile = World->SpawnActor<AHomingProjectile>(ActorToSpawn, Location + Rotation.RotateVector(FVector(300.f, 0.f, 85.f)), GetActorRotation());
+
+			if (HomingProjectile) {
+				HomingProjectile->ProjectileMovement->HomingTargetComponent = Target();
+			}
 
 			UGameplayStatics::PlaySound2D(World, Shooting, 1.f, 1.f, 0.f, 0);
 		}
@@ -173,14 +177,15 @@ void APlayerCar::Shoot()
 	UE_LOG(LogTemp, Warning, TEXT("Shooting"));
 }
 
-void APlayerCar::Reload() {
+void APlayerCar::Reload() 
+{
 	Ammo = MaxAmmo;
 	UWorld* NewWorld = GetWorld();
 	UGameplayStatics::PlaySound2D(NewWorld, Reloading, 1.f, 1.f, 0.f, 0);
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Reloaded %d "), Ammo));
 }
 
-void APlayerCar::Target()
+UStaticMeshComponent* APlayerCar::Target()
 {
 	FHitResult OutHit;
 	FVector Start = Camera->GetComponentLocation();
@@ -196,16 +201,17 @@ void APlayerCar::Target()
 		EDrawDebugTrace::Type::ForDuration, OutHit, true));
 
 	UStaticMeshComponent* HomingTarget = Cast<UStaticMeshComponent>(OutHit.GetComponent());
+	return HomingTarget;
 
 	if (Hit)
 	{	
 		if (HomingTarget)
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("mesh ")));
+			GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("Hit")));
 		}
 		else
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("no mesh ")));
+			GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("Not A PhysicsBody ")));
 		}
 	}
 	else
