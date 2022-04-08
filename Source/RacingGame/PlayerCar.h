@@ -32,7 +32,7 @@ public:
 
 public:
 	UPROPERTY(VisibleAnywhere)
-		USceneComponent * Root = nullptr;
+		USceneComponent* Root = nullptr;
 
 	UPROPERTY(VisibleAnywhere)
 		UShapeComponent* CollisionBox = nullptr;
@@ -54,6 +54,18 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "PlayerVariables")
 		USoundBase* Reloading = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerVariables")
+		class UHoverComponent* HoverComponentFL = nullptr;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerVariables")
+		class UHoverComponent* HoverComponentFR = nullptr;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerVariables")
+		class UHoverComponent* HoverComponentHL = nullptr;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerVariables")
+		class UHoverComponent* HoverComponentHR = nullptr;
 
 	// For spawning Bullets:
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"));
@@ -88,6 +100,8 @@ private:
 	bool bNitro;
 	FVector SurfaceImpactNormal;
 	float NitroTime;
+	float PiValue;
+	float YaValue;
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerStats")
