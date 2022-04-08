@@ -19,6 +19,11 @@
 #include "Camera/CameraActor.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Engine/Engine.h"
+<<<<<<< HEAD
+=======
+#include "Engine/StaticMeshActor.h"
+#include "GameFramework/ProjectileMovementComponent.h"
+>>>>>>> Weapon_Missile
 
 
 // Sets default values
@@ -111,7 +116,10 @@ void APlayerCar::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 
 	PlayerInputComponent->BindAction("Shoot", EInputEvent::IE_Pressed, this, &APlayerCar::Shoot);
 	PlayerInputComponent->BindAction("Reload", EInputEvent::IE_Pressed, this, &APlayerCar::Reload);
+<<<<<<< HEAD
 	PlayerInputComponent->BindAction("Nitro", EInputEvent::IE_Pressed, this, &APlayerCar::Nitro);
+=======
+>>>>>>> Weapon_Missile
 }
 
 void APlayerCar::MoveForward(float Value)
@@ -160,6 +168,7 @@ void APlayerCar::Shoot()
 	{
 		if (Energy > 0)
 		{
+<<<<<<< HEAD
 			UWorld* World = GetWorld();
 			if (World)
 			{
@@ -174,6 +183,20 @@ void APlayerCar::Shoot()
 
 				UGameplayStatics::PlaySound2D(World, Shooting, 1.f, 1.f, 0.f, 0);
 			}
+=======
+			Ammo--;
+			GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, FString::Printf(TEXT("Ammo:  %d "), Ammo));
+			FVector Location = GetActorLocation();
+			FRotator Rotation = GetActorRotation();
+
+			AHomingProjectile* HomingProjectile = World->SpawnActor<AHomingProjectile>(ActorToSpawn, Location + Rotation.RotateVector(FVector(300.f, 0.f, 85.f)), GetActorRotation());
+
+			if (HomingProjectile) {
+				HomingProjectile->ProjectileMovement->HomingTargetComponent = Target();
+			}
+
+			UGameplayStatics::PlaySound2D(World, Shooting, 1.f, 1.f, 0.f, 0);
+>>>>>>> Weapon_Missile
 		}
 
 		else if (Energy <= 0)
@@ -191,15 +214,25 @@ void APlayerCar::Shoot()
 	}
 }
 
+<<<<<<< HEAD
 void APlayerCar::Reload() {
 	Energy = MaxEnergy;
+=======
+void APlayerCar::Reload() 
+{
+	Ammo = MaxAmmo;
+>>>>>>> Weapon_Missile
 	UWorld* NewWorld = GetWorld();
 	UGameplayStatics::PlaySound2D(NewWorld, Reloading, 1.f, 1.f, 0.f, 0);
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Reloaded %d "), Energy));
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 void APlayerCar::Target()
+=======
+UStaticMeshComponent* APlayerCar::Target()
+>>>>>>> Weapon_Missile
 {
 	FHitResult OutHit;
 	FVector Start = Camera->GetComponentLocation();
@@ -210,6 +243,7 @@ void APlayerCar::Target()
 
 	bool bHit = (GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_Visibility, CollisionParams));
 
+<<<<<<< HEAD
 	if (bHit)
 	{
 		MeshComp = Cast<UStaticMeshComponent>(OutHit.GetActor());
@@ -218,6 +252,20 @@ void APlayerCar::Target()
 		if (MeshComp)
 		{
 			MeshComp->SetRenderCustomDepth(true);
+=======
+	UStaticMeshComponent* HomingTarget = Cast<UStaticMeshComponent>(OutHit.GetComponent());
+	return HomingTarget;
+
+	if (Hit)
+	{	
+		if (HomingTarget)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("Hit")));
+		}
+		else
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("Not A PhysicsBody ")));
+>>>>>>> Weapon_Missile
 		}
 
 		DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, -1, 0, 1);

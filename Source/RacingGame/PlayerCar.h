@@ -57,7 +57,7 @@ public:
 
 	// For spawning Bullets:
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"));
-	TSubclassOf<AActor> ActorToSpawn;
+	TSubclassOf<class AHomingProjectile> ActorToSpawn;
 
 private:
 	void MoveForward(float Value);
@@ -68,7 +68,11 @@ private:
 	// Functions
 	void Shoot();
 	void Reload();
+<<<<<<< HEAD
 	void Nitro();
+=======
+	UStaticMeshComponent* Target();
+>>>>>>> Weapon_Missile
 	void Raycast();
 
 	// For interacting with other classes / collision.

@@ -36,7 +36,7 @@ AHomingProjectile::AHomingProjectile()
 	ProjectileMovement->bInitialVelocityInLocalSpace = true;
 	ProjectileMovement->bShouldBounce = false;
 	ProjectileMovement->bIsHomingProjectile = true;
-	ProjectileMovement->HomingAccelerationMagnitude = 10000.f;
+	ProjectileMovement->HomingAccelerationMagnitude = 12000.f;
 	ProjectileMovement->ProjectileGravityScale = 0.f;
 	//ProjectileMovement->Velocity = FVector(0, 0, 0);
 
@@ -49,25 +49,7 @@ void AHomingProjectile::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// We want to find our target first.
-	UWorld* World = GetWorld();
-	if (World)
-	{
-		AActor* FoundActor = UGameplayStatics::GetActorOfClass(GetWorld(),
-		AEnemy::StaticClass());
 
-		//Enemy = Cast<AEnemy>(FoundActor);
-
-		if (FoundActor != nullptr)
-		{
-			ProjectileMovement->HomingTargetComponent = FoundActor->GetRootComponent();
-			UE_LOG(LogTemp, Warning, TEXT("FOUND ENEMY"))
-		}
-		else
-		{
-			UE_LOG(LogTemp, Warning, TEXT("NO ENEMY"))
-		}
-	}
 }
 
 // Called every frame
