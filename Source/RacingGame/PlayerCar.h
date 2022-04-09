@@ -132,9 +132,6 @@ public:
 	UPROPERTY(Editanywhere, BlueprintReadOnly, Category = "PlayerStats")
 		float TraceLength;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerStats")
-		int32 Coins; // int32 = cross platform
-
 		// Function for switching level
 	void SwitchLevel(FName LevelName);
 

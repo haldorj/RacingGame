@@ -31,20 +31,23 @@ APlayerCar::APlayerCar()
 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	// Defining Variables
+	// Defining Player Values
 	Energy = 3;
-	MaxEnergy = 3;
 	Health = 20.f;
-	MaxHealth = 100.f;
 	Armour = 0.f;
+	MaxEnergy = 3;
+	MaxHealth = 100.f;
 	MaxArmour = 35.f;
-	Coins = 0;
+
+	// Defining Camera Values
 	PiValue = 0.f;
 	YaValue = -10.f;
+
+	// Defining Car Values
 	bForwards = true;
 	bNitro = false;
 
-	// Defining Force Variables
+	// Defining Physics-related Values
 	AngularDamping = 5.0f;
 	LinearDamping = 1.0f;
 	ForwardForce = 4000.0f;
@@ -64,7 +67,7 @@ APlayerCar::APlayerCar()
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComponent"));
 	SpringArm->bDoCollisionTest = false;
 	SpringArm->SetUsingAbsoluteRotation(true);
-	SpringArm->SetRelativeRotation(FRotator(-10.f, 0.f, 0.f));
+	SpringArm->SetRelativeRotation(FRotator(-15.f, 0.f, 0.f));
 	SpringArm->TargetArmLength = 500.f;
 	SpringArm->bEnableCameraLag = true;
 	SpringArm->CameraLagSpeed = 7.f;
@@ -72,6 +75,7 @@ APlayerCar::APlayerCar()
 
 	// Creating & attaching Camera
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
+	Camera->SetRelativeRotation(FRotator(15.f, 0.f, 0.f));
 	Camera->SetupAttachment(SpringArm, USpringArmComponent::SocketName);
 
 	// Creating & attaching the Hover Components
