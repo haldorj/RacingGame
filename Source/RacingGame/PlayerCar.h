@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
-#include "Components/StaticMeshComponent.h"
 #include "Components/PrimitiveComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
@@ -69,7 +68,7 @@ public:
 
 	// For spawning Bullets:
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"));
-	TSubclassOf<class AHomingProjectile> ActorToSpawn;
+	TSubclassOf<AActor> ActorToSpawn;
 
 private:
 	void MoveForward(float Value);
@@ -80,11 +79,10 @@ private:
 	// Functions
 	void Shoot();
 	void Reload();
-<<<<<<< HEAD
 	void Nitro();
-=======
-	UStaticMeshComponent* Target();
->>>>>>> Weapon_Missile
+
+	class UStaticMeshComponent* Target();
+	
 	void Raycast();
 
 	// For interacting with other classes / collision.
@@ -98,10 +96,10 @@ private:
 	//
 	bool bForwards;
 	bool bNitro;
-	FVector SurfaceImpactNormal;
 	float NitroTime;
 	float PiValue;
 	float YaValue;
+	FVector SurfaceImpactNormal;
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerStats")

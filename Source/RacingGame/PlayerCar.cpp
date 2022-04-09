@@ -5,8 +5,9 @@
 #include "HoverComponent.h"
 #include "DrawDebugHelpers.h"
 #include "Bullet.h"
-#include "HoverComponent.h"
 #include "HealthPack.h"
+#include "HomingProjectile.h"
+#include "HoverComponent.h"
 #include "ArmourPack.h"
 #include "EnergyPack.h"
 #include "WeaponCrate.h"
@@ -15,6 +16,7 @@
 #include "Components/InputComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/PrimitiveComponent.h"
+#include "Components/StaticMeshComponent.h"
 #include "Engine/Engine.h"
 #include "Engine/StaticMeshActor.h"
 #include "Engine/World.h"
@@ -189,7 +191,7 @@ void APlayerCar::Shoot()
 				if (ActorToSpawn->GetName() == "Bullet_BP_C") {
 					World->SpawnActor<AActor>(ActorToSpawn, Location + Rotation.RotateVector(FVector(160.f, 0.f, 85.f)), Rotation);
 				}
-				else if (false) {
+				else {
 					AHomingProjectile* HomingProjectile = World->SpawnActor<AHomingProjectile>(ActorToSpawn, Location + Rotation.RotateVector(FVector(300.f, 0.f, 85.f)), GetActorRotation());
 					if (HomingProjectile) {
 						HomingProjectile->ProjectileMovement->HomingTargetComponent = Target();
@@ -214,56 +216,49 @@ void APlayerCar::Shoot()
 	}
 }
 
-<<<<<<< HEAD
 void APlayerCar::Reload() {
 	Energy = MaxEnergy;
 	UWorld* NewWorld = GetWorld();
 	UGameplayStatics::PlaySound2D(NewWorld, Reloading, 1.f, 1.f, 0.f, 0);
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-void APlayerCar::Target()
-=======
 UStaticMeshComponent* APlayerCar::Target()
->>>>>>> Weapon_Missile
 {
 	FHitResult OutHit;
 	FVector Start = Camera->GetComponentLocation();
-	FVector End = Start + (Camera->GetForwardVector()*5000.f);
+	FVector End = Start + (Camera->GetForwardVector() * 5000.f);
 
 	FCollisionQueryParams CollisionParams;
 	CollisionParams.AddIgnoredActor(this);
 
-	bool bHit = (GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_Visibility, CollisionParams));
 
-<<<<<<< HEAD
+	bool bHit = (GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_Visibility, CollisionParams));
 	if (bHit)
 	{
-		MeshComp = Cast<UStaticMeshComponent>(OutHit.GetActor());
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Mesh Name: %s "), OutHit.GetActor()));
+		UStaticMeshComponent* MeshComp = Cast<UStaticMeshComponent>(OutHit.GetActor());
 
 		if (MeshComp)
 		{
 			MeshComp->SetRenderCustomDepth(true);
-=======
-	UStaticMeshComponent* HomingTarget = Cast<UStaticMeshComponent>(OutHit.GetComponent());
-	return HomingTarget;
+			UStaticMeshComponent* HomingTarget = Cast<UStaticMeshComponent>(OutHit.GetComponent());
 
-	if (Hit)
-	{	
-		if (HomingTarget)
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("Hit")));
+			if (HomingTarget)
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("Hit")));
+			}
+			else
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("Not A PhysicsBody ")));
+			}
+			return HomingTarget;
 		}
-		else
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("Not A PhysicsBody ")));
->>>>>>> Weapon_Missile
-		}
+	}
 
-		DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, -1, 0, 1);
-=======
+	DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, -1, 0, 1);
+	return NULL;
+}
+
 void APlayerCar::Nitro() {
 	if (bNitro == false && Energy >= 2) {
 		bNitro = true;
@@ -271,7 +266,6 @@ void APlayerCar::Nitro() {
 
 		NitroTime = 3.f;
 		ForwardForce *= 1.3f;
->>>>>>> parent of 65d4a2a (Merge branch 'Weapon_Missile' into Development)
 	}
 }
 
