@@ -228,35 +228,33 @@ UStaticMeshComponent* APlayerCar::Target()
 	FVector Start = Camera->GetComponentLocation();
 	FVector End = Start + (Camera->GetForwardVector() * 5000.f);
 
-	FCollisionQueryParams CollisionParams;
-	CollisionParams.AddIgnoredActor(this);
+	TArray<TEnumAsByte<EObjectTypeQuery>> objectTypesArray; // object types to trace
+	objectTypesArray.Add(UEngineTypes::ConvertToObjectType(ECC_PhysicsBody));
 
+	TArray< AActor* > ActorsToIgnore;
+	ActorsToIgnore.Add(this);
 
-	bool bHit = (GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_Visibility, CollisionParams));
-	if (bHit)
+	bool Hit = (UKismetSystemLibrary::LineTraceSingleForObjects(GetWorld(), Start, End, objectTypesArray, true, ActorsToIgnore,
+		EDrawDebugTrace::Type::ForDuration, OutHit, true));
+
+	UStaticMeshComponent* HomingTarget = Cast<UStaticMeshComponent>(OutHit.GetComponent());
+	return HomingTarget;
+
+	if (Hit)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Mesh Name: %s "), OutHit.GetActor()));
-		UStaticMeshComponent* MeshComp = Cast<UStaticMeshComponent>(OutHit.GetActor());
-
-		if (MeshComp)
+		if (HomingTarget)
 		{
-			MeshComp->SetRenderCustomDepth(true);
-			UStaticMeshComponent* HomingTarget = Cast<UStaticMeshComponent>(OutHit.GetComponent());
-
-			if (HomingTarget)
-			{
-				GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("Hit")));
-			}
-			else
-			{
-				GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("Not A PhysicsBody ")));
-			}
-			return HomingTarget;
+			GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("Hit")));
+		}
+		else
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("Not A PhysicsBody ")));
 		}
 	}
-
-	DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, -1, 0, 1);
-	return NULL;
+	else
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("No Hit ")));
+	}
 }
 
 void APlayerCar::Nitro() {
