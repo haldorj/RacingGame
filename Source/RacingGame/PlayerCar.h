@@ -102,12 +102,6 @@ private:
 	FVector SurfaceImpactNormal;
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerStats")
-		float AngularDamping;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerStats")
-		float LinearDamping;
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "PlayerStats")
 		int32 MaxEnergy;
 
@@ -127,10 +121,25 @@ public:
 		float Armour;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerStats")
+		float AngularDamping;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerStats")
+		float LinearDamping;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerPhysics")
 		float ForwardForce;
 
-	UPROPERTY(Editanywhere, BlueprintReadOnly, Category = "PlayerStats")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerPhysics")
+		float TurnTorque;
+
+	UPROPERTY(Editanywhere, BlueprintReadOnly, Category = "PlayerPhysics")
 		float TraceLength;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerPhysics")
+		float HoverForce;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerPhysics")
+		float HoverLength;
 
 		// Function for switching level
 	void SwitchLevel(FName LevelName);

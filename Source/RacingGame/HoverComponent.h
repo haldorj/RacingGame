@@ -27,13 +27,9 @@ public:
 	UPROPERTY()
 		UStaticMeshComponent* MeshComp;
 
-	UPROPERTY(Editanywhere, Category = "Hover")
-		float TraceLength;
-	UPROPERTY(Editanywhere, Category = "Hover")
-		float HoverForce;
-	UPROPERTY(Editanywhere, Category = "Hover")
-		float InAirGravityForce;
-
+	float TraceLength;
+	float HoverForce;
+	float InAirGravityForce;
 };
 
 

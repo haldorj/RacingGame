@@ -40,18 +40,21 @@ APlayerCar::APlayerCar()
 	MaxArmour = 35.f;
 
 	// Defining Camera Values
-	PiValue = 0.f;
-	YaValue = -10.f;
+	PiValue = -15.f;
+	YaValue = 0.f;
 
 	// Defining Car Values
 	bForwards = true;
 	bNitro = false;
 
 	// Defining Physics-related Values
-	AngularDamping = 5.0f;
-	LinearDamping = 1.0f;
-	ForwardForce = 4000.0f;
-	TraceLength = 60.f;
+	AngularDamping = 5.f;
+	LinearDamping = 1.f;
+	ForwardForce = 4000.f;
+	TurnTorque = 4000.f;
+	TraceLength = 120.f;
+	HoverForce = 4000.f;
+	HoverLength = 100.f;
 
 	// Creating & rooting Player Mesh
 	PlayerMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("PlayerMesh"));
@@ -67,7 +70,7 @@ APlayerCar::APlayerCar()
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComponent"));
 	SpringArm->bDoCollisionTest = false;
 	SpringArm->SetUsingAbsoluteRotation(true);
-	SpringArm->SetRelativeRotation(FRotator(-15.f, 0.f, 0.f));
+	SpringArm->SetRelativeRotation(FRotator(0.f, -15.f, 0.f));
 	SpringArm->TargetArmLength = 500.f;
 	SpringArm->bEnableCameraLag = true;
 	SpringArm->CameraLagSpeed = 7.f;
@@ -75,16 +78,19 @@ APlayerCar::APlayerCar()
 
 	// Creating & attaching Camera
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
-	Camera->SetRelativeRotation(FRotator(15.f, 0.f, 0.f));
+	Camera->SetRelativeRotation(FRotator(0.f, 15.f, 0.f));
 	Camera->SetupAttachment(SpringArm, USpringArmComponent::SocketName);
 
 	// Creating & attaching the Hover Components
 	HoverComponentFL = CreateDefaultSubobject<UHoverComponent>(TEXT("HoverComponentFL"));
 	HoverComponentFL->SetupAttachment(PlayerMesh);
+
 	HoverComponentFR = CreateDefaultSubobject<UHoverComponent>(TEXT("HoverComponentFR"));
 	HoverComponentFR->SetupAttachment(PlayerMesh);
+
 	HoverComponentHL = CreateDefaultSubobject<UHoverComponent>(TEXT("HoverComponentHL"));
 	HoverComponentHL->SetupAttachment(PlayerMesh);
+
 	HoverComponentHR = CreateDefaultSubobject<UHoverComponent>(TEXT("HoverComponentHR"));
 	HoverComponentHR->SetupAttachment(PlayerMesh);
 }
@@ -97,6 +103,19 @@ void APlayerCar::BeginPlay()
 	// Restriction physics
 	PlayerMesh->SetAngularDamping(AngularDamping);
 	PlayerMesh->SetLinearDamping(LinearDamping);
+
+	// Hover Physics (overriding HoverComponent.cpp)
+	HoverComponentFL->HoverForce = HoverForce / 4;
+	HoverComponentFL->TraceLength = HoverLength;
+
+	HoverComponentFR->HoverForce = HoverForce / 4;
+	HoverComponentFR->TraceLength = HoverLength;
+
+	HoverComponentHL->HoverForce = HoverForce / 4;
+	HoverComponentHL->TraceLength = HoverLength;
+
+	HoverComponentHR->HoverForce = HoverForce / 4;
+	HoverComponentHR->TraceLength = HoverLength;
 }
 
 // Called every frame
@@ -149,12 +168,12 @@ void APlayerCar::MoveForward(float Value)
 	PlayerMesh->AddForceAtLocation((Force * Value), Center + Varience);
 
 	if (Value < 0) { bForwards = false; }
-	else { bForwards = true; }
+	else if (Value > 0) { bForwards = true; }
 }
 
 void APlayerCar::MoveRight(float Value)
 {
-	float Torque = 30000.f * PlayerMesh->GetMass();
+	float Torque = TurnTorque * PlayerMesh->GetMass();
 
 	// Backwards steering functionality
 	float Select;
@@ -170,12 +189,14 @@ void APlayerCar::MoveRight(float Value)
 void APlayerCar::MoveCameraY(float Value)
 {
 	PiValue += Value;
+
 	SpringArm->SetRelativeRotation(FRotator(PiValue, YaValue, 0.f));
 }
 
 void APlayerCar::MoveCameraX(float Value) 
 {
 	YaValue += Value;
+
 	SpringArm->SetRelativeRotation(FRotator(PiValue, YaValue, 0.f));
 }
 
@@ -193,10 +214,10 @@ void APlayerCar::Shoot()
 				FRotator Rotation = GetActorRotation();
 
 				if (ActorToSpawn->GetName() == "Bullet_BP_C") {
-					World->SpawnActor<AActor>(ActorToSpawn, Location + Rotation.RotateVector(FVector(160.f, 0.f, 85.f)), Rotation);
+					World->SpawnActor<AActor>(ActorToSpawn, Location + Rotation.RotateVector(FVector(350.f, 0.f, 80.f)), Rotation);
 				}
 				else {
-					AHomingProjectile* HomingProjectile = World->SpawnActor<AHomingProjectile>(ActorToSpawn, Location + Rotation.RotateVector(FVector(300.f, 0.f, 85.f)), GetActorRotation());
+					AHomingProjectile* HomingProjectile = World->SpawnActor<AHomingProjectile>(ActorToSpawn, Location + Rotation.RotateVector(FVector(350.f, 0.f, 80.f)), GetActorRotation());
 					if (HomingProjectile) {
 						HomingProjectile->ProjectileMovement->HomingTargetComponent = Target();
 					}
@@ -335,8 +356,8 @@ void APlayerCar::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 		{
 			Energy = MaxEnergy;
 		}
-		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("Player Picked Up Energy %f "), Energy));
-		UE_LOG(LogTemp, Warning, TEXT("Player Picked Up Energy %f "), Energy);
+		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("Player Picked Up Energy %d "), Energy));
+		UE_LOG(LogTemp, Warning, TEXT("Player Picked Up Energy %d "), Energy);
 		OtherActor->Destroy();
 	}
 

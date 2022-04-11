@@ -32,10 +32,29 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "EnemyVariables")
 		UStaticMeshComponent* MeshComponent = nullptr;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "EnemyVariables")
+		class UHoverComponent* HoverComponentFL = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "EnemyVariables")
+		class UHoverComponent* HoverComponentFR = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "EnemyVariables")
+		class UHoverComponent* HoverComponentHL = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "EnemyVariables")
+		class UHoverComponent* HoverComponentHR = nullptr;
+
 private:
 	UFUNCTION()
 		void OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 			UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex, bool bFromSweep,
 			const FHitResult& SweepResult);
 
+public:
+	// Physics variables
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerPhysics")
+		float HoverForce;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerPhysics")
+		float HoverLength;
 };
