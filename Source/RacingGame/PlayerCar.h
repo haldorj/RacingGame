@@ -120,6 +120,17 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerStats")
 		float Armour;
 
+		// Function for switching level
+		void SwitchLevel(FName LevelName);
+
+	UFUNCTION(BluePrintCallable)
+		void SaveGame();
+
+	UFUNCTION(BluePrintCallable)
+		void LoadGame(bool SetPosition);
+
+
+	// Vehicle variables
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerStats")
 		float AngularDamping;
 
@@ -140,8 +151,4 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerPhysics")
 		float HoverLength;
-
-		// Function for switching level
-	void SwitchLevel(FName LevelName);
-
 };

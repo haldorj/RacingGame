@@ -3,7 +3,6 @@
 
 #include "PlayerCar.h"
 #include "HoverComponent.h"
-#include "DrawDebugHelpers.h"
 #include "Bullet.h"
 #include "HealthPack.h"
 #include "HomingProjectile.h"
@@ -11,6 +10,9 @@
 #include "ArmourPack.h"
 #include "EnergyPack.h"
 #include "WeaponCrate.h"
+#include "RacingSaveGame.h"
+
+#include "DrawDebugHelpers.h"
 #include "GameFramework/PlayerInput.h"
 #include "Camera/CameraActor.h"
 #include "Components/InputComponent.h"
@@ -383,5 +385,42 @@ void APlayerCar::SwitchLevel(FName LevelName)
 			UGameplayStatics::OpenLevel(World, LevelName);
 		}
 
+	}
+}
+
+void APlayerCar::SaveGame()
+{
+	URacingSaveGame* SaveGameInstance = Cast<URacingSaveGame>(UGameplayStatics::CreateSaveGameObject(URacingSaveGame::StaticClass()));
+
+	SaveGameInstance->CharacterStats.Health = Health;
+	SaveGameInstance->CharacterStats.MaxHealth = MaxHealth;
+	SaveGameInstance->CharacterStats.Energy = Energy;
+	SaveGameInstance->CharacterStats.MaxEnergy = MaxEnergy;
+	SaveGameInstance->CharacterStats.Armour = Armour;
+	SaveGameInstance->CharacterStats.MaxArmour = MaxArmour;
+
+	SaveGameInstance->CharacterStats.Location = GetActorLocation();
+	SaveGameInstance->CharacterStats.Rotation = GetActorRotation();
+
+	UGameplayStatics::SaveGameToSlot(SaveGameInstance, SaveGameInstance->PlayerName, SaveGameInstance->UserIndex);
+}
+
+void APlayerCar::LoadGame(bool SetPosition)
+{
+	URacingSaveGame* LoadGameInstance = Cast<URacingSaveGame>(UGameplayStatics::CreateSaveGameObject(URacingSaveGame::StaticClass()));
+
+	LoadGameInstance = Cast<URacingSaveGame>(UGameplayStatics::LoadGameFromSlot(LoadGameInstance->PlayerName, LoadGameInstance->UserIndex));
+
+	Health = LoadGameInstance->CharacterStats.Health;
+	MaxHealth = LoadGameInstance->CharacterStats.MaxHealth;
+	Energy = LoadGameInstance->CharacterStats.Energy;
+	MaxEnergy = LoadGameInstance->CharacterStats.MaxEnergy;
+	Armour = LoadGameInstance->CharacterStats.Armour;
+	MaxArmour = LoadGameInstance->CharacterStats.MaxArmour;
+
+	if (SetPosition)
+	{
+		SetActorLocation(LoadGameInstance->CharacterStats.Location);
+		SetActorRotation(LoadGameInstance->CharacterStats.Rotation);
 	}
 }
