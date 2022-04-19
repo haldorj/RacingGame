@@ -11,6 +11,8 @@
 #include "EnergyPack.h"
 #include "WeaponCrate.h"
 #include "RacingSaveGame.h"
+#include "MainPlayerController.h"
+#include "CheckPoint.h"
 
 #include "DrawDebugHelpers.h"
 #include "GameFramework/PlayerInput.h"
@@ -48,6 +50,9 @@ APlayerCar::APlayerCar()
 	// Defining Car Values
 	bForwards = true;
 	bNitro = false;
+
+	// ESC key Values
+	bESCDown = false;
 
 	// Defining Physics-related Values
 	AngularDamping = 5.f;
@@ -158,6 +163,10 @@ void APlayerCar::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 	PlayerInputComponent->BindAction("Shoot", EInputEvent::IE_Pressed, this, &APlayerCar::Shoot);
 	PlayerInputComponent->BindAction("Reload", EInputEvent::IE_Pressed, this, &APlayerCar::Reload);
 	PlayerInputComponent->BindAction("Nitro", EInputEvent::IE_Pressed, this, &APlayerCar::Nitro);
+
+	PlayerInputComponent->BindAction("ESC", EInputEvent::IE_Pressed, this, &APlayerCar::ESCDown).bExecuteWhenPaused = true;
+	PlayerInputComponent->BindAction("ESC", EInputEvent::IE_Released, this, &APlayerCar::ESCUp).bExecuteWhenPaused = true;
+
 }
 
 void APlayerCar::MoveForward(float Value)
@@ -294,6 +303,23 @@ void APlayerCar::Nitro() {
 	}
 }
 
+void APlayerCar::ESCDown()
+{
+	AMainPlayerController* MainPlayerController = Cast<AMainPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+
+	bESCDown = true;
+
+	if (MainPlayerController)
+	{
+		MainPlayerController->TogglePauseMenu();
+	}
+}
+
+void APlayerCar::ESCUp()
+{
+	bESCDown = false;
+}
+
 void APlayerCar::Raycast()
 {
 		FHitResult OutHit;
@@ -370,6 +396,11 @@ void APlayerCar::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 		UE_LOG(LogTemp, Display, TEXT("Player Picked Up Weapon Crate Containing a %s "), *ActorToSpawn->GetName());
 		OtherActor->Destroy();
 	}
+
+	if (OtherActor->IsA(ACheckPoint::StaticClass()))
+	{
+		SaveGame();
+	}
 }
 
 void APlayerCar::SwitchLevel(FName LevelName)
@@ -398,6 +429,9 @@ void APlayerCar::SaveGame()
 	SaveGameInstance->CharacterStats.MaxEnergy = MaxEnergy;
 	SaveGameInstance->CharacterStats.Armour = Armour;
 	SaveGameInstance->CharacterStats.MaxArmour = MaxArmour;
+
+	SaveGameInstance->CharacterStats.CameraLocation = Camera->GetComponentLocation();
+	SaveGameInstance->CharacterStats.CameraRotation = Camera->GetComponentRotation();
 
 	SaveGameInstance->CharacterStats.Location = GetActorLocation();
 	SaveGameInstance->CharacterStats.Rotation = GetActorRotation();

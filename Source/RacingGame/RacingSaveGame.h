@@ -34,6 +34,12 @@ struct FCharacterStats
 
 	UPROPERTY(VisibleAnywhere, Category = "SaveGameData")
 		FRotator Rotation;
+
+	UPROPERTY(VisibleAnywhere, Category = "SaveGameData")
+		FVector CameraLocation;
+
+	UPROPERTY(VisibleAnywhere, Category = "SaveGameData")
+		FRotator CameraRotation;
 };
 
 /**

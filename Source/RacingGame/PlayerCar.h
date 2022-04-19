@@ -81,6 +81,10 @@ private:
 	void Reload();
 	void Nitro();
 
+	bool bESCDown;
+	void ESCDown();
+	void ESCUp();
+
 	class UStaticMeshComponent* Target();
 	
 	void Raycast();
@@ -94,6 +98,7 @@ private:
 	//
 	//	Player Stats
 	//
+
 	bool bForwards;
 	bool bNitro;
 	float NitroTime;
@@ -129,8 +134,10 @@ public:
 	UFUNCTION(BluePrintCallable)
 		void LoadGame(bool SetPosition);
 
-
+	//
 	// Vehicle variables
+	//
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerStats")
 		float AngularDamping;
 

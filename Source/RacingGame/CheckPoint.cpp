@@ -39,12 +39,12 @@ void ACheckPoint::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActo
 	UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex, bool bFromSweep, 
 	const FHitResult& SweepResult)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Green, "Overlap Begin");
+	//GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Green, "Overlap Begin");
 }
 
 void ACheckPoint::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, 
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, "Overlap End");
+	//GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, "Overlap End");
 }
 
