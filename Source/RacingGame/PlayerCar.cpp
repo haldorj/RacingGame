@@ -11,6 +11,7 @@
 #include "ArmourPack.h"
 #include "EnergyPack.h"
 #include "WeaponCrate.h"
+#include <algorithm>
 #include "GameFramework/PlayerInput.h"
 #include "Camera/CameraActor.h"
 #include "Components/InputComponent.h"
@@ -53,7 +54,8 @@ APlayerCar::APlayerCar()
 	ForwardForce = 4000.f;
 	TurnTorque = 4000.f;
 	TraceLength = 120.f;
-	HoverForce = 4000.f;
+	Damping = 50.f;
+	Stiffness = 500.f;
 	HoverLength = 100.f;
 
 	// Creating & rooting Player Mesh
@@ -100,21 +102,24 @@ void APlayerCar::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// Restriction physics
+	//// Restriction physics
 	PlayerMesh->SetAngularDamping(AngularDamping);
-	PlayerMesh->SetLinearDamping(LinearDamping);
 
 	// Hover Physics (overriding HoverComponent.cpp)
-	HoverComponentFL->HoverForce = HoverForce / 4;
+	HoverComponentFL->Damping = Damping * PlayerMesh->GetMass();
+	HoverComponentFL->Stiffness = Stiffness * PlayerMesh->GetMass();
 	HoverComponentFL->TraceLength = HoverLength;
 
-	HoverComponentFR->HoverForce = HoverForce / 4;
+	HoverComponentFR->Damping = Damping * PlayerMesh->GetMass();
+	HoverComponentFR->Stiffness = Stiffness * PlayerMesh->GetMass();
 	HoverComponentFR->TraceLength = HoverLength;
 
-	HoverComponentHL->HoverForce = HoverForce / 4;
+	HoverComponentHL->Damping = Damping * PlayerMesh->GetMass();
+	HoverComponentHL->Stiffness = Stiffness * PlayerMesh->GetMass();
 	HoverComponentHL->TraceLength = HoverLength;
 
-	HoverComponentHR->HoverForce = HoverForce / 4;
+	HoverComponentHR->Damping = Damping * PlayerMesh->GetMass();
+	HoverComponentHR->Stiffness = Stiffness * PlayerMesh->GetMass();
 	HoverComponentHR->TraceLength = HoverLength;
 }
 
@@ -137,10 +142,22 @@ void APlayerCar::Tick(float DeltaTime)
 	// Checking Surface Normal
 	Raycast();
 
-	//// Anti-Gravity Movement Prototype
-	//float Gravity;
-	//Gravity = 981.f;
-	//PlayerMesh->AddForceAtLocation(-SurfaceImpactNormal * Gravity * PlayerMesh->GetMass(), PlayerMesh->GetCenterOfMass());
+	//// Axis-based LinearDamping Testing
+	//FVector LinearVelocity = GetVelocity();
+	//FVector linearDamping = FVector(LinearDamping, LinearDamping, 0.1f);
+	//float DeltaSeconds = DeltaTime;
+
+	//FVector LinearDampingTimesDeltaSeconds = linearDamping * DeltaSeconds;
+	//FVector LinearVelocityMultiplier = FVector(
+	//	std::max(0.0f, 1.0f - LinearDampingTimesDeltaSeconds.X),
+	//	std::max(0.0f, 1.0f - LinearDampingTimesDeltaSeconds.Y),
+	//	std::max(0.0f, 1.0f - LinearDampingTimesDeltaSeconds.Z));
+	//LinearVelocity *= LinearVelocityMultiplier;
+
+	// Anti-Gravity Movement Prototype
+	float Gravity;
+	Gravity = 981.f;
+	PlayerMesh->AddForceAtLocation(-SurfaceImpactNormal * Gravity * PlayerMesh->GetMass(), PlayerMesh->GetCenterOfMass());
 }
 
 // Called to bind functionality to input
