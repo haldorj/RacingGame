@@ -38,7 +38,6 @@ AHomingProjectile::AHomingProjectile()
 	ProjectileMovement->bIsHomingProjectile = true;
 	ProjectileMovement->HomingAccelerationMagnitude = 12000.f;
 	ProjectileMovement->ProjectileGravityScale = 0.f;
-	//ProjectileMovement->Velocity = FVector(0, 0, 0);
 
 	// Bind our OnOverlapBegin Event
 	CollisionComp->OnComponentBeginOverlap.AddDynamic(this, &AHomingProjectile::OnOverlapBegin);

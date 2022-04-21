@@ -42,7 +42,7 @@ void UHoverComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 	CollisionParams.AddIgnoredActor(GetOwner());
 	CollisionParams.bTraceComplex = true;
 
-	bool bHit = (GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_Visibility, CollisionParams));
+	bHit = (GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_Visibility, CollisionParams));
 	if (bHit)
 	{
 		// Hit Information.
@@ -76,7 +76,7 @@ void UHoverComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 
 	else
 	{
-		MeshComp->AddForce(FVector(0.f, 0.f, -1) * InAirGravityForce);
+		MeshComp->AddForce(FVector(0.f, 0.f, -1) * InAirGravityForce * MeshComp->GetMass());
 
 		// Displays a red Debug Line if the line doesn't hit a surface
 		DrawDebugLine(GetWorld(), Start, End, FColor::Red);
