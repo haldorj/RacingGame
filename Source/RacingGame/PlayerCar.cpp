@@ -180,7 +180,7 @@ void APlayerCar::MoveForward(float Value)
 	FVector Projection = UKismetMathLibrary::ProjectVectorOnToPlane(GetActorForwardVector(), SurfaceImpactNormal);
 	//FVector Force = (ForwardForce * Projection * PlayerMesh->GetMass());
 
-	// Accel is a Unreal converted Acceleration (km/h -> unreal units (cm/s))
+	// Accel is a Unreal converted Acceleration (km/h -> unreal units (cm/s)) (including drag)
 	float Accel = Acceleration * (100.f / 3.6f) * 2;
 
 	// MaxVel is MaxVelocity including Drag
