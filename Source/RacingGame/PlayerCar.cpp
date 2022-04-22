@@ -51,7 +51,9 @@ APlayerCar::APlayerCar()
 	// Defining Physics-related Values
 	AngularDamping = 5.f;
 	LinearDamping = 1.f;
-	ForwardForce = 4000.f;
+	MaxVelocity = 70.f;
+	Acceleration = 25.f;
+	Velocity = 0.f;
 	TurnTorque = 4000.f;
 	TraceLength = 120.f;
 	Damping = 50.f;
@@ -127,6 +129,11 @@ void APlayerCar::BeginPlay()
 void APlayerCar::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	// Returns and converts the velocity of the object 
+	Velocity = GetVelocity().Size(); // Returns velocity (cm/s) 
+	Velocity *= 3.6f / 100.f; // Converts velocity (cm/s -> km/h) 
+
 	// If the Nitro is on, increase the forward force, else, reduce it back 
 	if (bNitro) {
 		if (NitroTime > 0) {
@@ -135,29 +142,22 @@ void APlayerCar::Tick(float DeltaTime)
 		else {
 			bNitro = false;
 			NitroTime = 0;
-			ForwardForce /= 1.3f;
+			MaxVelocity /= 1.3f;
 		}
 	}
 
 	// Checking Surface Normal
 	Raycast();
 
-	//// Axis-based LinearDamping Testing
-	//FVector LinearVelocity = GetVelocity();
-	//FVector linearDamping = FVector(LinearDamping, LinearDamping, 0.1f);
-	//float DeltaSeconds = DeltaTime;
+	//// Anti-Gravity Movement Prototype
+	//float Gravity;
+	//Gravity = 981.f;
+	//PlayerMesh->AddForceAtLocation(-SurfaceImpactNormal * Gravity * PlayerMesh->GetMass(), PlayerMesh->GetCenterOfMass());
 
-	//FVector LinearDampingTimesDeltaSeconds = linearDamping * DeltaSeconds;
-	//FVector LinearVelocityMultiplier = FVector(
-	//	std::max(0.0f, 1.0f - LinearDampingTimesDeltaSeconds.X),
-	//	std::max(0.0f, 1.0f - LinearDampingTimesDeltaSeconds.Y),
-	//	std::max(0.0f, 1.0f - LinearDampingTimesDeltaSeconds.Z));
-	//LinearVelocity *= LinearVelocityMultiplier;
-
-	// Anti-Gravity Movement Prototype
-	float Gravity;
-	Gravity = 981.f;
-	PlayerMesh->AddForceAtLocation(-SurfaceImpactNormal * Gravity * PlayerMesh->GetMass(), PlayerMesh->GetCenterOfMass());
+	// Simulating drag (in X and Y axis)
+	FVector Drag = GetVelocity() * -1;
+	Drag = FVector(Drag.X, Drag.Y, 0.f);
+	PlayerMesh->AddForceAtLocation(Drag * PlayerMesh->GetMass(), PlayerMesh->GetCenterOfMass());
 }
 
 // Called to bind functionality to input
@@ -178,7 +178,17 @@ void APlayerCar::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 void APlayerCar::MoveForward(float Value)
 {
 	FVector Projection = UKismetMathLibrary::ProjectVectorOnToPlane(GetActorForwardVector(), SurfaceImpactNormal);
-	FVector Force = (ForwardForce * Projection * PlayerMesh->GetMass());
+	//FVector Force = (ForwardForce * Projection * PlayerMesh->GetMass());
+
+	// Accel is a Unreal converted Acceleration (km/h -> unreal units (cm/s))
+	float Accel = Acceleration * (100.f / 3.6f) * 2;
+
+	// MaxVel is MaxVelocity including Drag
+	float MaxVel = MaxVelocity * 2;
+
+	FVector Force = Projection * (1 - (Velocity/MaxVel)) * (Accel * PlayerMesh->GetMass());
+
+	// Convert Acceleration back for stability purposes (unreal units (cm/s) -> km/h)
 
 	FVector Center = PlayerMesh->GetCenterOfMass();
 	FVector Varience(0.f, 0.f, 1.5f);
@@ -305,7 +315,7 @@ void APlayerCar::Nitro() {
 		Energy -= 2;
 
 		NitroTime = 3.f;
-		ForwardForce *= 1.3f;
+		MaxVelocity *= 1.3f;
 	}
 }
 
