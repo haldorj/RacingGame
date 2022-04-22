@@ -202,7 +202,7 @@ void APlayerCar::MoveForward(float Value)
 
 	if (HoverComponentFL->bHit == false && HoverComponentFR->bHit == false && HoverComponentHL->bHit == false && HoverComponentHR->bHit == false)
 	{
-		Varience = FVector(0.f, 0.f, -1.5f);
+		Varience = FVector(0.f, 0.f, -0.5f);
 	}
 	else
 	{
