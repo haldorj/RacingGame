@@ -13,7 +13,6 @@
 #include "RacingSaveGame.h"
 #include "MainPlayerController.h"
 #include "CheckPoint.h"
-
 #include "DrawDebugHelpers.h"
 #include "GameFramework/PlayerInput.h"
 #include "Camera/CameraActor.h"
@@ -57,10 +56,13 @@ APlayerCar::APlayerCar()
 	// Defining Physics-related Values
 	AngularDamping = 5.f;
 	LinearDamping = 1.f;
-	ForwardForce = 4000.f;
+	MaxVelocity = 70.f;
+	Acceleration = 25.f;
+	Velocity = 0.f;
 	TurnTorque = 4000.f;
 	TraceLength = 120.f;
-	HoverForce = 4000.f;
+	Damping = 50.f;
+	Stiffness = 500.f;
 	HoverLength = 100.f;
 
 	// Creating & rooting Player Mesh
@@ -107,21 +109,24 @@ void APlayerCar::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// Restriction physics
+	//// Restriction physics
 	PlayerMesh->SetAngularDamping(AngularDamping);
-	PlayerMesh->SetLinearDamping(LinearDamping);
 
 	// Hover Physics (overriding HoverComponent.cpp)
-	HoverComponentFL->HoverForce = HoverForce / 4;
+	HoverComponentFL->Damping = Damping * PlayerMesh->GetMass();
+	HoverComponentFL->Stiffness = Stiffness * PlayerMesh->GetMass();
 	HoverComponentFL->TraceLength = HoverLength;
 
-	HoverComponentFR->HoverForce = HoverForce / 4;
+	HoverComponentFR->Damping = Damping * PlayerMesh->GetMass();
+	HoverComponentFR->Stiffness = Stiffness * PlayerMesh->GetMass();
 	HoverComponentFR->TraceLength = HoverLength;
 
-	HoverComponentHL->HoverForce = HoverForce / 4;
+	HoverComponentHL->Damping = Damping * PlayerMesh->GetMass();
+	HoverComponentHL->Stiffness = Stiffness * PlayerMesh->GetMass();
 	HoverComponentHL->TraceLength = HoverLength;
 
-	HoverComponentHR->HoverForce = HoverForce / 4;
+	HoverComponentHR->Damping = Damping * PlayerMesh->GetMass();
+	HoverComponentHR->Stiffness = Stiffness * PlayerMesh->GetMass();
 	HoverComponentHR->TraceLength = HoverLength;
 }
 
@@ -129,6 +134,11 @@ void APlayerCar::BeginPlay()
 void APlayerCar::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	// Returns and converts the velocity of the object 
+	Velocity = GetVelocity().Size(); // Returns velocity (cm/s) 
+	Velocity *= 3.6f / 100.f; // Converts velocity (cm/s -> km/h) 
+
 	// If the Nitro is on, increase the forward force, else, reduce it back 
 	if (bNitro) {
 		if (NitroTime > 0) {
@@ -137,7 +147,7 @@ void APlayerCar::Tick(float DeltaTime)
 		else {
 			bNitro = false;
 			NitroTime = 0;
-			ForwardForce /= 1.3f;
+			MaxVelocity /= 1.3f;
 		}
 	}
 
@@ -148,6 +158,11 @@ void APlayerCar::Tick(float DeltaTime)
 	//float Gravity;
 	//Gravity = 981.f;
 	//PlayerMesh->AddForceAtLocation(-SurfaceImpactNormal * Gravity * PlayerMesh->GetMass(), PlayerMesh->GetCenterOfMass());
+
+	// Simulating drag (in X and Y axis)
+	FVector Drag = GetVelocity() * -1;
+	Drag = FVector(Drag.X, Drag.Y, 0.f);
+	PlayerMesh->AddForceAtLocation(Drag * PlayerMesh->GetMass(), PlayerMesh->GetCenterOfMass());
 }
 
 // Called to bind functionality to input
@@ -172,7 +187,17 @@ void APlayerCar::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 void APlayerCar::MoveForward(float Value)
 {
 	FVector Projection = UKismetMathLibrary::ProjectVectorOnToPlane(GetActorForwardVector(), SurfaceImpactNormal);
-	FVector Force = (ForwardForce * Projection * PlayerMesh->GetMass());
+	//FVector Force = (ForwardForce * Projection * PlayerMesh->GetMass());
+
+	// Accel is a Unreal converted Acceleration (km/h -> unreal units (cm/s)) (including drag)
+	float Accel = Acceleration * (100.f / 3.6f) * 2;
+
+	// MaxVel is MaxVelocity including Drag
+	float MaxVel = MaxVelocity * 2;
+
+	FVector Force = Projection * (1 - (Velocity/MaxVel)) * (Accel * PlayerMesh->GetMass());
+
+	// Convert Acceleration back for stability purposes (unreal units (cm/s) -> km/h)
 
 	FVector Center = PlayerMesh->GetCenterOfMass();
 	FVector Varience(0.f, 0.f, 1.5f);
@@ -299,7 +324,7 @@ void APlayerCar::Nitro() {
 		Energy -= 2;
 
 		NitroTime = 3.f;
-		ForwardForce *= 1.3f;
+		MaxVelocity *= 1.3f;
 	}
 }
 
