@@ -113,6 +113,9 @@ void APlayerCar::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// Rotates camera to where the player car looks
+	YaValue = GetActorRotation().Yaw;
+
 	// Restriction physics
 	PlayerMesh->SetAngularDamping(AngularDamping);
 	//PlayerMesh->SetLinearDamping(LinearDamping);
@@ -187,7 +190,6 @@ void APlayerCar::MoveForward(float Value)
 {
 	FVector Projection = UKismetMathLibrary::ProjectVectorOnToPlane(GetActorForwardVector(), SurfaceImpactNormal);
 	FVector Force = (ForwardForce * Projection * PlayerMesh->GetMass());
-	Force = FVector(Force.X, Force.Y, Force.Z / 6);
 
 	FVector Center = PlayerMesh->GetCenterOfMass();
 	FVector Varience(0.f, 0.f, 1.5f);
