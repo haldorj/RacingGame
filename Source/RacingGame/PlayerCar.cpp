@@ -14,6 +14,7 @@
 #include "MainPlayerController.h"
 #include "CheckPoint.h"
 #include "OutOfBoundsVolume.h"
+#include "RacingGameGameModeBase.h"
 
 #include "DrawDebugHelpers.h"
 #include "GameFramework/PlayerInput.h"
@@ -177,6 +178,8 @@ void APlayerCar::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 
 	PlayerInputComponent->BindAction("ESC", EInputEvent::IE_Pressed, this, &APlayerCar::ESCDown).bExecuteWhenPaused = true;
 	PlayerInputComponent->BindAction("ESC", EInputEvent::IE_Released, this, &APlayerCar::ESCUp).bExecuteWhenPaused = true;
+
+	PlayerInputComponent->BindAction("Destroy", IE_Pressed, this, &APlayerCar::CallRestartPlayer);
 
 }
 
@@ -461,9 +464,6 @@ void APlayerCar::SaveGame()
 	SaveGameInstance->CharacterStats.Armour = Armour;
 	SaveGameInstance->CharacterStats.MaxArmour = MaxArmour;
 
-	SaveGameInstance->CharacterStats.CameraLocation = Camera->GetComponentLocation();
-	SaveGameInstance->CharacterStats.CameraRotation = Camera->GetComponentRotation();
-
 	SaveGameInstance->CharacterStats.Location = GetActorLocation();
 	SaveGameInstance->CharacterStats.Rotation = GetActorRotation();
 
@@ -489,3 +489,41 @@ void APlayerCar::LoadGame(bool SetPosition)
 		SetActorRotation(LoadGameInstance->CharacterStats.Rotation);
 	}
 }
+
+void APlayerCar::Destroyed()
+{
+	Super::Destroyed();
+
+	// Example to bind to OnPlayerDied event in GameMode. 
+	if (UWorld* World = GetWorld())
+	{
+		if (ARacingGameGameModeBase* GameMode = Cast<ARacingGameGameModeBase>(World->GetAuthGameMode()))
+		{
+			GameMode->GetOnPlayerDied().Broadcast(this);
+		}
+	}
+}
+
+void APlayerCar::CallRestartPlayer()
+{
+	//Get a reference to the Pawn Controller.
+	AController* CortollerRef = GetController();
+
+		//Get the World and GameMode in the world to invoke its restart player function.
+		if (UWorld* World = GetWorld())
+		{
+			if (ARacingGameGameModeBase* GameMode = Cast<ARacingGameGameModeBase>(World->GetAuthGameMode()))
+			{
+				URacingSaveGame* LoadGameInstance = Cast<URacingSaveGame>(UGameplayStatics::CreateSaveGameObject(URacingSaveGame::StaticClass()));
+				GameMode->RestartPlayer(CortollerRef);
+			}
+		}
+
+	LoadGame(true);
+}
+
+void APlayerCar::RestartLevel()
+{
+	UGameplayStatics::OpenLevel(this, FName(*GetWorld()->GetName()), false);
+}
+

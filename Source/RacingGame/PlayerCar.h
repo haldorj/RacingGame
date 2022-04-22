@@ -174,5 +174,17 @@ public:
 		FTimerDelegate TimerDel;
 
 		// For spawning Player:
-		TSubclassOf<APlayerCar> PlayerToSpawn;
+protected:
+
+	//Called when our Actor is destroyed during Gameplay.
+	virtual void Destroyed();
+
+	//Call Gamemode class to Restart Player Character.
+	UFUNCTION(BluePrintCallable)
+	void CallRestartPlayer();
+
+	UFUNCTION(BluePrintCallable)
+	void RestartLevel();
+
+	void DestroyPlayer();
 };
