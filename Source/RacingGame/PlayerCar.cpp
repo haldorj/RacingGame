@@ -116,6 +116,7 @@ void APlayerCar::BeginPlay()
 	// Rotates camera to where the player car looks
 	YaValue = GetActorRotation().Yaw;
 
+
 	// Restriction physics
 	PlayerMesh->SetAngularDamping(AngularDamping);
 	//PlayerMesh->SetLinearDamping(LinearDamping);
@@ -136,6 +137,8 @@ void APlayerCar::BeginPlay()
 	HoverComponentHR->TraceLength = HoverLength;
 	HoverComponentHR->InAirGravityForce = InAirGravityForce;
 
+
+
 }
 
 // Called every frame
@@ -155,6 +158,8 @@ void APlayerCar::Tick(float DeltaTime)
 			SpringArm->CameraLagSpeed = 20.f;
 		}
 	}
+
+	HealthFunction();
 
 	// Checking Surface Normal
 	Raycast();
@@ -182,7 +187,8 @@ void APlayerCar::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 	PlayerInputComponent->BindAction("ESC", EInputEvent::IE_Pressed, this, &APlayerCar::ESCDown).bExecuteWhenPaused = true;
 	PlayerInputComponent->BindAction("ESC", EInputEvent::IE_Released, this, &APlayerCar::ESCUp).bExecuteWhenPaused = true;
 
-	PlayerInputComponent->BindAction("Destroy", IE_Pressed, this, &APlayerCar::CallRestartPlayer);
+	PlayerInputComponent->BindAction("Destroy", IE_Pressed, this, &APlayerCar::KillPlayer);
+	PlayerInputComponent->BindAction("Minus", IE_Pressed, this, &APlayerCar::HealthMinus);
 
 }
 
@@ -384,7 +390,21 @@ void APlayerCar::Raycast()
 
 void APlayerCar::KillPlayer()
 {
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, TimerDel, 2.f, false);
+	SetActorHiddenInGame(true);
+	SetActorEnableCollision(false);
+	//ParticleFX:
+	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionFX, GetTransform(), true);
+
+	//SoundFX
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), ExplosionSound, GetActorLocation());
+
+	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+	APlayerController* TempController = PlayerController;
+
+	APlayerCar::DisableInput(PlayerController);
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, TimerDel, 3.f, false);
+
+	//APlayerCar::EnableInput(TempController);
 }
 
 void APlayerCar::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent,
@@ -483,6 +503,14 @@ void APlayerCar::SaveGame()
 
 void APlayerCar::LoadGame(bool SetPosition)
 {
+	SetActorHiddenInGame(false);
+	SetActorEnableCollision(true);
+
+	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+	APlayerController* TempController = PlayerController;
+
+	APlayerCar::EnableInput(TempController);
+
 	URacingSaveGame* LoadGameInstance = Cast<URacingSaveGame>(UGameplayStatics::CreateSaveGameObject(URacingSaveGame::StaticClass()));
 
 	LoadGameInstance = Cast<URacingSaveGame>(UGameplayStatics::LoadGameFromSlot(LoadGameInstance->PlayerName, LoadGameInstance->UserIndex));
@@ -501,36 +529,18 @@ void APlayerCar::LoadGame(bool SetPosition)
 	}
 }
 
-void APlayerCar::Destroyed()
+void APlayerCar::HealthFunction()
 {
-	Super::Destroyed();
-
-	// Example to bind to OnPlayerDied event in GameMode. 
-	if (UWorld* World = GetWorld())
+	if (Health <= 0)
 	{
-		if (ARacingGameGameModeBase* GameMode = Cast<ARacingGameGameModeBase>(World->GetAuthGameMode()))
-		{
-			GameMode->GetOnPlayerDied().Broadcast(this);
-		}
+		Health = 0.01;
+		KillPlayer();
 	}
 }
 
-void APlayerCar::CallRestartPlayer()
+void APlayerCar::HealthMinus()
 {
-	//Get a reference to the Pawn Controller.
-	AController* CortollerRef = GetController();
-
-		//Get the World and GameMode in the world to invoke its restart player function.
-		if (UWorld* World = GetWorld())
-		{
-			if (ARacingGameGameModeBase* GameMode = Cast<ARacingGameGameModeBase>(World->GetAuthGameMode()))
-			{
-				URacingSaveGame* LoadGameInstance = Cast<URacingSaveGame>(UGameplayStatics::CreateSaveGameObject(URacingSaveGame::StaticClass()));
-				GameMode->RestartPlayer(CortollerRef);
-			}
-		}
-
-	LoadGame(true);
+	Health -= 10;
 }
 
 void APlayerCar::RestartLevel()

@@ -138,6 +138,9 @@ public:
 	UFUNCTION(BluePrintCallable)
 		void LoadGame(bool SetPosition);
 
+	void HealthFunction();
+	void HealthMinus();
+
 	//
 	// Vehicle variables
 	//
@@ -176,15 +179,14 @@ public:
 		// For spawning Player:
 protected:
 
-	//Called when our Actor is destroyed during Gameplay.
-	virtual void Destroyed();
-
-	//Call Gamemode class to Restart Player Character.
-	UFUNCTION(BluePrintCallable)
-	void CallRestartPlayer();
-
 	UFUNCTION(BluePrintCallable)
 	void RestartLevel();
 
-	void DestroyPlayer();
+private:
+	//Sounds and effects
+	UPROPERTY(EditAnywhere, Category = "PlayerVariables")
+		UParticleSystem* ExplosionFX = nullptr;
+
+	UPROPERTY(EditAnywhere, Category = "PlayerVariables")
+		USoundBase* ExplosionSound = nullptr;
 };

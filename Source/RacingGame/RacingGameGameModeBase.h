@@ -20,21 +20,8 @@ public:
     
     ARacingGameGameModeBase();
 
-    const FOnPlayerDiedSignature& GetOnPlayerDied() const { return OnPlayerDied; }
-
-//Tries to Spawn the player's pawn.
-
-virtual void RestartPlayer(AController* NewPlayer) override;
-
 protected:
 
     virtual void BeginPlay() override;
 
-    //Called when Player character has died.
-    UFUNCTION()
-        virtual void PlayerDied(APlayerCar* PlayerCar);
-
-    //Signature to bind delegate. 
-    UPROPERTY()
-        FOnPlayerDiedSignature OnPlayerDied;
 };
