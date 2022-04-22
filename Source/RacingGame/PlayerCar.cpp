@@ -13,6 +13,8 @@
 #include "RacingSaveGame.h"
 #include "MainPlayerController.h"
 #include "CheckPoint.h"
+#include "OutOfBoundsVolume.h"
+#include "RacingGameGameModeBase.h"
 
 #include "DrawDebugHelpers.h"
 #include "GameFramework/PlayerInput.h"
@@ -27,6 +29,7 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "TimerManager.h"
 
 
 // Sets default values
@@ -58,10 +61,10 @@ APlayerCar::APlayerCar()
 	AngularDamping = 5.f;
 	LinearDamping = 1.f;
 	ForwardForce = 4000.f;
-	TurnTorque = 4000.f;
-	TraceLength = 120.f;
-	HoverForce = 4000.f;
+	TurnTorque = 20000.f;
+	HoverForce = 350.f;
 	HoverLength = 100.f;
+	TraceLength = 130;
 
 	// Creating & rooting Player Mesh
 	PlayerMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("PlayerMesh"));
@@ -80,7 +83,7 @@ APlayerCar::APlayerCar()
 	SpringArm->SetRelativeRotation(FRotator(0.f, -15.f, 0.f));
 	SpringArm->TargetArmLength = 500.f;
 	SpringArm->bEnableCameraLag = true;
-	SpringArm->CameraLagSpeed = 7.f;
+	SpringArm->CameraLagSpeed = 20.f;
 	SpringArm->SetupAttachment(PlayerMesh);
 
 	// Creating & attaching Camera
@@ -100,6 +103,9 @@ APlayerCar::APlayerCar()
 
 	HoverComponentHR = CreateDefaultSubobject<UHoverComponent>(TEXT("HoverComponentHR"));
 	HoverComponentHR->SetupAttachment(PlayerMesh);
+
+	TimerDel.BindUFunction(this, FName("LoadGame"), true);
+
 }
 
 // Called when the game starts or when spawned
@@ -111,18 +117,22 @@ void APlayerCar::BeginPlay()
 	PlayerMesh->SetAngularDamping(AngularDamping);
 	PlayerMesh->SetLinearDamping(LinearDamping);
 
-	// Hover Physics (overriding HoverComponent.cpp)
-	HoverComponentFL->HoverForce = HoverForce / 4;
+	HoverComponentFL->HoverForce = HoverForce;
 	HoverComponentFL->TraceLength = HoverLength;
+	HoverComponentFL->InAirGravityForce = InAirGravityForce;
 
-	HoverComponentFR->HoverForce = HoverForce / 4;
+	HoverComponentFR->HoverForce = HoverForce;
 	HoverComponentFR->TraceLength = HoverLength;
+	HoverComponentFR->InAirGravityForce = InAirGravityForce;
 
-	HoverComponentHL->HoverForce = HoverForce / 4;
+	HoverComponentHL->HoverForce = HoverForce;
 	HoverComponentHL->TraceLength = HoverLength;
+	HoverComponentHL->InAirGravityForce = InAirGravityForce;
 
-	HoverComponentHR->HoverForce = HoverForce / 4;
+	HoverComponentHR->HoverForce = HoverForce;
 	HoverComponentHR->TraceLength = HoverLength;
+	HoverComponentHR->InAirGravityForce = InAirGravityForce;
+
 }
 
 // Called every frame
@@ -133,11 +143,13 @@ void APlayerCar::Tick(float DeltaTime)
 	if (bNitro) {
 		if (NitroTime > 0) {
 			NitroTime -= DeltaTime;
+			SpringArm->CameraLagSpeed = 10.f;
 		}
 		else {
 			bNitro = false;
 			NitroTime = 0;
 			ForwardForce /= 1.3f;
+			SpringArm->CameraLagSpeed = 20.f;
 		}
 	}
 
@@ -167,6 +179,8 @@ void APlayerCar::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 	PlayerInputComponent->BindAction("ESC", EInputEvent::IE_Pressed, this, &APlayerCar::ESCDown).bExecuteWhenPaused = true;
 	PlayerInputComponent->BindAction("ESC", EInputEvent::IE_Released, this, &APlayerCar::ESCUp).bExecuteWhenPaused = true;
 
+	PlayerInputComponent->BindAction("Destroy", IE_Pressed, this, &APlayerCar::CallRestartPlayer);
+
 }
 
 void APlayerCar::MoveForward(float Value)
@@ -176,6 +190,16 @@ void APlayerCar::MoveForward(float Value)
 
 	FVector Center = PlayerMesh->GetCenterOfMass();
 	FVector Varience(0.f, 0.f, 1.5f);
+
+	if (HoverComponentFL->bHit == false && HoverComponentFR->bHit == false && HoverComponentHL->bHit == false && HoverComponentHR->bHit == false)
+	{
+		Varience = FVector(0.f, 0.f, -1.5f);
+	}
+	else
+	{
+		Varience = FVector(0.f, 0.f, 1.5f);
+	}
+
 	PlayerMesh->AddForceAtLocation((Force * Value), Center + Varience);
 
 	if (Value < 0) { bForwards = false; }
@@ -347,6 +371,11 @@ void APlayerCar::Raycast()
 		DrawDebugLine(GetWorld(), Start, End, FColor::Cyan, false, -1, 0, 1);
 }
 
+void APlayerCar::KillPlayer()
+{
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, TimerDel, 2.f, false);
+}
+
 void APlayerCar::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent,
 	int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
@@ -401,6 +430,11 @@ void APlayerCar::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 	{
 		SaveGame();
 	}
+
+	if (OtherActor->IsA(AOutOfBoundsVolume::StaticClass()))
+	{
+		LoadGame(true);
+	}
 }
 
 void APlayerCar::SwitchLevel(FName LevelName)
@@ -430,9 +464,6 @@ void APlayerCar::SaveGame()
 	SaveGameInstance->CharacterStats.Armour = Armour;
 	SaveGameInstance->CharacterStats.MaxArmour = MaxArmour;
 
-	SaveGameInstance->CharacterStats.CameraLocation = Camera->GetComponentLocation();
-	SaveGameInstance->CharacterStats.CameraRotation = Camera->GetComponentRotation();
-
 	SaveGameInstance->CharacterStats.Location = GetActorLocation();
 	SaveGameInstance->CharacterStats.Rotation = GetActorRotation();
 
@@ -454,7 +485,45 @@ void APlayerCar::LoadGame(bool SetPosition)
 
 	if (SetPosition)
 	{
-		SetActorLocation(LoadGameInstance->CharacterStats.Location);
+		SetActorLocation((LoadGameInstance->CharacterStats.Location)+(FVector(0, 0, 100.f)));
 		SetActorRotation(LoadGameInstance->CharacterStats.Rotation);
 	}
 }
+
+void APlayerCar::Destroyed()
+{
+	Super::Destroyed();
+
+	// Example to bind to OnPlayerDied event in GameMode. 
+	if (UWorld* World = GetWorld())
+	{
+		if (ARacingGameGameModeBase* GameMode = Cast<ARacingGameGameModeBase>(World->GetAuthGameMode()))
+		{
+			GameMode->GetOnPlayerDied().Broadcast(this);
+		}
+	}
+}
+
+void APlayerCar::CallRestartPlayer()
+{
+	//Get a reference to the Pawn Controller.
+	AController* CortollerRef = GetController();
+
+		//Get the World and GameMode in the world to invoke its restart player function.
+		if (UWorld* World = GetWorld())
+		{
+			if (ARacingGameGameModeBase* GameMode = Cast<ARacingGameGameModeBase>(World->GetAuthGameMode()))
+			{
+				URacingSaveGame* LoadGameInstance = Cast<URacingSaveGame>(UGameplayStatics::CreateSaveGameObject(URacingSaveGame::StaticClass()));
+				GameMode->RestartPlayer(CortollerRef);
+			}
+		}
+
+	LoadGame(true);
+}
+
+void APlayerCar::RestartLevel()
+{
+	UGameplayStatics::OpenLevel(this, FName(*GetWorld()->GetName()), false);
+}
+

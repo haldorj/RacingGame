@@ -70,6 +70,7 @@ public:
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"));
 	TSubclassOf<AActor> ActorToSpawn;
 
+
 private:
 	void MoveForward(float Value);
 	void MoveRight(float Value);
@@ -88,6 +89,9 @@ private:
 	class UStaticMeshComponent* Target();
 	
 	void Raycast();
+
+	UFUNCTION(BluePrintCallable)
+	void KillPlayer();
 
 	// For interacting with other classes / collision.
 	UFUNCTION()
@@ -158,4 +162,29 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerPhysics")
 		float HoverLength;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerPhysics")
+		float InAirGravityForce;
+
+
+	//timer:
+	private:
+		FTimerHandle TimerHandle;
+
+		FTimerDelegate TimerDel;
+
+		// For spawning Player:
+protected:
+
+	//Called when our Actor is destroyed during Gameplay.
+	virtual void Destroyed();
+
+	//Call Gamemode class to Restart Player Character.
+	UFUNCTION(BluePrintCallable)
+	void CallRestartPlayer();
+
+	UFUNCTION(BluePrintCallable)
+	void RestartLevel();
+
+	void DestroyPlayer();
 };

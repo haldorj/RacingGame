@@ -3,6 +3,7 @@
 #include "HomingProjectile.h"
 #include "PlayerCar.h"
 #include "Enemy.h"
+#include "CheckPoint.h"
 
 #include "Components/BoxComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
@@ -38,7 +39,6 @@ AHomingProjectile::AHomingProjectile()
 	ProjectileMovement->bIsHomingProjectile = true;
 	ProjectileMovement->HomingAccelerationMagnitude = 12000.f;
 	ProjectileMovement->ProjectileGravityScale = 0.f;
-	//ProjectileMovement->Velocity = FVector(0, 0, 0);
 
 	// Bind our OnOverlapBegin Event
 	CollisionComp->OnComponentBeginOverlap.AddDynamic(this, &AHomingProjectile::OnOverlapBegin);
@@ -86,6 +86,12 @@ void AHomingProjectile::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AAct
 
 	UStaticMeshComponent* MeshComponent = Cast<UStaticMeshComponent>(OtherActor->GetRootComponent());
 	FVector Forward = this->GetActorForwardVector();
+
+	if ((OverlappedComp != nullptr) && (OtherActor != nullptr) && (OtherActor != this)
+		&& (!OtherActor->IsA(APlayerCar::StaticClass())) && (!OtherActor->IsA(ACheckPoint::StaticClass())))
+	{
+		Explode();
+	}
 
 	if (OtherActor->IsA(AEnemy::StaticClass()))
 	{	
