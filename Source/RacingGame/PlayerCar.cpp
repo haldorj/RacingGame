@@ -115,7 +115,7 @@ void APlayerCar::BeginPlay()
 
 	// Restriction physics
 	PlayerMesh->SetAngularDamping(AngularDamping);
-	PlayerMesh->SetLinearDamping(LinearDamping);
+	//PlayerMesh->SetLinearDamping(LinearDamping);
 
 	HoverComponentFL->HoverForce = HoverForce;
 	HoverComponentFL->TraceLength = HoverLength;
@@ -361,11 +361,19 @@ void APlayerCar::Raycast()
 			// Hit Information.
 			SurfaceImpactNormal = OutHit.ImpactNormal;
 
+			// Simulate Drag in all axis
+			FVector Drag = GetVelocity() * -LinearDamping;
+			PlayerMesh->AddForceAtLocation(Drag * PlayerMesh->GetMass(), PlayerMesh->GetCenterOfMass());
+
 			DrawDebugSolidBox(GetWorld(), OutHit.ImpactPoint, FVector(5, 5, 5), FColor::Cyan, false, -1);
 		}
 
 		else {
 			SurfaceImpactNormal = FVector(0.f, 0.f, 1.f);
+			
+			FVector Drag = GetVelocity() * -LinearDamping;
+			Drag = FVector(Drag.X, Drag.Y, 0.f);
+			PlayerMesh->AddForceAtLocation(Drag * PlayerMesh->GetMass(), PlayerMesh->GetCenterOfMass());
 		}
 
 		DrawDebugLine(GetWorld(), Start, End, FColor::Cyan, false, -1, 0, 1);
