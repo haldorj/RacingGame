@@ -26,8 +26,6 @@ void UHoverComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	MeshComp = Cast<UStaticMeshComponent>(GetOwner()->GetRootComponent());
-
-
 }
 
 
@@ -58,13 +56,13 @@ void UHoverComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 		//UE_LOG(LogTemp, Warning, TEXT("VectorSize: %f"), VectorSize);
 
 		// Value from 0 - 1.
-		CompressionThis = 1 - (VectorLength / TraceLength);
+		float Alpha = (VectorLength / TraceLength);
 
 		// Linear interpolation between two values, functions as suspension.
-		HoverForce = (Stiffness * CompressionThis) + (Damping * ((CompressionThis - CompressionLast) / DeltaTime));
+		float CompressionRatio = FMath::Lerp(HoverForce * MeshComp->GetMass(), 0.f, Alpha);
 
 		// Creates Force and Location to push the Actor
-		FVector Force = (HoverForce * SurfaceImpactNormal);
+		FVector Force = (CompressionRatio * SurfaceImpactNormal);
 		FRotator Rotation = MeshComp->GetComponentRotation();
 		FVector Location = MeshComp->GetCenterOfMass() + Rotation.RotateVector(GetRelativeLocation());
 
@@ -74,7 +72,6 @@ void UHoverComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 		// Debug Line and Impact Box
 		DrawDebugLine(GetWorld(), Start, End, FColor::Green);
 		DrawDebugSolidBox(GetWorld(), OutHit.ImpactPoint, FVector(5.f, 5.f, 5.f), FColor::Green);
-		CompressionLast = CompressionThis;
 	}
 
 	else
@@ -83,6 +80,5 @@ void UHoverComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 
 		// Displays a red Debug Line if the line doesn't hit a surface
 		DrawDebugLine(GetWorld(), Start, End, FColor::Red);
-		CompressionLast = 0;
 	}
 }

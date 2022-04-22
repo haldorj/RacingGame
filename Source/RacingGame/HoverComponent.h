@@ -30,10 +30,6 @@ public:
 	float TraceLength;
 	float HoverForce;
 	float InAirGravityForce;
-	float Stiffness;
-	float Damping;
-	float CompressionThis;
-	float CompressionLast;
 };
 
 

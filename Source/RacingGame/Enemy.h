@@ -53,10 +53,7 @@ private:
 public:
 	// Physics variables
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerPhysics")
-		float Damping;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerPhysics")
-		float Stiffness;
+		float HoverForce;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerPhysics")
 		float HoverLength;

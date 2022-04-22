@@ -12,8 +12,7 @@ AEnemy::AEnemy()
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	Damping = 40.f;
-	Stiffness = 400.f;
+	HoverForce = 4000.f;
 	HoverLength = 100.f;
 
 	MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComponent"));
@@ -44,20 +43,16 @@ void AEnemy::BeginPlay()
 	Super::BeginPlay();
 	
 	// Hover Physics (overriding HoverComponent.cpp)
-	HoverComponentFL->Damping = Damping;
-	HoverComponentFL->Stiffness = Stiffness * MeshComponent->GetMass();
+	HoverComponentFL->HoverForce = HoverForce / 4;
 	HoverComponentFL->TraceLength = HoverLength;
 
-	HoverComponentFR->Damping = Damping;
-	HoverComponentFR->Stiffness = Stiffness * MeshComponent->GetMass();
+	HoverComponentFR->HoverForce = HoverForce / 4;
 	HoverComponentFR->TraceLength = HoverLength;
 
-	HoverComponentHL->Damping = Damping;
-	HoverComponentHL->Stiffness = Stiffness * MeshComponent->GetMass();
+	HoverComponentHL->HoverForce = HoverForce / 4;
 	HoverComponentHL->TraceLength = HoverLength;
 
-	HoverComponentHR->Damping = Damping;
-	HoverComponentHR->Stiffness = Stiffness * MeshComponent->GetMass();
+	HoverComponentHR->HoverForce = HoverForce / 4;
 	HoverComponentHR->TraceLength = HoverLength;
 }
 

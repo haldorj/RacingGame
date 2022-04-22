@@ -101,8 +101,6 @@ private:
 
 	bool bForwards;
 	bool bNitro;
-
-	float Velocity;
 	float NitroTime;
 	float PiValue;
 	float YaValue;
@@ -141,19 +139,13 @@ public:
 	//
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerStats")
-		float MaxVelocity;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerPhysics")
-		float Acceleration;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerStats")
 		float AngularDamping;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerStats")
 		float LinearDamping;
 
-	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerPhysics")
-	//	float ForwardForce;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerPhysics")
+		float ForwardForce;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerPhysics")
 		float TurnTorque;
@@ -162,10 +154,7 @@ public:
 		float TraceLength;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerPhysics")
-		float Damping;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerPhysics")
-		float Stiffness;
+		float HoverForce;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerPhysics")
 		float HoverLength;
