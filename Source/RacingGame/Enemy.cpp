@@ -95,8 +95,10 @@ void AEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	MoveForward(1);
-	MoveRight(Steering());
+	MoveRight(GetPath());
 	Raycast();
+
+	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("Steering %f "), Steering));
 
 }
 
@@ -142,19 +144,29 @@ void AEnemy::Raycast()
 	DrawDebugLine(GetWorld(), Start, End, FColor::Cyan, false, -1, 0, 1);
 }
 
-float AEnemy::Steering()
+float AEnemy::GetPath()
 {
-	//USplineComponent* Splines;
-	//FVector Tangent = Splines->FindTangentClosestToWorldLocation(GetActorLocation(), ESplineCoordinateSpace::World);
-	//
-	//FVector Sum = GetActorLocation() + Tangent.Normalize();
-	//FVector Distance = Splines->FindLocationClosestToWorldLocation(Sum, ESplineCoordinateSpace::World);
-	//FRotator Rotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), Distance);
-	//FRotator NormalizedAB = UKismetMathLibrary::NormalizedDeltaRotator(Rotation, GetActorRotation());
-	//float steering = UKismetMathLibrary::MapRangeClamped(NormalizedAB.Yaw, -90, 90, -1, 1);
-	
-	float steering = 1;
-	return steering;
+	TArray<AActor*> ActorsToFind;
+	if (UWorld* World = GetWorld())
+	{
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), APath::StaticClass(), ActorsToFind);
+	}
+	for (AActor* PathActor : ActorsToFind) 
+	{
+		APath* Path = Cast<APath>(PathActor);
+		if (Path)
+		{
+			USplineComponent* Splines = Path->SplineComponent;
+			FVector Tangent = Splines->FindTangentClosestToWorldLocation(GetActorLocation(), ESplineCoordinateSpace::World);
+			FVector Sum = (GetActorLocation() + Tangent.Normalize()) * 500;
+			FVector Distance = Splines->FindLocationClosestToWorldLocation(Sum, ESplineCoordinateSpace::World);
+			FRotator Rotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), Distance);
+			FRotator NormalizedAB = UKismetMathLibrary::NormalizedDeltaRotator(Rotation, GetActorRotation());
+			Steering = UKismetMathLibrary::MapRangeClamped(NormalizedAB.Yaw, -90, 90, -1, 1);
+
+		}
+	}
+	return Steering;
 }
 
 void AEnemy::MoveForward(float Value)

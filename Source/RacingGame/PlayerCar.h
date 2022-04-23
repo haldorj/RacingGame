@@ -70,7 +70,6 @@ public:
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"));
 	TSubclassOf<AActor> ActorToSpawn;
 
-
 private:
 	void MoveForward(float Value);
 	void MoveRight(float Value);
