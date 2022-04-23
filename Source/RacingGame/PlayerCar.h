@@ -86,7 +86,9 @@ private:
 	void ESCDown();
 	void ESCUp();
 
+	void SetTarget();
 	class UStaticMeshComponent* Target();
+	class UStaticMeshComponent* TargetMesh;
 	
 	void Raycast();
 
