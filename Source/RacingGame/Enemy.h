@@ -77,6 +77,7 @@ private:
 	void Raycast();
 	float Steering();
 
+
 	//
 	//	Player Stats
 	//
@@ -89,6 +90,8 @@ private:
 	FVector SurfaceImpactNormal;
 	
 public:
+	void HealthFunction();
+	void KillPlayer();
 
 	//
 	// Vehicle variables
@@ -118,9 +121,29 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerPhysics")
 		float InAirGravityForce;
 
+	//timer:
+	private:
+		FTimerHandle TimerHandle;
+
+		FTimerDelegate TimerDel;
+
+	UFUNCTION(BluePrintCallable)
+		void EnemySaveGame();
+
+	UFUNCTION(BluePrintCallable)
+		void EnemyLoadGame(bool SetPosition);
+
 private:
 	UFUNCTION()
 		void OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 			UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex, bool bFromSweep,
 			const FHitResult& SweepResult);
+
+private:
+	//Sounds and effects
+	UPROPERTY(EditAnywhere, Category = "PlayerVariables")
+		UParticleSystem* ExplosionFX = nullptr;
+
+	UPROPERTY(EditAnywhere, Category = "PlayerVariables")
+		USoundBase* ExplosionSound = nullptr;
 };

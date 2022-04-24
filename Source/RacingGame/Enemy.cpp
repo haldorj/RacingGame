@@ -11,7 +11,7 @@
 #include "ArmourPack.h"
 #include "EnergyPack.h"
 #include "WeaponCrate.h"
-#include "RacingSaveGame.h"
+#include "EnemySaveGame.h"
 #include "MainPlayerController.h"
 #include "CheckPoint.h"
 #include "OutOfBoundsVolume.h"
@@ -59,6 +59,13 @@ AEnemy::AEnemy()
 	HoverForce = 350.f;
 	HoverLength = 100.f;
 	TraceLength = 130;
+
+	Energy = 3;
+	Health = 100.f;
+	Armour = 0.f;
+	MaxEnergy = 3;
+	MaxHealth = 100.f;
+	MaxArmour = 35.f;
 }
 
 // Called when the game starts or when spawned
@@ -87,6 +94,8 @@ void AEnemy::BeginPlay()
 	HoverComponentHR->InAirGravityForce = InAirGravityForce;
 
 	PlayerMesh->SetAngularDamping(AngularDamping);
+
+	TimerDel.BindUFunction(this, FName("EnemyLoadGame"), true);
 }
 
 // Called every frame
@@ -96,6 +105,7 @@ void AEnemy::Tick(float DeltaTime)
 	MoveForward(1);
 	MoveRight(Steering());
 	Raycast();
+	HealthFunction();
 
 }
 
@@ -187,8 +197,69 @@ void AEnemy::MoveRight(float Value)
 
 	PlayerMesh->AddTorqueInRadians(TorqueVector * Value);
 
-
 }
+
+void AEnemy::KillPlayer()
+{
+	SetActorHiddenInGame(true);
+	SetActorEnableCollision(false);
+	//ParticleFX:
+	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionFX, GetTransform(), true);
+
+	//SoundFX
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), ExplosionSound, GetActorLocation());
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, TimerDel, 3.f, false);
+}
+
+void AEnemy::HealthFunction()
+{
+	if (Health <= 0)
+	{
+		Health = 0.01;
+		KillPlayer();
+	}
+}
+
+void AEnemy::EnemySaveGame()
+{
+	UEnemySaveGame* SaveGameInstance = Cast<UEnemySaveGame>(UGameplayStatics::CreateSaveGameObject(UEnemySaveGame::StaticClass()));
+
+	SaveGameInstance->EnemyStats.Health = Health;
+	SaveGameInstance->EnemyStats.MaxHealth = MaxHealth;
+	SaveGameInstance->EnemyStats.Energy = Energy;
+	SaveGameInstance->EnemyStats.MaxEnergy = MaxEnergy;
+	SaveGameInstance->EnemyStats.Armour = Armour;
+	SaveGameInstance->EnemyStats.MaxArmour = MaxArmour;
+
+	SaveGameInstance->EnemyStats.Location = GetActorLocation();
+	SaveGameInstance->EnemyStats.Rotation = GetActorRotation();
+
+	UGameplayStatics::SaveGameToSlot(SaveGameInstance, SaveGameInstance->EnemyName, SaveGameInstance->EnemyIndex);
+}
+
+void AEnemy::EnemyLoadGame(bool SetPosition)
+{
+	SetActorHiddenInGame(false);
+	SetActorEnableCollision(true);
+
+	UEnemySaveGame* LoadGameInstance = Cast<UEnemySaveGame>(UGameplayStatics::CreateSaveGameObject(UEnemySaveGame::StaticClass()));
+
+	LoadGameInstance = Cast<UEnemySaveGame>(UGameplayStatics::LoadGameFromSlot(LoadGameInstance->EnemyName, LoadGameInstance->EnemyIndex));
+
+	Health = LoadGameInstance->EnemyStats.Health;
+	MaxHealth = LoadGameInstance->EnemyStats.MaxHealth;
+	Energy = LoadGameInstance->EnemyStats.Energy;
+	MaxEnergy = LoadGameInstance->EnemyStats.MaxEnergy;
+	Armour = LoadGameInstance->EnemyStats.Armour;
+	MaxArmour = LoadGameInstance->EnemyStats.MaxArmour;
+
+	if (SetPosition)
+	{
+		SetActorLocation((LoadGameInstance->EnemyStats.Location) + (FVector(0, 0, 100.f)));
+		SetActorRotation(LoadGameInstance->EnemyStats.Rotation);
+	}
+}
+
 
 void AEnemy::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent,
 	int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -232,14 +303,20 @@ void AEnemy::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherAc
 		OtherActor->Destroy();
 	}
 
-	//if (OtherActor->IsA(ACheckPoint::StaticClass()))
-	//{
-	//	SaveGame();
-	//}
+	if (OtherActor->IsA(AHomingProjectile::StaticClass()))
+	{
+		Health -= 35;
+		ForwardForce = 1500;
+		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("Health %d "), Health));
+	}
 
-	//if (OtherActor->IsA(AOutOfBoundsVolume::StaticClass()))
-	//{
-	//	LoadGame(true);
-	//}
+	if (OtherActor->IsA(ACheckPoint::StaticClass()))
+	{
+		EnemySaveGame();
+	}
+
+	if (OtherActor->IsA(AOutOfBoundsVolume::StaticClass()))
+	{
+		EnemyLoadGame(true);
+	}
 }
-
