@@ -26,5 +26,6 @@ public:
 public:
 	UPROPERTY(VisibleAnywhere, Category = "SplinePath")
 	class USplineComponent* SplineComponent = nullptr;
+	
 
 };

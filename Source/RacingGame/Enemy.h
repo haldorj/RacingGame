@@ -66,14 +66,16 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerStats")
 		float Armour;
 
-	float Steering;
+	float SteeringValue;
+
+	FVector SteeringVector;
 
 private:
 	void MoveForward(float Value);
 	void MoveRight(float Value);
 
 	void Raycast();
-	float GetPath();
+	float Steering();
 
 	//
 	//	Player Stats
