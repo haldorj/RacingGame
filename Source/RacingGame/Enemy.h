@@ -26,11 +26,15 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+		// Sphere that will detect the player
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "EnemyVariables")
+		class USphereComponent* EnemySensingSphere = nullptr;
+
 	UPROPERTY(VisibleAnywhere)
 		UShapeComponent* CollisionBox = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "EnemyVariables")
-		UStaticMeshComponent* MeshComponent = nullptr;
+		UStaticMeshComponent* PlayerMesh = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "EnemyVariables")
 		class UHoverComponent* HoverComponentFL = nullptr;
@@ -44,17 +48,79 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "EnemyVariables")
 		class UHoverComponent* HoverComponentHR = nullptr;
 
-private:
-	UFUNCTION()
-		void OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-			UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex, bool bFromSweep,
-			const FHitResult& SweepResult);
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "PlayerStats")
+		int32 MaxEnergy;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerStats")
+		int32 Energy;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "PlayerStats")
+		float MaxHealth;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerStats")
+		float Health;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerStats")
+		float MaxArmour;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerStats")
+		float Armour;
+
+	float SteeringValue;
+
+	FVector SteeringVector;
+
+private:
+	void MoveForward(float Value);
+	void MoveRight(float Value);
+
+	void Raycast();
+	float Steering();
+
+	//
+	//	Player Stats
+	//
+
+	bool bForwards;
+	bool bNitro;
+	float NitroTime;
+	float PiValue;
+	float YaValue;
+	FVector SurfaceImpactNormal;
+	
 public:
-	// Physics variables
+
+	//
+	// Vehicle variables
+	//
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerStats")
+		float AngularDamping;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerStats")
+		float LinearDamping;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerPhysics")
+		float ForwardForce;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerPhysics")
+		float TurnTorque;
+
+	UPROPERTY(Editanywhere, BlueprintReadOnly, Category = "PlayerPhysics")
+		float TraceLength;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerPhysics")
 		float HoverForce;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerPhysics")
 		float HoverLength;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerPhysics")
+		float InAirGravityForce;
+
+private:
+	UFUNCTION()
+		void OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+			UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex, bool bFromSweep,
+			const FHitResult& SweepResult);
 };

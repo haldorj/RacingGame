@@ -59,7 +59,7 @@ APlayerCar::APlayerCar()
 
 	// Defining Physics-related Values
 	AngularDamping = 5.f;
-	LinearDamping = 1.f;
+	LinearDamping = 3.f;
 	ForwardForce = 4000.f;
 	TurnTorque = 20000.f;
 	HoverForce = 350.f;
@@ -181,6 +181,7 @@ void APlayerCar::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 	InputComponent->BindAxis(TEXT("MoveCameraX"), this, &APlayerCar::MoveCameraX);
 
 	PlayerInputComponent->BindAction("Shoot", EInputEvent::IE_Pressed, this, &APlayerCar::Shoot);
+	PlayerInputComponent->BindAction("Target", EInputEvent::IE_Pressed, this, &APlayerCar::SetTarget);
 	PlayerInputComponent->BindAction("Reload", EInputEvent::IE_Pressed, this, &APlayerCar::Reload);
 	PlayerInputComponent->BindAction("Nitro", EInputEvent::IE_Pressed, this, &APlayerCar::Nitro);
 
@@ -198,7 +199,7 @@ void APlayerCar::MoveForward(float Value)
 	FVector Force = (ForwardForce * Projection * PlayerMesh->GetMass());
 
 	FVector Center = PlayerMesh->GetCenterOfMass();
-	FVector Varience(0.f, 0.f, 1.5f);
+	FVector Varience(0.f, 0.f, 1.f);
 
 	if (HoverComponentFL->bHit == false && HoverComponentFR->bHit == false && HoverComponentHL->bHit == false && HoverComponentHR->bHit == false)
 	{
@@ -206,7 +207,7 @@ void APlayerCar::MoveForward(float Value)
 	}
 	else
 	{
-		Varience = FVector(0.f, 0.f, 1.5f);
+		Varience = FVector(0.f, 0.f, 1.f);
 	}
 
 	PlayerMesh->AddForceAtLocation((Force * Value), Center + Varience);
@@ -253,21 +254,28 @@ void APlayerCar::Shoot()
 			UWorld* World = GetWorld();
 			if (World)
 			{
-				Energy--;
-				FVector Location = GetActorLocation();
-				FRotator Rotation = GetActorRotation();
+				if (TargetMesh)
+				{
+					Energy--;
+					FVector Location = GetActorLocation();
+					FRotator Rotation = GetActorRotation();
 
-				if (ActorToSpawn->GetName() == "Bullet_BP_C") {
-					World->SpawnActor<AActor>(ActorToSpawn, Location + Rotation.RotateVector(FVector(350.f, 0.f, 80.f)), Rotation);
-				}
-				else {
-					AHomingProjectile* HomingProjectile = World->SpawnActor<AHomingProjectile>(ActorToSpawn, Location + Rotation.RotateVector(FVector(350.f, 0.f, 80.f)), GetActorRotation());
-					if (HomingProjectile) {
-						HomingProjectile->ProjectileMovement->HomingTargetComponent = Target();
+					if (ActorToSpawn->GetName() == "Bullet_BP_C")
+					{
+						World->SpawnActor<AActor>(ActorToSpawn, Location + Rotation.RotateVector(FVector(350.f, 0.f, 80.f)), Rotation);
 					}
-				}
+					else
+					{
+						AHomingProjectile* HomingProjectile = World->SpawnActor<AHomingProjectile>(ActorToSpawn, Location + Rotation.RotateVector(FVector(350.f, 0.f, 80.f)), GetActorRotation());
+						if (HomingProjectile)
+						{
+							HomingProjectile->ProjectileMovement->HomingTargetComponent = TargetMesh;
+							TargetMesh = nullptr;
+						}
+					}
 
-				UGameplayStatics::PlaySound2D(World, Shooting, 1.f, 1.f, 0.f, 0);
+					UGameplayStatics::PlaySound2D(World, Shooting, 1.f, 1.f, 0.f, 0);
+				}
 			}
 		}
 
@@ -289,6 +297,11 @@ void APlayerCar::Reload() {
 	Energy = MaxEnergy;
 	UWorld* NewWorld = GetWorld();
 	UGameplayStatics::PlaySound2D(NewWorld, Reloading, 1.f, 1.f, 0.f, 0);
+}
+
+void APlayerCar::SetTarget()
+{
+	TargetMesh = Target();
 }
 
 UStaticMeshComponent* APlayerCar::Target()
@@ -374,7 +387,7 @@ void APlayerCar::Raycast()
 			FVector Drag = GetVelocity() * -LinearDamping;
 			PlayerMesh->AddForceAtLocation(Drag * PlayerMesh->GetMass(), PlayerMesh->GetCenterOfMass());
 
-			DrawDebugSolidBox(GetWorld(), OutHit.ImpactPoint, FVector(5, 5, 5), FColor::Cyan, false, -1);
+			//DrawDebugSolidBox(GetWorld(), OutHit.ImpactPoint, FVector(5, 5, 5), FColor::Cyan, false, -1);
 		}
 
 		else {
@@ -385,7 +398,7 @@ void APlayerCar::Raycast()
 			PlayerMesh->AddForceAtLocation(Drag * PlayerMesh->GetMass(), PlayerMesh->GetCenterOfMass());
 		}
 
-		DrawDebugLine(GetWorld(), Start, End, FColor::Cyan, false, -1, 0, 1);
+		//DrawDebugLine(GetWorld(), Start, End, FColor::Cyan, false, -1, 0, 1);
 }
 
 void APlayerCar::KillPlayer()

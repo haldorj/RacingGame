@@ -70,7 +70,6 @@ public:
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"));
 	TSubclassOf<AActor> ActorToSpawn;
 
-
 private:
 	void MoveForward(float Value);
 	void MoveRight(float Value);
@@ -86,7 +85,9 @@ private:
 	void ESCDown();
 	void ESCUp();
 
+	void SetTarget();
 	class UStaticMeshComponent* Target();
+	class UStaticMeshComponent* TargetMesh;
 	
 	void Raycast();
 
