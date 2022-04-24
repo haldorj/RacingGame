@@ -17,6 +17,14 @@
 		{
 			"Name": "SunPosition",
 			"Enabled": true
+		},
+		{
+			"Name": "ApexDestruction",
+			"Enabled": true
+		},
+		{
+			"Name": "StaticMeshEditorExtension",
+			"Enabled": true
 		}
 	]
 }
