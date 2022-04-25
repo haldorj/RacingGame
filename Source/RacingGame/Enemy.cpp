@@ -66,6 +66,11 @@ AEnemy::AEnemy()
 	MaxEnergy = 3;
 	MaxHealth = 100.f;
 	MaxArmour = 35.f;
+
+	// Defining Car Values
+	bForwards = true;
+	bNitro = false;
+	bStun = false;
 }
 
 // Called when the game starts or when spawned
@@ -106,6 +111,17 @@ void AEnemy::Tick(float DeltaTime)
 	MoveRight(Steering());
 	Raycast();
 	HealthFunction();
+
+	if (bStun) {
+		if (StunTime > 0) {
+			StunTime -= DeltaTime;
+		}
+		else {
+			bStun = false;
+			StunTime = 0;
+			ForwardForce *= 5;
+		}
+	}
 
 }
 
@@ -158,6 +174,16 @@ float AEnemy::Steering()
 	SteeringValue = UKismetMathLibrary::MapRangeClamped(NormalizedAB.Yaw, -90, 90, -1, 1);
 
 	return SteeringValue;
+}
+
+void AEnemy::Stun()
+{
+	if (bStun == false) {
+		bStun = true;
+
+		StunTime = 2.f;
+		ForwardForce *= 0.2f;
+	}
 }
 
 void AEnemy::MoveForward(float Value)
@@ -306,7 +332,7 @@ void AEnemy::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherAc
 	if (OtherActor->IsA(AHomingProjectile::StaticClass()))
 	{
 		Health -= 35;
-		ForwardForce = 1500;
+		Stun();
 		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("Health %d "), Health));
 	}
 

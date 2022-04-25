@@ -37,7 +37,7 @@ AHomingProjectile::AHomingProjectile()
 	ProjectileMovement->bInitialVelocityInLocalSpace = true;
 	ProjectileMovement->bShouldBounce = false;
 	ProjectileMovement->bIsHomingProjectile = true;
-	ProjectileMovement->HomingAccelerationMagnitude = 12000.f;
+	ProjectileMovement->HomingAccelerationMagnitude = 15000.f;
 	ProjectileMovement->ProjectileGravityScale = 0.f;
 
 	// Bind our OnOverlapBegin Event
@@ -85,6 +85,7 @@ void AHomingProjectile::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AAct
 {
 
 	UStaticMeshComponent* MeshComponent = Cast<UStaticMeshComponent>(OtherActor->GetRootComponent());
+	FVector Up = this->GetActorUpVector();
 	FVector Forward = this->GetActorForwardVector();
 
 	if ((OverlappedComp != nullptr) && (OtherActor != nullptr) && (OtherActor != this)
@@ -97,7 +98,7 @@ void AHomingProjectile::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AAct
 	{	
 		if (MeshComponent)
 		{
-			MeshComponent->AddImpulse(Forward * ImpulseForce * MeshComponent->GetMass());
+			MeshComponent->AddImpulse((Up + Forward)* ImpulseForce * MeshComponent->GetMass());
 			UE_LOG(LogTemp, Warning, TEXT("FOUND MESH"));
 		}
 		else

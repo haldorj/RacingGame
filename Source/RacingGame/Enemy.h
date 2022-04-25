@@ -77,6 +77,8 @@ private:
 	void Raycast();
 	float Steering();
 
+	void Stun();
+
 
 	//
 	//	Player Stats
@@ -85,6 +87,8 @@ private:
 	bool bForwards;
 	bool bNitro;
 	float NitroTime;
+	bool bStun;
+	float StunTime;
 	float PiValue;
 	float YaValue;
 	FVector SurfaceImpactNormal;

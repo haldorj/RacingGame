@@ -50,7 +50,7 @@ private:
 	void Explode();
 
 	UPROPERTY(EditAnywhere, Category = "ForceVariables")
-	float ImpulseForce = 750.f;
+	float ImpulseForce = 1000.f;
 
 	// Declare overlap begin function
 	UFUNCTION()
