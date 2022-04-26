@@ -98,7 +98,7 @@ void AHomingProjectile::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AAct
 	{	
 		if (MeshComponent)
 		{
-			MeshComponent->AddImpulse((Up + Forward)* ImpulseForce * MeshComponent->GetMass());
+			MeshComponent->AddImpulse((Up*0.25 + Forward)* ImpulseForce * MeshComponent->GetMass());
 			UE_LOG(LogTemp, Warning, TEXT("FOUND MESH"));
 		}
 		else
