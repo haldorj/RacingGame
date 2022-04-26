@@ -16,7 +16,9 @@
 #include "CheckPoint.h"
 #include "OutOfBoundsVolume.h"
 #include "RacingGameGameModeBase.h"
+#include "AIController.h"	//Unreals AIController class
 
+#include "Components/SphereComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/PrimitiveComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -36,7 +38,15 @@ AEnemy::AEnemy()
 	CollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxCollider"));
 	CollisionBox->SetGenerateOverlapEvents(true);
 	CollisionBox->OnComponentBeginOverlap.AddDynamic(this, &AEnemy::OnOverlap);
-	CollisionBox->SetupAttachment(PlayerMesh);
+	CollisionBox->SetupAttachment(RootComponent);
+
+	//CombatSphere = CreateDefaultSubobject<USphereComponent>(TEXT("CombatSphere"));
+	//CombatSphere->SetGenerateOverlapEvents(true);
+	//CombatSphere->SetSphereRadius(2000.f);
+	//CombatSphere->SetupAttachment(RootComponent);
+	//
+	//CombatSphere->OnComponentBeginOverlap.AddDynamic(this, &AEnemy::CombatSphereOnOverlapBegin);
+	//CombatSphere->OnComponentEndOverlap.AddDynamic(this, &AEnemy::CombatSphereOnOverlapEnd);
 
 	// Creating & attaching the Hover Components
 	HoverComponentFL = CreateDefaultSubobject<UHoverComponent>(TEXT("HoverComponentFL"));
@@ -77,6 +87,8 @@ AEnemy::AEnemy()
 void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
+
+	AIController = Cast<AAIController>(GetController());
 	
 	PlayerMesh->SetAngularDamping(AngularDamping);
 	PlayerMesh->SetLinearDamping(LinearDamping);
@@ -107,7 +119,7 @@ void AEnemy::BeginPlay()
 void AEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	MoveForward(1);
+	MoveForward(0.3);
 	MoveRight(Steering());
 	Raycast();
 	HealthFunction();
@@ -126,11 +138,11 @@ void AEnemy::Tick(float DeltaTime)
 }
 
 // Called to bind functionality to input
-void AEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
-}
+//void AEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+//{
+//	Super::SetupPlayerInputComponent(PlayerInputComponent);
+//
+//}
 
 void AEnemy::Raycast()
 {
@@ -331,9 +343,9 @@ void AEnemy::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherAc
 
 	if (OtherActor->IsA(AHomingProjectile::StaticClass()))
 	{
-		Health -= 35;
+		Health -= 35.f;
 		Stun();
-		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("Health %d "), Health));
+		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("Health %f "), Health));
 	}
 
 	if (OtherActor->IsA(ACheckPoint::StaticClass()))
@@ -346,3 +358,37 @@ void AEnemy::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherAc
 		EnemyLoadGame(true);
 	}
 }
+
+//void AEnemy::CombatSphereOnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, 
+//	UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+//{
+//	if (OtherActor)
+//	{
+//		APlayerCar* PlayerCar = Cast<APlayerCar>(OtherActor);
+//		{
+//			if (PlayerCar)
+//			{
+//				PlayerCar->SetCombatTarget(this);
+//				PlayerCar->TargetMaxHealth = MaxHealth;
+//				PlayerCar->TargetHealth = Health;
+//				GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("Overlap ")));
+//			}
+//		}
+//	}
+//}
+//
+//void AEnemy::CombatSphereOnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+//{
+//	if (OtherActor)
+//	{
+//		APlayerCar* PlayerCar = Cast<APlayerCar>(OtherActor);
+//		{
+//			if (PlayerCar)
+//			{
+//				PlayerCar->SetCombatTarget(nullptr);
+//				PlayerCar->TargetMaxHealth = MaxHealth;
+//
+//			}
+//		}
+//	}
+//}

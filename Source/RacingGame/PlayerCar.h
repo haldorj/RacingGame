@@ -30,6 +30,9 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 public:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
+	bool bHasCombatTarget;
+
 	UPROPERTY(VisibleAnywhere)
 		USceneComponent* Root = nullptr;
 
@@ -43,7 +46,7 @@ public:
 		USpringArmComponent* SpringArm = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerVariables")
-		UCameraComponent* Camera = nullptr;
+		UCameraComponent* RearCamera = nullptr;
 
 	UPROPERTY(EditAnywhere, Category = "PlayerVariables")
 		USoundBase* Shooting = nullptr;
@@ -56,15 +59,16 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerVariables")
 		class UHoverComponent* HoverComponentFL = nullptr;
-	
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerVariables")
 		class UHoverComponent* HoverComponentFR = nullptr;
-	
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerVariables")
 		class UHoverComponent* HoverComponentHL = nullptr;
-	
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerVariables")
 		class UHoverComponent* HoverComponentHR = nullptr;
+
 
 	// For spawning Bullets:
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"));
@@ -80,6 +84,7 @@ private:
 	void Shoot();
 	void Reload();
 	void Nitro();
+	void ChangeCameraView();
 
 	bool bESCDown;
 	void ESCDown();
@@ -88,11 +93,11 @@ private:
 	void SetTarget();
 	class UStaticMeshComponent* Target();
 	class UStaticMeshComponent* TargetMesh;
-	
+
 	void Raycast();
 
 	UFUNCTION(BluePrintCallable)
-	void KillPlayer();
+		void KillPlayer();
 
 	// For interacting with other classes / collision.
 	UFUNCTION()
@@ -130,8 +135,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerStats")
 		float Armour;
 
-		// Function for switching level
-		void SwitchLevel(FName LevelName);
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Target")
+		float TargetMaxHealth;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Target")
+		float TargetHealth;
+
+	// Function for switching level
+	void SwitchLevel(FName LevelName);
 
 	UFUNCTION(BluePrintCallable)
 		void SaveGame();
@@ -141,6 +152,11 @@ public:
 
 	void HealthFunction();
 	void HealthMinus();
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
+		class AEnemy* CombatTarget;
+
+	FORCEINLINE void SetCombatTarget(AEnemy* Target) { CombatTarget = Target; }
 
 	//
 	// Vehicle variables

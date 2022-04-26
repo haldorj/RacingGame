@@ -15,6 +15,7 @@
 #include "CheckPoint.h"
 #include "OutOfBoundsVolume.h"
 #include "RacingGameGameModeBase.h"
+#include "Enemy.h"
 
 #include "DrawDebugHelpers.h"
 #include "GameFramework/PlayerInput.h"
@@ -37,6 +38,8 @@ APlayerCar::APlayerCar()
 {
 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+
+	bHasCombatTarget = false;
 
 	// Defining Player Values
 	Energy = 3;
@@ -87,9 +90,9 @@ APlayerCar::APlayerCar()
 	SpringArm->SetupAttachment(PlayerMesh);
 
 	// Creating & attaching Camera
-	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
-	Camera->SetRelativeRotation(FRotator(0.f, 15.f, 0.f));
-	Camera->SetupAttachment(SpringArm, USpringArmComponent::SocketName);
+	RearCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
+	RearCamera->SetRelativeRotation(FRotator(0.f, 15.f, 0.f));
+	RearCamera->SetupAttachment(SpringArm, USpringArmComponent::SocketName);
 
 	// Creating & attaching the Hover Components
 	HoverComponentFL = CreateDefaultSubobject<UHoverComponent>(TEXT("HoverComponentFL"));
@@ -105,7 +108,6 @@ APlayerCar::APlayerCar()
 	HoverComponentHR->SetupAttachment(PlayerMesh);
 
 	TimerDel.BindUFunction(this, FName("LoadGame"), true);
-
 }
 
 // Called when the game starts or when spawned
@@ -136,9 +138,6 @@ void APlayerCar::BeginPlay()
 	HoverComponentHR->HoverForce = HoverForce;
 	HoverComponentHR->TraceLength = HoverLength;
 	HoverComponentHR->InAirGravityForce = InAirGravityForce;
-
-
-
 }
 
 // Called every frame
@@ -254,28 +253,37 @@ void APlayerCar::Shoot()
 			UWorld* World = GetWorld();
 			if (World)
 			{
-				if (TargetMesh)
-				{
+				//if (TargetMesh)
+				//{
 					Energy--;
 					FVector Location = GetActorLocation();
-					FRotator Rotation = GetActorRotation();
+					FRotator Rotation = FRotator(PiValue + RearCamera->GetRelativeRotation().Pitch, YaValue, 0.f);
 
 					if (ActorToSpawn->GetName() == "Bullet_BP_C")
 					{
 						World->SpawnActor<AActor>(ActorToSpawn, Location + Rotation.RotateVector(FVector(350.f, 0.f, 80.f)), Rotation);
+						UE_LOG(LogTemp, Warning, TEXT("Firing Cannon Shell"));
 					}
 					else
 					{
-						AHomingProjectile* HomingProjectile = World->SpawnActor<AHomingProjectile>(ActorToSpawn, Location + Rotation.RotateVector(FVector(350.f, 0.f, 80.f)), GetActorRotation());
+						AHomingProjectile* HomingProjectile = World->SpawnActor<AHomingProjectile>(ActorToSpawn, Location + Rotation.RotateVector(FVector(350.f, 0.f, 80.f)), Rotation);
 						if (HomingProjectile)
 						{
 							HomingProjectile->ProjectileMovement->HomingTargetComponent = TargetMesh;
 							TargetMesh = nullptr;
+							UE_LOG(LogTemp, Warning, TEXT("Firing Homing Missile"));
 						}
 					}
-
 					UGameplayStatics::PlaySound2D(World, Shooting, 1.f, 1.f, 0.f, 0);
-				}
+				//}
+				//else 
+				//{
+				//	UE_LOG(LogTemp, Warning, TEXT("ERROR: TargetMesh is FALSE"));
+				//}
+			}
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("ERROR: World is FALSE"));
 			}
 		}
 
@@ -288,8 +296,10 @@ void APlayerCar::Shoot()
 				UGameplayStatics::PlaySound2D(World, OutOfEnergy, 1.f, 1.f, 0.f, 0);
 			}
 		}
-
-		UE_LOG(LogTemp, Warning, TEXT("Shooting"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ERROR: ActorToSpawn is NULL"));
 	}
 }
 
@@ -307,8 +317,8 @@ void APlayerCar::SetTarget()
 UStaticMeshComponent* APlayerCar::Target()
 {
 	FHitResult OutHit;
-	FVector Start = Camera->GetComponentLocation();
-	FVector End = Start + (Camera->GetForwardVector() * 5000.f);
+	FVector Start = RearCamera->GetComponentLocation();
+	FVector End = Start + (RearCamera->GetForwardVector() * 5000.f);
 
 	TArray<TEnumAsByte<EObjectTypeQuery>> objectTypesArray; // object types to trace
 	objectTypesArray.Add(UEngineTypes::ConvertToObjectType(ECC_PhysicsBody));
@@ -347,6 +357,11 @@ void APlayerCar::Nitro() {
 		NitroTime = 3.f;
 		ForwardForce *= 1.3f;
 	}
+}
+
+void APlayerCar::ChangeCameraView()
+{
+
 }
 
 void APlayerCar::ESCDown()
@@ -479,6 +494,7 @@ void APlayerCar::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 	{
 		LoadGame(true);
 	}
+
 }
 
 void APlayerCar::SwitchLevel(FName LevelName)
