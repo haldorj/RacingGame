@@ -108,8 +108,6 @@ APlayerCar::APlayerCar()
 	HoverComponentHR->SetupAttachment(PlayerMesh);
 
 	TimerDel.BindUFunction(this, FName("LoadGame"), true);
-	
-
 }
 
 // Called when the game starts or when spawned
@@ -140,9 +138,6 @@ void APlayerCar::BeginPlay()
 	HoverComponentHR->HoverForce = HoverForce;
 	HoverComponentHR->TraceLength = HoverLength;
 	HoverComponentHR->InAirGravityForce = InAirGravityForce;
-
-
-
 }
 
 // Called every frame
@@ -258,28 +253,37 @@ void APlayerCar::Shoot()
 			UWorld* World = GetWorld();
 			if (World)
 			{
-				if (TargetMesh)
-				{
+				//if (TargetMesh)
+				//{
 					Energy--;
 					FVector Location = GetActorLocation();
-					FRotator Rotation = GetActorRotation();
+					FRotator Rotation = FRotator(PiValue + RearCamera->GetRelativeRotation().Pitch, YaValue, 0.f);
 
 					if (ActorToSpawn->GetName() == "Bullet_BP_C")
 					{
 						World->SpawnActor<AActor>(ActorToSpawn, Location + Rotation.RotateVector(FVector(350.f, 0.f, 80.f)), Rotation);
+						UE_LOG(LogTemp, Warning, TEXT("Firing Cannon Shell"));
 					}
 					else
 					{
-						AHomingProjectile* HomingProjectile = World->SpawnActor<AHomingProjectile>(ActorToSpawn, Location + Rotation.RotateVector(FVector(350.f, 0.f, 80.f)), GetActorRotation());
+						AHomingProjectile* HomingProjectile = World->SpawnActor<AHomingProjectile>(ActorToSpawn, Location + Rotation.RotateVector(FVector(350.f, 0.f, 80.f)), Rotation);
 						if (HomingProjectile)
 						{
 							HomingProjectile->ProjectileMovement->HomingTargetComponent = TargetMesh;
 							TargetMesh = nullptr;
+							UE_LOG(LogTemp, Warning, TEXT("Firing Homing Missile"));
 						}
 					}
-
 					UGameplayStatics::PlaySound2D(World, Shooting, 1.f, 1.f, 0.f, 0);
-				}
+				//}
+				//else 
+				//{
+				//	UE_LOG(LogTemp, Warning, TEXT("ERROR: TargetMesh is FALSE"));
+				//}
+			}
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("ERROR: World is FALSE"));
 			}
 		}
 
@@ -292,8 +296,10 @@ void APlayerCar::Shoot()
 				UGameplayStatics::PlaySound2D(World, OutOfEnergy, 1.f, 1.f, 0.f, 0);
 			}
 		}
-
-		UE_LOG(LogTemp, Warning, TEXT("Shooting"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ERROR: ActorToSpawn is NULL"));
 	}
 }
 
