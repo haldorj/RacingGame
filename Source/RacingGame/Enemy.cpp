@@ -119,7 +119,7 @@ void AEnemy::BeginPlay()
 void AEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	MoveForward(0.3);
+	MoveForward(1);
 	MoveRight(Steering());
 	Raycast();
 	HealthFunction();
@@ -293,7 +293,7 @@ void AEnemy::EnemyLoadGame(bool SetPosition)
 
 	if (SetPosition)
 	{
-		SetActorLocation((LoadGameInstance->EnemyStats.Location) + (FVector(0, 0, 100.f)));
+		SetActorLocation((LoadGameInstance->EnemyStats.Location) + (FVector(0, 0, 10.f)));
 		SetActorRotation(LoadGameInstance->EnemyStats.Rotation);
 	}
 }

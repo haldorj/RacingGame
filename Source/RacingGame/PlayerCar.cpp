@@ -577,3 +577,12 @@ void APlayerCar::RestartLevel()
 	UGameplayStatics::OpenLevel(this, FName(*GetWorld()->GetName()), false);
 }
 
+void APlayerCar::TimeAttackLevel()
+{
+	UGameplayStatics::OpenLevel(this,"Level_TimeAttack", false);
+}
+
+void APlayerCar::RacingLevel()
+{
+	UGameplayStatics::OpenLevel(this, "Level_Race", false);
+}

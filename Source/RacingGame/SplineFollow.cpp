@@ -48,9 +48,9 @@ void ASplineFollow::Follow()
 	FVector RightVector = SplineComponent->FindRightVectorClosestToWorldLocation(EnemyLocation, ESplineCoordinateSpace::Local);
 	FRotator Rotator = UKismetMathLibrary::MakeRotationFromAxes(RightVector,FVector(0), FVector(0));
 	FRotator NewRotator = Rotator + FRotator(0, 0, -180);
-	FVector ForwardVector = UKismetMathLibrary::GetForwardVector(Rotator) * 1000;
+	FVector ForwardVector = UKismetMathLibrary::GetForwardVector(Rotator) * 2200; // distance of leading object from AI.
 
-	FVector Location = SplineComponent->FindLocationClosestToWorldLocation(EnemyLocation - ForwardVector, ESplineCoordinateSpace::World);
+	FVector Location = SplineComponent->FindLocationClosestToWorldLocation(EnemyLocation + ForwardVector, ESplineCoordinateSpace::World); // - or + ForwardVector to change direction.
 	FVector ArrowLocation = SplineComponent->FindLocationClosestToWorldLocation(EnemyLocation, ESplineCoordinateSpace::World);
 	
 	EnemyRef->SteeringVector = Location;

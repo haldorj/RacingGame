@@ -199,6 +199,11 @@ protected:
 	UFUNCTION(BluePrintCallable)
 	void RestartLevel();
 
+	UFUNCTION(BluePrintCallable)
+	void TimeAttackLevel();
+	UFUNCTION(BluePrintCallable)
+	void RacingLevel();
+
 private:
 	//Sounds and effects
 	UPROPERTY(EditAnywhere, Category = "PlayerVariables")
