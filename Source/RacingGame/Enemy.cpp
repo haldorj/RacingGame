@@ -310,7 +310,7 @@ void AEnemy::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherAc
 		{
 			Health = MaxHealth;
 		}
-		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("Player Picked Up Health %f "), Health));
+		//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("Player Picked Up Health %f "), Health));
 		UE_LOG(LogTemp, Warning, TEXT("Player Picked Up Health %f "), Health);
 		OtherActor->Destroy();
 	}
@@ -323,7 +323,7 @@ void AEnemy::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherAc
 		{
 			Armour = MaxArmour;
 		}
-		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("Player Picked Up Armour %f "), Armour));
+		//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("Player Picked Up Armour %f "), Armour));
 		UE_LOG(LogTemp, Warning, TEXT("Player Picked Up Armour %f "), Armour);
 		OtherActor->Destroy();
 	}
@@ -336,7 +336,7 @@ void AEnemy::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherAc
 		{
 			Energy = MaxEnergy;
 		}
-		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("Player Picked Up Energy %d "), Energy));
+		//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("Player Picked Up Energy %d "), Energy));
 		UE_LOG(LogTemp, Warning, TEXT("Player Picked Up Energy %d "), Energy);
 		OtherActor->Destroy();
 	}
@@ -345,7 +345,7 @@ void AEnemy::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherAc
 	{
 		Health -= 35.f;
 		Stun();
-		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("Health %f "), Health));
+		//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("Health %f "), Health));
 	}
 
 	if (OtherActor->IsA(ACheckPoint::StaticClass()))

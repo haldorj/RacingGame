@@ -327,7 +327,7 @@ UStaticMeshComponent* APlayerCar::Target()
 	ActorsToIgnore.Add(this);
 
 	bool Hit = (UKismetSystemLibrary::LineTraceSingleForObjects(GetWorld(), Start, End, objectTypesArray, true, ActorsToIgnore,
-		EDrawDebugTrace::Type::ForDuration, OutHit, true));
+		EDrawDebugTrace::Type::None, OutHit, true));
 
 	UStaticMeshComponent* HomingTarget = Cast<UStaticMeshComponent>(OutHit.GetComponent());
 	return HomingTarget;
@@ -336,16 +336,16 @@ UStaticMeshComponent* APlayerCar::Target()
 	{
 		if (HomingTarget)
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("Hit")));
+			//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("Hit")));
 		}
 		else
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("Not A PhysicsBody ")));
+			//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("Not A PhysicsBody ")));
 		}
 	}
 	else
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("No Hit ")));
+		//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("No Hit ")));
 	}
 }
 
@@ -446,7 +446,7 @@ void APlayerCar::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 		{
 			Health = MaxHealth;
 		}
-		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("Player Picked Up Health %f "), Health));
+		//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("Player Picked Up Health %f "), Health));
 		UE_LOG(LogTemp, Warning, TEXT("Player Picked Up Health %f "), Health);
 		OtherActor->Destroy();
 	}
@@ -459,7 +459,7 @@ void APlayerCar::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 		{
 			Armour = MaxArmour;
 		}
-		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("Player Picked Up Armour %f "), Armour));
+		//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("Player Picked Up Armour %f "), Armour));
 		UE_LOG(LogTemp, Warning, TEXT("Player Picked Up Armour %f "), Armour);
 		OtherActor->Destroy();
 	}
@@ -472,7 +472,7 @@ void APlayerCar::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 		{
 			Energy = MaxEnergy;
 		}
-		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("Player Picked Up Energy %d "), Energy));
+		//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("Player Picked Up Energy %d "), Energy));
 		UE_LOG(LogTemp, Warning, TEXT("Player Picked Up Energy %d "), Energy);
 		OtherActor->Destroy();
 	}
@@ -480,7 +480,7 @@ void APlayerCar::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 	if (OtherActor->IsA(AWeaponCrate::StaticClass()))
 	{
 		ActorToSpawn = Cast<AWeaponCrate>(OtherActor)->Weapon;
-		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("Player Picked Up Weapon Crate Containing a %s "), *ActorToSpawn->GetName()));
+		//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("Player Picked Up Weapon Crate Containing a %s "), *ActorToSpawn->GetName()));
 		UE_LOG(LogTemp, Display, TEXT("Player Picked Up Weapon Crate Containing a %s "), *ActorToSpawn->GetName());
 		OtherActor->Destroy();
 	}
