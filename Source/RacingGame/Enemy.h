@@ -76,7 +76,6 @@ private:
 
 	void Raycast();
 	float Steering();
-
 	void Stun();
 
 
@@ -124,6 +123,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerPhysics")
 		float InAirGravityForce;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerPhysics")
+		float Throttle;
 
 	//timer:
 	private:

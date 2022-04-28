@@ -119,7 +119,7 @@ void AEnemy::BeginPlay()
 void AEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	MoveForward(1);
+	MoveForward(Throttle);
 	MoveRight(Steering());
 	Raycast();
 	HealthFunction();
@@ -134,6 +134,8 @@ void AEnemy::Tick(float DeltaTime)
 			ForwardForce *= 5;
 		}
 	}
+
+	
 
 }
 
