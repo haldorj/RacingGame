@@ -327,7 +327,7 @@ UStaticMeshComponent* APlayerCar::Target()
 	ActorsToIgnore.Add(this);
 
 	bool Hit = (UKismetSystemLibrary::LineTraceSingleForObjects(GetWorld(), Start, End, objectTypesArray, true, ActorsToIgnore,
-		EDrawDebugTrace::Type::None, OutHit, true));
+		EDrawDebugTrace::Type::ForDuration, OutHit, true));
 
 	UStaticMeshComponent* HomingTarget = Cast<UStaticMeshComponent>(OutHit.GetComponent());
 	return HomingTarget;
