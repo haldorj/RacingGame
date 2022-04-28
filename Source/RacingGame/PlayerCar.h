@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
-#include "Components/StaticMeshComponent.h"
 #include "Components/PrimitiveComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
@@ -31,6 +30,12 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 public:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
+	bool bHasCombatTarget;
+
+	UPROPERTY(VisibleAnywhere)
+		USceneComponent* Root = nullptr;
+
 	UPROPERTY(VisibleAnywhere)
 		UShapeComponent* CollisionBox = nullptr;
 
@@ -41,30 +46,58 @@ public:
 		USpringArmComponent* SpringArm = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerVariables")
-		UCameraComponent* Camera = nullptr;
+		UCameraComponent* RearCamera = nullptr;
 
 	UPROPERTY(EditAnywhere, Category = "PlayerVariables")
 		USoundBase* Shooting = nullptr;
 
 	UPROPERTY(EditAnywhere, Category = "PlayerVariables")
-		USoundBase* OutOfAmmo = nullptr;
+		USoundBase* OutOfEnergy = nullptr;
 
 	UPROPERTY(EditAnywhere, Category = "PlayerVariables")
 		USoundBase* Reloading = nullptr;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerVariables")
+		class UHoverComponent* HoverComponentFL = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerVariables")
+		class UHoverComponent* HoverComponentFR = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerVariables")
+		class UHoverComponent* HoverComponentHL = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerVariables")
+		class UHoverComponent* HoverComponentHR = nullptr;
+
+
 	// For spawning Bullets:
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"));
 	TSubclassOf<AActor> ActorToSpawn;
-	//
 
 private:
 	void MoveForward(float Value);
 	void MoveRight(float Value);
 	void MoveCameraY(float Value);
+	void MoveCameraX(float Value);
 
 	// Functions
 	void Shoot();
 	void Reload();
+	void Nitro();
+	void ChangeCameraView();
+
+	bool bESCDown;
+	void ESCDown();
+	void ESCUp();
+
+	void SetTarget();
+	class UStaticMeshComponent* Target();
+	class UStaticMeshComponent* TargetMesh;
+
+	void Raycast();
+
+	UFUNCTION(BluePrintCallable)
+		void KillPlayer();
 
 	// For interacting with other classes / collision.
 	UFUNCTION()
@@ -72,23 +105,23 @@ private:
 			UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex, bool bFromSweep,
 			const FHitResult& SweepResult);
 
-	bool Forwards;
 	//
 	//	Player Stats
 	//
 
+	bool bForwards;
+	bool bNitro;
+	float NitroTime;
+	float PiValue;
+	float YaValue;
+	FVector SurfaceImpactNormal;
+
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerStats")
-		float AngularDamping;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerStats")
-		float LinearDamping;
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "PlayerStats")
-		int MaxAmmo;
+		int32 MaxEnergy;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerStats")
-		int Ammo;
+		int32 Energy;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "PlayerStats")
 		float MaxHealth;
@@ -97,12 +130,85 @@ public:
 		float Health;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerStats")
-		float ForwardForce;
+		float MaxArmour;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerStats")
-		int32 Coins; // int32 = cross platform
+		float Armour;
 
-		// Function for switching level
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Target")
+		float TargetMaxHealth;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Target")
+		float TargetHealth;
+
+	// Function for switching level
 	void SwitchLevel(FName LevelName);
 
+	UFUNCTION(BluePrintCallable)
+		void SaveGame();
+
+	UFUNCTION(BluePrintCallable)
+		void LoadGame(bool SetPosition);
+
+	void HealthFunction();
+	void HealthMinus();
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
+		class AEnemy* CombatTarget;
+
+	FORCEINLINE void SetCombatTarget(AEnemy* Target) { CombatTarget = Target; }
+
+	//
+	// Vehicle variables
+	//
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerStats")
+		float AngularDamping;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerStats")
+		float LinearDamping;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerPhysics")
+		float ForwardForce;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerPhysics")
+		float TurnTorque;
+
+	UPROPERTY(Editanywhere, BlueprintReadOnly, Category = "PlayerPhysics")
+		float TraceLength;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerPhysics")
+		float HoverForce;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerPhysics")
+		float HoverLength;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerPhysics")
+		float InAirGravityForce;
+
+
+	//timer:
+	private:
+		FTimerHandle TimerHandle;
+
+		FTimerDelegate TimerDel;
+
+		// For spawning Player:
+protected:
+
+	UFUNCTION(BluePrintCallable)
+	void RestartLevel();
+
+	UFUNCTION(BluePrintCallable)
+	void TimeAttackLevel();
+	UFUNCTION(BluePrintCallable)
+	void RacingLevel();
+
+private:
+	//Sounds and effects
+	UPROPERTY(EditAnywhere, Category = "PlayerVariables")
+		UParticleSystem* ExplosionFX = nullptr;
+
+	UPROPERTY(EditAnywhere, Category = "PlayerVariables")
+		USoundBase* ExplosionSound = nullptr;
 };

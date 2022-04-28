@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/SceneComponent.h"
 #include "HoverComponent.generated.h"
 
 
@@ -25,16 +24,14 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 public:
+	bool bHit;
+
 	UPROPERTY()
 		UStaticMeshComponent* MeshComp;
 
-	UPROPERTY(Editanywhere, Category = "Hover")
-		float TraceLength;
-	UPROPERTY(Editanywhere, Category = "Hover")
-		float HoverForce;
-	UPROPERTY(Editanywhere, Category = "Hover")
-		float InAirGravityForce;
-
+	float TraceLength;
+	float HoverForce;
+	float InAirGravityForce;
 };
 
 
