@@ -178,7 +178,7 @@ void AEnemy::Raycast()
 		PlayerMesh->AddForceAtLocation(Drag * PlayerMesh->GetMass(), PlayerMesh->GetCenterOfMass());
 	}
 
-	DrawDebugLine(GetWorld(), Start, End, FColor::Cyan, false, -1, 0, 1);
+	//DrawDebugLine(GetWorld(), Start, End, FColor::Cyan, false, -1, 0, 1);
 }
 
 float AEnemy::Steering()
