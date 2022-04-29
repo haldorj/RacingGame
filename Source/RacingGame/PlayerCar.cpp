@@ -183,6 +183,7 @@ void APlayerCar::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 	PlayerInputComponent->BindAction("Target", EInputEvent::IE_Pressed, this, &APlayerCar::SetTarget);
 	PlayerInputComponent->BindAction("Reload", EInputEvent::IE_Pressed, this, &APlayerCar::Reload);
 	PlayerInputComponent->BindAction("Nitro", EInputEvent::IE_Pressed, this, &APlayerCar::Nitro);
+	PlayerInputComponent->BindAction("ChangeCameraView", EInputEvent::IE_Pressed, this, &APlayerCar::ChangeCameraView);
 
 	PlayerInputComponent->BindAction("ESC", EInputEvent::IE_Pressed, this, &APlayerCar::ESCDown).bExecuteWhenPaused = true;
 	PlayerInputComponent->BindAction("ESC", EInputEvent::IE_Released, this, &APlayerCar::ESCUp).bExecuteWhenPaused = true;
@@ -361,7 +362,7 @@ void APlayerCar::Nitro() {
 
 void APlayerCar::ChangeCameraView()
 {
-
+	YaValue += 180.f;
 }
 
 void APlayerCar::ESCDown()
