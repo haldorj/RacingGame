@@ -31,6 +31,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "TimerManager.h"
+#include "Particles/ParticleSystemComponent.h"
 
 
 // Sets default values
@@ -108,6 +109,12 @@ APlayerCar::APlayerCar()
 	HoverComponentHR->SetupAttachment(PlayerMesh);
 
 	TimerDel.BindUFunction(this, FName("LoadGame"), true);
+
+	ExhaustR = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("ExhaustR"));
+	ExhaustR->AttachTo(PlayerMesh);
+
+	ExhaustL = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("ExhaustL"));
+	ExhaustL->AttachTo(PlayerMesh);
 }
 
 // Called when the game starts or when spawned
@@ -138,6 +145,9 @@ void APlayerCar::BeginPlay()
 	HoverComponentHR->HoverForce = HoverForce;
 	HoverComponentHR->TraceLength = HoverLength;
 	HoverComponentHR->InAirGravityForce = InAirGravityForce;
+
+	ExhaustR->Deactivate();
+	ExhaustL->Deactivate();
 }
 
 // Called every frame
@@ -149,12 +159,16 @@ void APlayerCar::Tick(float DeltaTime)
 		if (NitroTime > 0) {
 			NitroTime -= DeltaTime;
 			SpringArm->CameraLagSpeed = 10.f;
+			ExhaustR->Activate();
+			ExhaustL->Activate();
 		}
 		else {
 			bNitro = false;
 			NitroTime = 0;
 			ForwardForce /= 1.3f;
 			SpringArm->CameraLagSpeed = 20.f;
+			ExhaustR->Deactivate();
+			ExhaustL->Deactivate();
 		}
 	}
 
@@ -328,7 +342,7 @@ UStaticMeshComponent* APlayerCar::Target()
 	ActorsToIgnore.Add(this);
 
 	bool Hit = (UKismetSystemLibrary::LineTraceSingleForObjects(GetWorld(), Start, End, objectTypesArray, true, ActorsToIgnore,
-		EDrawDebugTrace::Type::None, OutHit, true));
+		EDrawDebugTrace::Type::ForDuration, OutHit, true));
 
 	UStaticMeshComponent* HomingTarget = Cast<UStaticMeshComponent>(OutHit.GetComponent());
 	return HomingTarget;

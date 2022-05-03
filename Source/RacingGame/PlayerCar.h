@@ -205,6 +205,12 @@ protected:
 	void RacingLevel();
 
 private:
+	UPROPERTY(EditAnywhere, Category = "PlayerVariables")
+		UParticleSystemComponent* ExhaustR = nullptr;
+
+	UPROPERTY(EditAnywhere, Category = "PlayerVariables")
+		UParticleSystemComponent* ExhaustL = nullptr;
+
 	//Sounds and effects
 	UPROPERTY(EditAnywhere, Category = "PlayerVariables")
 		UParticleSystem* ExplosionFX = nullptr;
