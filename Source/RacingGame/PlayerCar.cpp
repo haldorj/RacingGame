@@ -70,6 +70,11 @@ APlayerCar::APlayerCar()
 	HoverLength = 100.f;
 	TraceLength = 130;
 
+	// Defining Time related Values
+	Millisecond = 0;
+	Second = 0;
+	Minute = 0;
+
 	// Creating & rooting Player Mesh
 	PlayerMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("PlayerMesh"));
 	SetRootComponent(PlayerMesh);
@@ -176,6 +181,19 @@ void APlayerCar::Tick(float DeltaTime)
 
 	// Checking Surface Normal
 	Raycast();
+
+	// Time
+	Millisecond += DeltaTime * 1000;
+	if (Millisecond > 999) 
+	{
+		Millisecond -= 1000;
+		Second++;
+		if (Second > 59)
+		{
+			Second -= 60;
+			Minute++;
+		}
+	}
 
 	//// Anti-Gravity Movement Prototype
 	//float Gravity;

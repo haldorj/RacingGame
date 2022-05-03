@@ -186,7 +186,15 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerPhysics")
 		float InAirGravityForce;
 
+	// Time taker
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Time")
+		int Millisecond;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Time")
+		int Second;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Time")
+		int Minute;
 	//timer:
 	private:
 		FTimerHandle TimerHandle;
