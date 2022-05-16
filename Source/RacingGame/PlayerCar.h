@@ -30,9 +30,6 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 public:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
-	bool bHasCombatTarget;
-
 	UPROPERTY(VisibleAnywhere)
 		USceneComponent* Root = nullptr;
 
@@ -68,7 +65,6 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerVariables")
 		class UHoverComponent* HoverComponentHR = nullptr;
-
 
 	// For spawning Bullets:
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"));
@@ -141,6 +137,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Target")
 		float TargetHealth;
 
+	int CurrentCheckpoint = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerStats")
+		int CurrentLap = 0;
+
 	// Function for switching level
 	void SwitchLevel(FName LevelName);
 
@@ -152,11 +153,6 @@ public:
 
 	void HealthFunction();
 	void HealthMinus();
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
-		class AEnemy* CombatTarget;
-
-	FORCEINLINE void SetCombatTarget(AEnemy* Target) { CombatTarget = Target; }
 
 	//
 	// Vehicle variables
