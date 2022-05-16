@@ -68,7 +68,7 @@ void ASplineFollow::Follow()
 	FVector XY = FVector(EnemyLocation.X- ArrowLocationWorld.X, EnemyLocation.Y- ArrowLocationWorld.Y, 0.0f);
 	float XYSize = XY.Size();
 
-	float MapRangeUnclamped = UKismetMathLibrary::MapRangeUnclamped(Speed*XYSize, 0, 2000, 1, 0.3);
+	float MapRangeUnclamped = UKismetMathLibrary::MapRangeUnclamped(Speed*XYSize, 0, 1000, 1, 0.5);
 	float select = UKismetMathLibrary::SelectFloat(1, MapRangeUnclamped, (Speed*XYSize) < 0);
 	EnemyRef->Throttle = UKismetMathLibrary::SelectFloat(1, select, XYSize < 0);
 
