@@ -16,6 +16,9 @@
 #include "OutOfBoundsVolume.h"
 #include "RacingGameGameModeBase.h"
 #include "Enemy.h"
+#include "CP1.h"
+#include "CP2.h"
+#include "CP3.h"
 
 #include "DrawDebugHelpers.h"
 #include "GameFramework/PlayerInput.h"
@@ -39,8 +42,6 @@ APlayerCar::APlayerCar()
 {
 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
-	bHasCombatTarget = false;
 
 	// Defining Player Values
 	Energy = 3;
@@ -528,6 +529,21 @@ void APlayerCar::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 		LoadGame(true);
 	}
 
+	if (OtherActor->IsA(ACP1::StaticClass()) && CurrentCheckpoint == 0)
+	{
+		CurrentCheckpoint += 1;
+		CurrentLap += 1;
+	}
+
+	if (OtherActor->IsA(ACP2::StaticClass()) && CurrentCheckpoint == 1)
+	{
+		CurrentCheckpoint += 1;
+	}
+
+	if (OtherActor->IsA(ACP3::StaticClass()) && CurrentCheckpoint == 2)
+	{
+		CurrentCheckpoint = 0;
+	}
 }
 
 void APlayerCar::SwitchLevel(FName LevelName)

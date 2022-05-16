@@ -6,6 +6,8 @@
 #include "GameFramework/Actor.h"
 #include "CheckPoint.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCheckpointCleared, int, NextCheckpoint);
+
 UCLASS()
 class RACINGGAME_API ACheckPoint : public AActor
 {
@@ -24,8 +26,17 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 public:
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	UPROPERTY(BlueprintAssignable, Category = "EventDispatchers")
+		FCheckpointCleared CheckpointCleared;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Checkpoint")
+		int CheckpointNumber;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Checkpoint")
 		class UBoxComponent* CollisionBox;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Checkpoint")
+		class UArrowComponent* ArrowComponent = nullptr;
 
 	UFUNCTION()
 		void OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
