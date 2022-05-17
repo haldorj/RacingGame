@@ -304,12 +304,13 @@ void APlayerCar::Shoot()
 						World->SpawnActor<AActor>(ActorToSpawn, Location + Rotation.RotateVector(FVector(350.f, 0.f, 80.f)), Rotation);
 						UE_LOG(LogTemp, Warning, TEXT("Firing Cannon Shell"));
 					}
-					else
+					else 
 					{
 						AHomingProjectile* HomingProjectile = World->SpawnActor<AHomingProjectile>(ActorToSpawn, Location + Rotation.RotateVector(FVector(350.f, 0.f, 80.f)), Rotation);
 						if (HomingProjectile)
 						{
 							HomingProjectile->ProjectileMovement->HomingTargetComponent = TargetMesh;
+							//TargetMesh->SetRenderCustomDepth(false);
 							TargetMesh = nullptr;
 							UE_LOG(LogTemp, Warning, TEXT("Firing Homing Missile"));
 						}
@@ -341,6 +342,11 @@ void APlayerCar::Shoot()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("ERROR: ActorToSpawn is NULL"));
 	}
+	if (HomingTarget)
+	{
+		HomingTarget->SetRenderCustomDepth(false);
+		HomingTarget = nullptr;
+	}
 }
 
 void APlayerCar::Reload() {
@@ -352,6 +358,7 @@ void APlayerCar::Reload() {
 void APlayerCar::SetTarget()
 {
 	TargetMesh = Target();
+	//TargetMesh->SetRenderCustomDepth(true);
 }
 
 UStaticMeshComponent* APlayerCar::Target()
@@ -369,24 +376,31 @@ UStaticMeshComponent* APlayerCar::Target()
 	bool Hit = (UKismetSystemLibrary::LineTraceSingleForObjects(GetWorld(), Start, End, objectTypesArray, true, ActorsToIgnore,
 		EDrawDebugTrace::Type::ForDuration, OutHit, true));
 
-	UStaticMeshComponent* HomingTarget = Cast<UStaticMeshComponent>(OutHit.GetComponent());
-	return HomingTarget;
+	UStaticMeshComponent* FirstHomingTarget = Cast<UStaticMeshComponent>(OutHit.GetComponent());
 
-	if (Hit)
-	{
-		if (HomingTarget)
+	if (Hit) {
+		if (FirstHomingTarget)
 		{
-			//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("Hit")));
+			GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("Hit")));
+			FirstHomingTarget->SetRenderCustomDepth(true);
+			HomingTarget = FirstHomingTarget;
 		}
 		else
 		{
-			//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("Not A PhysicsBody ")));
+			//FirstHomingTarget->SetRenderCustomDepth(false);
+			HomingTarget = nullptr;
+			GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("Not A PhysicsBody ")));
 		}
 	}
 	else
 	{
-		//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("No Hit ")));
+		if (HomingTarget) {
+			HomingTarget->SetRenderCustomDepth(false);
+			HomingTarget = nullptr;
+			GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("No Hit")));
+		}
 	}
+	return HomingTarget;
 }
 
 void APlayerCar::Nitro() {

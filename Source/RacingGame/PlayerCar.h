@@ -88,6 +88,7 @@ private:
 
 	void SetTarget();
 	class UStaticMeshComponent* Target();
+	class UStaticMeshComponent* HomingTarget;
 	class UStaticMeshComponent* TargetMesh;
 
 	void Raycast();
