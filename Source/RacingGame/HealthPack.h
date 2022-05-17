@@ -25,11 +25,18 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HealthVars")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PickUp")
 		class UStaticMeshComponent* HealthPackMesh = nullptr;
 
 	// Collision
 	UFUNCTION()
 		void OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent,
 			int32 OtherbodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+private:
+	// Timer
+	FTimerHandle TimerHandle;
+
+public:
+	void Respawn();
 };

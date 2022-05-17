@@ -2,6 +2,8 @@
 
 
 #include "EnergyPack.h"
+#include "PlayerCar.h"
+#include "Enemy.h"
 
 // Sets default values
 AEnergyPack::AEnergyPack()
@@ -31,6 +33,18 @@ void AEnergyPack::Tick(float DeltaTime)
 
 void AEnergyPack::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, int32 OtherbodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	if ((OtherActor->IsA(APlayerCar::StaticClass())) || ((OtherActor->IsA(AEnemy::StaticClass()))))
+	{
+		SetActorEnableCollision(false);
+		SetActorHiddenInGame(true);
 
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AEnergyPack::Respawn, 5.f, false);
+	}
+}
+
+void AEnergyPack::Respawn()
+{
+	SetActorEnableCollision(true);
+	SetActorHiddenInGame(false);
 }
 

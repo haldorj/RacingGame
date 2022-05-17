@@ -4,6 +4,9 @@
 #include "PlayerCar.h"
 #include "Enemy.h"
 #include "CheckPoint.h"
+#include "CP1.h"
+#include "CP2.h"
+#include "CP3.h"
 
 #include "Components/BoxComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
@@ -89,7 +92,8 @@ void AHomingProjectile::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AAct
 	FVector Forward = this->GetActorForwardVector();
 
 	if ((OverlappedComp != nullptr) && (OtherActor != nullptr) && (OtherActor != this)
-		&& (!OtherActor->IsA(APlayerCar::StaticClass())) && (!OtherActor->IsA(ACheckPoint::StaticClass())))
+		&& (!OtherActor->IsA(APlayerCar::StaticClass())) && (!OtherActor->IsA(ACheckPoint::StaticClass()))
+		&& (!OtherActor->IsA(ACP1::StaticClass())) && (!OtherActor->IsA(ACP2::StaticClass())) && (!OtherActor->IsA(ACP3::StaticClass())))
 	{
 		Explode();
 	}

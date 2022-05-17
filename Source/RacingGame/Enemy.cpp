@@ -329,22 +329,7 @@ void AEnemy::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherAc
 		{
 			Health = MaxHealth;
 		}
-		//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("Player Picked Up Health %f "), Health));
-		UE_LOG(LogTemp, Warning, TEXT("Player Picked Up Health %f "), Health);
-		OtherActor->Destroy();
-	}
 
-	if (OtherActor->IsA(AArmourPack::StaticClass()))
-	{
-		Armour += 20;
-
-		if (Armour > MaxArmour)
-		{
-			Armour = MaxArmour;
-		}
-		//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("Player Picked Up Armour %f "), Armour));
-		UE_LOG(LogTemp, Warning, TEXT("Player Picked Up Armour %f "), Armour);
-		OtherActor->Destroy();
 	}
 
 	if (OtherActor->IsA(AEnergyPack::StaticClass()))
@@ -355,9 +340,6 @@ void AEnemy::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherAc
 		{
 			Energy = MaxEnergy;
 		}
-		//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("Player Picked Up Energy %d "), Energy));
-		UE_LOG(LogTemp, Warning, TEXT("Player Picked Up Energy %d "), Energy);
-		OtherActor->Destroy();
 	}
 
 	if (OtherActor->IsA(AHomingProjectile::StaticClass()))

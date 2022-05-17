@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "HomingProjectile.generated.h"
 
+
 UCLASS()
 class RACINGGAME_API AHomingProjectile : public AActor
 {
