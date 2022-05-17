@@ -70,6 +70,10 @@ public:
 
 	FVector SteeringVector;
 
+	int CurrentCheckpoint = 0;
+
+	int CurrentLap = 0;
+
 private:
 	void MoveForward(float Value);
 	void MoveRight(float Value);
@@ -77,6 +81,9 @@ private:
 	void Raycast();
 	float Steering();
 	void Stun();
+
+	//brings up menu when NPC wins
+	void EnemyWinner();
 
 
 	//

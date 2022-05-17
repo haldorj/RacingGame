@@ -196,6 +196,12 @@ void APlayerCar::Tick(float DeltaTime)
 		}
 	}
 
+	// Bring up victory screen
+	if (CurrentLap == 4)
+	{
+		Winner();
+	}
+
 	//// Anti-Gravity Movement Prototype
 	//float Gravity;
 	//Gravity = 981.f;
@@ -634,4 +640,14 @@ void APlayerCar::TimeAttackLevel()
 void APlayerCar::RacingLevel()
 {
 	UGameplayStatics::OpenLevel(this, "Level_Race", false);
+}
+
+void APlayerCar::Winner()
+{
+	AMainPlayerController* MainPlayerController = Cast<AMainPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+
+	if (MainPlayerController)
+	{
+		MainPlayerController->DisplayWinScreen();
+	}
 }

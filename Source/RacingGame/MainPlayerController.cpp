@@ -5,6 +5,8 @@
 #include "Blueprint/UserWidget.h"
 #include "Kismet/GameplayStatics.h"
 
+
+
 void AMainPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
@@ -23,6 +25,26 @@ void AMainPlayerController::BeginPlay()
 		{
 			PauseMenu->AddToViewport();
 			PauseMenu->SetVisibility(ESlateVisibility::Hidden);
+		}
+	}
+
+	if (WWinScreen)
+	{
+		WinScreen = CreateWidget<UUserWidget>(this, WWinScreen);
+		if (WinScreen)
+		{
+			WinScreen->AddToViewport();
+			WinScreen->SetVisibility(ESlateVisibility::Hidden);
+		}
+	}
+
+	if (WLoseScreen)
+	{
+		LoseScreen = CreateWidget<UUserWidget>(this, WLoseScreen);
+		if (LoseScreen)
+		{
+			LoseScreen->AddToViewport();
+			LoseScreen->SetVisibility(ESlateVisibility::Hidden);
 		}
 	}
 }
@@ -67,5 +89,65 @@ void AMainPlayerController::TogglePauseMenu()
 	else
 	{
 		DisplayPauseMenu();
+	}
+}
+
+void AMainPlayerController::DisplayWinScreen_Implementation()
+{
+	if (WinScreen)
+	{
+		WinScreen->SetVisibility(ESlateVisibility::Visible);
+
+		FInputModeGameAndUI InputModeGameAndUI;
+
+		SetInputMode(InputModeGameAndUI);
+		bShowMouseCursor = true;
+
+		UGameplayStatics::SetGamePaused(GetWorld(), true);
+	}
+}
+
+void AMainPlayerController::RemoveWinScreen_Implementation()
+{
+	if (WinScreen)
+	{
+		FInputModeGameOnly InputModeGameOnly;
+
+		SetInputMode(InputModeGameOnly);
+		bShowMouseCursor = false;
+
+		bPauseMenuVisible = false;
+
+		UGameplayStatics::SetGamePaused(GetWorld(), false);
+	}
+}
+
+void AMainPlayerController::DisplayLoseScreen_Implementation()
+{
+	if (LoseScreen)
+	{
+		LoseScreen->SetVisibility(ESlateVisibility::Visible);
+
+		FInputModeGameAndUI InputModeGameAndUI;
+
+		SetInputMode(InputModeGameAndUI);
+		bShowMouseCursor = true;
+
+		UGameplayStatics::SetGamePaused(GetWorld(), true);
+	}
+}
+
+void AMainPlayerController::RemoveLoseScreen_Implementation()
+{
+	if (LoseScreen)
+	{
+		LoseScreen->SetVisibility(ESlateVisibility::Visible);
+
+		FInputModeGameAndUI InputModeGameAndUI;
+
+		SetInputMode(InputModeGameAndUI);
+		bShowMouseCursor = true;
+
+		UGameplayStatics::SetGamePaused(GetWorld(), true);
 	}
 }

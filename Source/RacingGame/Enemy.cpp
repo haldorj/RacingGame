@@ -17,6 +17,9 @@
 #include "OutOfBoundsVolume.h"
 #include "RacingGameGameModeBase.h"
 #include "AIController.h"	//Unreals AIController class
+#include "CP1.h"
+#include "CP2.h"
+#include "CP3.h"
 
 #include "Components/SphereComponent.h"
 #include "Components/BoxComponent.h"
@@ -135,7 +138,11 @@ void AEnemy::Tick(float DeltaTime)
 		}
 	}
 
-	
+	// Bring up defeat screen
+	if (CurrentLap == 4)
+	{
+		EnemyWinner();
+	}
 
 }
 
@@ -197,6 +204,16 @@ void AEnemy::Stun()
 
 		StunTime = 2.f;
 		ForwardForce *= 0.2f;
+	}
+}
+
+void AEnemy::EnemyWinner()
+{
+	AMainPlayerController* MainPlayerController = Cast<AMainPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+
+	if (MainPlayerController)
+	{
+		MainPlayerController->DisplayLoseScreen();
 	}
 }
 
@@ -358,6 +375,22 @@ void AEnemy::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherAc
 	if (OtherActor->IsA(AOutOfBoundsVolume::StaticClass()))
 	{
 		EnemyLoadGame(true);
+	}
+
+	if (OtherActor->IsA(ACP1::StaticClass()) && CurrentCheckpoint == 0)
+	{
+		CurrentCheckpoint += 1;
+		CurrentLap += 1;
+	}
+
+	if (OtherActor->IsA(ACP2::StaticClass()) && CurrentCheckpoint == 1)
+	{
+		CurrentCheckpoint += 1;
+	}
+
+	if (OtherActor->IsA(ACP3::StaticClass()) && CurrentCheckpoint == 2)
+	{
+		CurrentCheckpoint = 0;
 	}
 }
 

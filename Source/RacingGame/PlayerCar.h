@@ -92,6 +92,9 @@ private:
 
 	void Raycast();
 
+	//brings up menu when player wins
+	void Winner();
+
 	UFUNCTION(BluePrintCallable)
 		void KillPlayer();
 
@@ -196,26 +199,25 @@ public:
 		FTimerHandle TimerHandle;
 
 		FTimerDelegate TimerDel;
-
-		// For spawning Player:
 protected:
-
+		// Buttons for pause menu
 	UFUNCTION(BluePrintCallable)
 	void RestartLevel();
-
 	UFUNCTION(BluePrintCallable)
 	void TimeAttackLevel();
 	UFUNCTION(BluePrintCallable)
 	void RacingLevel();
 
+
 private:
+	// VFX for thrusters
 	UPROPERTY(EditAnywhere, Category = "PlayerVariables")
 		UParticleSystemComponent* ExhaustR = nullptr;
 
 	UPROPERTY(EditAnywhere, Category = "PlayerVariables")
 		UParticleSystemComponent* ExhaustL = nullptr;
 
-	//Sounds and effects
+	// Sounds and effects
 	UPROPERTY(EditAnywhere, Category = "PlayerVariables")
 		UParticleSystem* ExplosionFX = nullptr;
 
