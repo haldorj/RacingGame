@@ -101,6 +101,7 @@ private:
 
 	//brings up menu when player wins
 	void Winner();
+	void WinnerTimeAttack();
 
 	UFUNCTION(BluePrintCallable)
 		void KillPlayer();
