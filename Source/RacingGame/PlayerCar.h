@@ -95,6 +95,7 @@ private:
 
 	//brings up menu when player wins
 	void Winner();
+	void WinnerTimeAttack();
 
 	UFUNCTION(BluePrintCallable)
 		void KillPlayer();
@@ -116,7 +117,6 @@ private:
 	float YaValue;
 	FVector SurfaceImpactNormal;
 
-	
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "PlayerStats")
 		int32 MaxEnergy;
@@ -194,7 +194,6 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Time")
 		int Second;
 
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Time")
 		int Minute;
 
@@ -213,23 +212,17 @@ public:
 	UFUNCTION(BluePrintCallable)
 		float GetCountDownSeconds();
 
-private:
 	//timer:
-	FTimerHandle TimerHandle;
-
-protected:
-	// For spawning Player:
+	private:
+		FTimerHandle TimerHandle;
 
 		FTimerDelegate TimerDel;
 protected:
 		// Buttons for pause menu
-
 	UFUNCTION(BluePrintCallable)
 	void RestartLevel();
-
 	UFUNCTION(BluePrintCallable)
 	void TimeAttackLevel();
-
 	UFUNCTION(BluePrintCallable)
 	void RacingLevel();
 
