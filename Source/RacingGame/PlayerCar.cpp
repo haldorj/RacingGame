@@ -133,7 +133,6 @@ void APlayerCar::BeginPlay()
 	// Rotates camera to where the player car looks
 	YaValue = GetActorRotation().Yaw;
 
-
 	// Restriction physics
 	PlayerMesh->SetAngularDamping(AngularDamping);
 	//PlayerMesh->SetLinearDamping(LinearDamping);
@@ -160,7 +159,7 @@ void APlayerCar::BeginPlay()
 	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
 	APlayerController* TempController = PlayerController;
 
-	APlayerCar::DisableInput(PlayerController);
+	APlayerCar::DisableInput(PlayerController);	
 }
 
 // Called every frame

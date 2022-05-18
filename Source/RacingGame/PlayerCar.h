@@ -209,30 +209,20 @@ public:
 private:
 	//timer:
 	bool bCountingDown;
-
-<<<<<<< Updated upstream
-		FTimerDelegate TimerDel;
-protected:
-		// Buttons for pause menu
-=======
-<<<<<<< HEAD
 	float CountDownSeconds;
 
 	FTimerHandle TimerHandle;
 
-	FTimerDelegate TimerDel;
-
 protected:
 	// For spawning Player:
 
-=======
 		FTimerDelegate TimerDel;
 protected:
 		// Buttons for pause menu
->>>>>>> 9a5bd99506a9436a461210468389cec655bb15db
->>>>>>> Stashed changes
+
 	UFUNCTION(BluePrintCallable)
 	void RestartLevel();
+
 	UFUNCTION(BluePrintCallable)
 	void TimeAttackLevel();
 
