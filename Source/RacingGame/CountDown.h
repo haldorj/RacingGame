@@ -3,51 +3,25 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
-#include "PlayerCar.h"
-#include "CountDown.generated.h"
 
 
-class UTextRenderComponent;
-
-
-UCLASS()
-class RACINGGAME_API ACountDown : public AActor
+/**
+ * 
+ */
+class RACINGGAME_API Countdown 
 {
-	GENERATED_BODY()
-
 public:
-	// Sets default values for this actor's properties
-	ACountDown();
+	Countdown();
+	~Countdown();
 
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+	bool IsCountingDown();
+	void SetCountingDown();
+	float GetSeconds();
+	
+	void CountDown(float DeltaTime);
 
-public:
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+private:
+	bool CountingDown;
+	float SecondsLeft;
 
-public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerVariables")
-		UStaticMeshComponent* MeshComp = nullptr;
-
-	int32 CountdownTime;
-	UTextRenderComponent* CountdownText{ nullptr };
-
-	void UpdateTimerDisplay();
-
-	void AdvanceTimer();
-
-	void CountdownHasFinished();
-
-	FTimerHandle CountdownTimerHandle;
-
-	UPROPERTY(EditAnywhere)
-		USoundBase* CountDownSound {
-		nullptr
-	};
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lights")
-		TArray<UStaticMeshComponent*> Lights;
 };
