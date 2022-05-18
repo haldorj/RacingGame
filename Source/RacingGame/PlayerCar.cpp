@@ -313,7 +313,7 @@ void APlayerCar::MoveCameraY(float Value)
 {
 	PiValue += Value;
 
-	SpringArm->SetRelativeRotation(FRotator(PiValue, YaValue, 0.f));
+	SpringArm->SetRelativeRotation(FRotator(0.f, YaValue - 90.f, 0.f));
 }
 
 void APlayerCar::MoveCameraX(float Value) 
@@ -324,6 +324,7 @@ void APlayerCar::MoveCameraX(float Value)
 	else if (bCameraMode) { SpringArm->SetRelativeRotation(FRotator(PiValue, YaValue + 180.f, 0.f)); }
 
 	Turret->SetWorldRotation(FRotator(0.f, YaValue - 90.f, 0.f));
+	//Turret->SetRelativeRotation(FRotator(Turret->GetRelativeRotation().Pitch, YaValue + 90.f, Turret->GetRelativeRotation().Roll));
 }
 
 void APlayerCar::Shoot()
