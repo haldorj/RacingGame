@@ -5,6 +5,8 @@
 #include "PlayerCar.h"
 #include "Enemy.h"
 
+#include "Kismet/GameplayStatics.h"
+
 // Sets default values
 AEnergyPack::AEnergyPack()
 {
@@ -37,8 +39,14 @@ void AEnergyPack::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Ot
 	{
 		SetActorEnableCollision(false);
 		SetActorHiddenInGame(true);
-
+		
+		APlayerCar* PlayerCar = Cast<APlayerCar>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
+		PlayerCar->Energy++;
 		GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AEnergyPack::Respawn, 5.f, false);
+		if (PlayerCar->Energy > PlayerCar->MaxEnergy)
+		{
+			PlayerCar->Energy = PlayerCar->MaxEnergy;
+		}
 	}
 }
 

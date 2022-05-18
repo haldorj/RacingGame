@@ -217,24 +217,13 @@ void APlayerCar::Tick(float DeltaTime)
 		}
 	}
 
-	if (!bCountingDown)
+	if (!bCountingDown) {
 		// Time
 		Millisecond += DeltaTime * 1000;
-	if (Millisecond > 999)
-	{
-		Millisecond += DeltaTime * 1000;
-		if (Millisecond > 999) {
+		if (Millisecond >= 1000) {
 			Millisecond -= 1000;
 			Second++;
-			if (Second > 59)
-			{
-				Millisecond -= 1000;
-				Second++;
-				if (Second > 59)
-				{
-					Second -= 60;
-					Minute++;
-				}
+			if (Second >= 60) {
 				Second -= 60;
 				Minute++;
 			}
@@ -547,16 +536,6 @@ void APlayerCar::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 		}
 	}
 
-	if (OtherActor->IsA(AEnergyPack::StaticClass()))
-	{
-		Energy++;
-
-		if (Energy > MaxEnergy)
-		{
-			Energy = MaxEnergy;
-		}
-	}
-
 	if (OtherActor->IsA(ACheckPoint::StaticClass()))
 	{
 		SaveGame();
@@ -732,6 +711,26 @@ void APlayerCar::Winner()
 
 void APlayerCar::WinnerTimeAttack()
 {
+	WinnerMillisecond = Millisecond;
+	WinnerSecond = Second;
+	WinnerMinute = Minute;
+
+
+	if ((WinnerMinute <= 1) && (WinnerSecond <= 25))
+	{
+	Medal = (TEXT("GOLD"));
+	}
+
+	else if ((WinnerMinute <= 1) && (WinnerSecond <= 40) && (WinnerSecond > 25))
+	{
+		Medal = (TEXT("SILVER"));
+	}
+
+	else
+	{
+		Medal = (TEXT("BRONZE"));
+	}
+
 	AMainPlayerController* MainPlayerController = Cast<AMainPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
 
 	if (MainPlayerController)

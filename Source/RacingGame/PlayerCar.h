@@ -212,6 +212,18 @@ public:
 	UFUNCTION(BluePrintCallable)
 		float GetCountDownSeconds();
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Time")
+		int WinnerMillisecond;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Time")
+		int WinnerSecond;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Time")
+		int WinnerMinute;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Time")
+		FString Medal;
+
 	//timer:
 	private:
 		FTimerHandle TimerHandle;
