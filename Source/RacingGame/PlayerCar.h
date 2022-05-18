@@ -66,6 +66,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerVariables")
 		class UHoverComponent* HoverComponentHR = nullptr;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerVehicle")
+		UStaticMeshComponent* Turret = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerVehicle")
+		USceneComponent* Barrel = nullptr;
+
 	// For spawning Bullets:
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"));
 	TSubclassOf<AActor> ActorToSpawn;
@@ -95,7 +101,6 @@ private:
 
 	//brings up menu when player wins
 	void Winner();
-	void WinnerTimeAttack();
 
 	UFUNCTION(BluePrintCallable)
 		void KillPlayer();
@@ -117,6 +122,7 @@ private:
 	float YaValue;
 	FVector SurfaceImpactNormal;
 
+	
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "PlayerStats")
 		int32 MaxEnergy;
@@ -169,6 +175,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerStats")
 		float LinearDamping;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerStats")
+		bool bCameraMode;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerPhysics")
 		float ForwardForce;
 
@@ -193,6 +202,7 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Time")
 		int Second;
+
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Time")
 		int Minute;
@@ -225,16 +235,21 @@ public:
 		FString Medal;
 
 	//timer:
-	private:
-		FTimerHandle TimerHandle;
+	FTimerHandle TimerHandle;
+
+protected:
+	// For spawning Player:
 
 		FTimerDelegate TimerDel;
 protected:
 		// Buttons for pause menu
+
 	UFUNCTION(BluePrintCallable)
 	void RestartLevel();
+
 	UFUNCTION(BluePrintCallable)
 	void TimeAttackLevel();
+
 	UFUNCTION(BluePrintCallable)
 	void RacingLevel();
 

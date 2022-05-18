@@ -132,7 +132,11 @@ APlayerCar::APlayerCar()
 	ExhaustL = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("ExhaustL"));
 	ExhaustL->AttachTo(PlayerMesh);
 
+	Turret = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Turret"));
+	Turret->AttachTo(PlayerMesh);
 
+	Barrel = CreateDefaultSubobject<USceneComponent>(TEXT("Barrel"));
+	Barrel->AttachTo(Turret);
 }
 
 // Called when the game starts or when spawned
@@ -142,7 +146,6 @@ void APlayerCar::BeginPlay()
 
 	// Rotates camera to where the player car looks
 	YaValue = GetActorRotation().Yaw;
-
 
 	// Restriction physics
 	PlayerMesh->SetAngularDamping(AngularDamping);
@@ -170,14 +173,13 @@ void APlayerCar::BeginPlay()
 	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
 	APlayerController* TempController = PlayerController;
 
-	APlayerCar::DisableInput(PlayerController);
+	APlayerCar::DisableInput(PlayerController);	
 }
 
 // Called every frame
 void APlayerCar::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 	// If the Nitro is on, increase the forward force, else, reduce it back 
 	if (bNitro) {
 		if (NitroTime > 0) {
@@ -201,10 +203,11 @@ void APlayerCar::Tick(float DeltaTime)
 	// Checking Surface Normal
 	Raycast();
 
+
 	// Time, countown and similarities
-	if (bCountingDown)
-	{
-		CountDownSeconds -= DeltaTime;
+	if (bCountingDown) 
+	{ 
+		CountDownSeconds -= DeltaTime; 
 		if (CountDownSeconds <= 0.f)
 		{
 			CountDownSeconds = 0.f;
@@ -308,14 +311,18 @@ void APlayerCar::MoveCameraY(float Value)
 {
 	PiValue += Value;
 
-	SpringArm->SetRelativeRotation(FRotator(PiValue, YaValue, 0.f));
+	SpringArm->SetRelativeRotation(FRotator(0.f, YaValue - 90.f, 0.f));
 }
 
 void APlayerCar::MoveCameraX(float Value) 
 {
 	YaValue += Value;
 
-	SpringArm->SetRelativeRotation(FRotator(PiValue, YaValue, 0.f));
+	if (!bCameraMode) { SpringArm->SetRelativeRotation(FRotator(PiValue, YaValue, 0.f)); }
+	else if (bCameraMode) { SpringArm->SetRelativeRotation(FRotator(PiValue, YaValue + 180.f, 0.f)); }
+
+	Turret->SetWorldRotation(FRotator(0.f, YaValue - 90.f, 0.f));
+	//Turret->SetRelativeRotation(FRotator(Turret->GetRelativeRotation().Pitch, YaValue + 90.f, Turret->GetRelativeRotation().Roll));
 }
 
 void APlayerCar::Shoot()
@@ -330,17 +337,17 @@ void APlayerCar::Shoot()
 				//if (TargetMesh)
 				//{
 					Energy--;
-					FVector Location = GetActorLocation();
-					FRotator Rotation = FRotator(PiValue + RearCamera->GetRelativeRotation().Pitch, YaValue, 0.f);
+					FVector Location = Barrel->GetComponentLocation();
+					FRotator Rotation = FRotator(PiValue + 15.f, Turret->GetComponentRotation().Yaw + 90.f, 0.f);
 
 					if (ActorToSpawn->GetName() == "Bullet_BP_C")
 					{
-						World->SpawnActor<AActor>(ActorToSpawn, Location + Rotation.RotateVector(FVector(350.f, 0.f, 80.f)), Rotation);
+						World->SpawnActor<AActor>(ActorToSpawn, Location, Rotation);
 						UE_LOG(LogTemp, Warning, TEXT("Firing Cannon Shell"));
 					}
 					else 
 					{
-						AHomingProjectile* HomingProjectile = World->SpawnActor<AHomingProjectile>(ActorToSpawn, Location + Rotation.RotateVector(FVector(350.f, 0.f, 80.f)), Rotation);
+						AHomingProjectile* HomingProjectile = World->SpawnActor<AHomingProjectile>(ActorToSpawn, Location, Rotation);
 						if (HomingProjectile)
 						{
 							HomingProjectile->ProjectileMovement->HomingTargetComponent = TargetMesh;
@@ -415,7 +422,7 @@ UStaticMeshComponent* APlayerCar::Target()
 	if (Hit) {
 		if (FirstHomingTarget)
 		{
-			//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("Hit")));
+			GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("Hit")));
 			FirstHomingTarget->SetRenderCustomDepth(true);
 			HomingTarget = FirstHomingTarget;
 		}
@@ -423,7 +430,7 @@ UStaticMeshComponent* APlayerCar::Target()
 		{
 			//FirstHomingTarget->SetRenderCustomDepth(false);
 			HomingTarget = nullptr;
-			//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("Not A PhysicsBody ")));
+			GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("Not A PhysicsBody ")));
 		}
 	}
 	else
@@ -449,7 +456,8 @@ void APlayerCar::Nitro() {
 
 void APlayerCar::ChangeCameraView()
 {
-	YaValue += 180.f;
+	if (bCameraMode) { bCameraMode = false; }
+	else if (!bCameraMode) { bCameraMode = true; }
 }
 
 void APlayerCar::ESCDown()
@@ -559,39 +567,8 @@ void APlayerCar::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 
 	if (OtherActor->IsA(ACP3::StaticClass()) && CurrentCheckpoint == 2)
 	{
-		CurrentCheckpoint += 1;
-	}
-
-	if (OtherActor->IsA(ACP4::StaticClass()) && CurrentCheckpoint == 3)
-	{
-		CurrentCheckpoint += 1;
-	}
-
-	if (OtherActor->IsA(ACP5::StaticClass()) && CurrentCheckpoint == 4)
-	{
-		CurrentCheckpoint += 1;
-	}
-
-	if (OtherActor->IsA(ACP6::StaticClass()) && CurrentCheckpoint == 5)
-	{
-		CurrentCheckpoint += 1;
-	}
-
-	if (OtherActor->IsA(ACP7::StaticClass()) && CurrentCheckpoint == 6)
-	{
-		CurrentCheckpoint += 1;
-	}
-
-	if (OtherActor->IsA(ACP8::StaticClass()) && CurrentCheckpoint == 7)
-	{
 		CurrentCheckpoint = 0;
 	}
-
-	if (OtherActor->IsA(ATimeAttackGoal::StaticClass()) && CurrentCheckpoint == 7)
-	{
-		WinnerTimeAttack();
-	}
-
 }
 
 void APlayerCar::SwitchLevel(FName LevelName)
@@ -650,7 +627,7 @@ void APlayerCar::LoadGame(bool SetPosition)
 
 	if (SetPosition)
 	{
-		SetActorLocation((LoadGameInstance->CharacterStats.Location)+(FVector(0, 0, 100.f)));
+		SetActorLocation((LoadGameInstance->CharacterStats.Location) + (FVector(0, 0, 100.f)));
 		SetActorRotation(LoadGameInstance->CharacterStats.Rotation);
 	}
 }
