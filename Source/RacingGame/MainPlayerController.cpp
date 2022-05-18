@@ -47,6 +47,16 @@ void AMainPlayerController::BeginPlay()
 			LoseScreen->SetVisibility(ESlateVisibility::Hidden);
 		}
 	}
+
+	if (WTimeAttackWinScreen)
+	{
+		TimeAttackWinScreen = CreateWidget<UUserWidget>(this, WTimeAttackWinScreen);
+		if (TimeAttackWinScreen)
+		{
+			TimeAttackWinScreen->AddToViewport();
+			TimeAttackWinScreen->SetVisibility(ESlateVisibility::Hidden);
+		}
+	}
 }
 
 void AMainPlayerController::DisplayPauseMenu_Implementation()
@@ -149,5 +159,35 @@ void AMainPlayerController::RemoveLoseScreen_Implementation()
 		bShowMouseCursor = true;
 
 		UGameplayStatics::SetGamePaused(GetWorld(), true);
+	}
+}
+
+void AMainPlayerController::DisplayTimeAttackWinScreen_Implementation()
+{
+	if (TimeAttackWinScreen)
+	{
+		TimeAttackWinScreen->SetVisibility(ESlateVisibility::Visible);
+
+		FInputModeGameAndUI InputModeGameAndUI;
+
+		SetInputMode(InputModeGameAndUI);
+		bShowMouseCursor = true;
+
+		UGameplayStatics::SetGamePaused(GetWorld(), true);
+	}
+}
+
+void AMainPlayerController::RemoveTimeAttackWinScreen_Implementation()
+{
+	if (TimeAttackWinScreen)
+	{
+		FInputModeGameOnly InputModeGameOnly;
+
+		SetInputMode(InputModeGameOnly);
+		bShowMouseCursor = false;
+
+		bPauseMenuVisible = false;
+
+		UGameplayStatics::SetGamePaused(GetWorld(), false);
 	}
 }

@@ -41,6 +41,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
 		UUserWidget* LoseScreen;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
+		TSubclassOf<class UUserWidget> WTimeAttackWinScreen;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
+		UUserWidget* TimeAttackWinScreen;
+
 	//
 	// PauseMenu
 	//
@@ -73,6 +79,16 @@ public:
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "HUD")
 	void RemoveLoseScreen();
+
+	//
+	// WinScreen Time Attack
+	//
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "HUD")
+		void DisplayTimeAttackWinScreen();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "HUD")
+		void RemoveTimeAttackWinScreen();
 
 protected:
 	virtual void BeginPlay() override;
