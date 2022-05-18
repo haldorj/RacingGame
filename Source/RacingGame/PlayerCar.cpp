@@ -321,8 +321,8 @@ void APlayerCar::MoveCameraX(float Value)
 	if (!bCameraMode) { SpringArm->SetRelativeRotation(FRotator(PiValue, YaValue, 0.f)); }
 	else if (bCameraMode) { SpringArm->SetRelativeRotation(FRotator(PiValue, YaValue + 180.f, 0.f)); }
 
-	Turret->SetWorldRotation(FRotator(0.f, YaValue - 90.f, 0.f));
-	//Turret->SetRelativeRotation(FRotator(Turret->GetRelativeRotation().Pitch, YaValue + 90.f, Turret->GetRelativeRotation().Roll));
+	//Turret->SetWorldRotation(FRotator(0.f, YaValue - 90.f, 0.f));
+	Turret->SetWorldRotation(FRotator(this->GetActorRotation().Pitch, YaValue, this->GetActorRotation().Roll));
 }
 
 void APlayerCar::Shoot()
@@ -338,7 +338,7 @@ void APlayerCar::Shoot()
 				//{
 					Energy--;
 					FVector Location = Barrel->GetComponentLocation();
-					FRotator Rotation = FRotator(PiValue + 15.f, Turret->GetComponentRotation().Yaw + 90.f, 0.f);
+					FRotator Rotation = FRotator(PiValue + 15.f, Turret->GetComponentRotation().Yaw, 0.f);
 
 					if (ActorToSpawn->GetName() == "Bullet_BP_C")
 					{
