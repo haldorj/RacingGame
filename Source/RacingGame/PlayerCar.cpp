@@ -194,7 +194,6 @@ void APlayerCar::Tick(float DeltaTime)
 	if (bCountingDown) 
 	{ 
 		CountDownSeconds -= DeltaTime; 
-		GEngine->AddOnScreenDebugMessage(-1, 1.0, FColor::Red, FString::SanitizeFloat(GetCountDownSeconds()));
 		if (CountDownSeconds <= 0.f)
 		{
 			CountDownSeconds = 0.f;

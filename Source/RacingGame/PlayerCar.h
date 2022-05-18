@@ -194,8 +194,15 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Time")
 		int Second;
 
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Time")
 		int Minute;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Time")
+		float CountDownSeconds;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Time")
+		bool bCountingDown;
 
 	UFUNCTION(BluePrintCallable)
 		bool IsCountingDown();
@@ -208,9 +215,6 @@ public:
 
 private:
 	//timer:
-	bool bCountingDown;
-	float CountDownSeconds;
-
 	FTimerHandle TimerHandle;
 
 protected:
