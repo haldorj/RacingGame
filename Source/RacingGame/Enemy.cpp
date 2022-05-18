@@ -122,10 +122,16 @@ void AEnemy::BeginPlay()
 void AEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	MoveForward(Throttle);
-	MoveRight(Steering());
-	Raycast();
-	HealthFunction();
+	
+	APlayerCar* Player = Cast<APlayerCar>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
+	
+	if (Player != NULL && Player->IsCountingDown() == false)
+	{
+		MoveForward(Throttle);
+		MoveRight(Steering());
+		Raycast();
+		HealthFunction();
+	}
 
 	if (bStun) {
 		if (StunTime > 0) {

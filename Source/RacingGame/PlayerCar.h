@@ -116,6 +116,7 @@ private:
 	float YaValue;
 	FVector SurfaceImpactNormal;
 
+	
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "PlayerStats")
 		int32 MaxEnergy;
@@ -195,17 +196,46 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Time")
 		int Minute;
-	//timer:
-	private:
-		FTimerHandle TimerHandle;
 
+	UFUNCTION(BluePrintCallable)
+		bool IsCountingDown();
+
+	UFUNCTION(BluePrintCallable)
+		void SetCountingDown();
+
+	UFUNCTION(BluePrintCallable)
+		float GetCountDownSeconds();
+
+private:
+	//timer:
+	bool bCountingDown;
+
+<<<<<<< Updated upstream
 		FTimerDelegate TimerDel;
 protected:
 		// Buttons for pause menu
+=======
+<<<<<<< HEAD
+	float CountDownSeconds;
+
+	FTimerHandle TimerHandle;
+
+	FTimerDelegate TimerDel;
+
+protected:
+	// For spawning Player:
+
+=======
+		FTimerDelegate TimerDel;
+protected:
+		// Buttons for pause menu
+>>>>>>> 9a5bd99506a9436a461210468389cec655bb15db
+>>>>>>> Stashed changes
 	UFUNCTION(BluePrintCallable)
 	void RestartLevel();
 	UFUNCTION(BluePrintCallable)
 	void TimeAttackLevel();
+
 	UFUNCTION(BluePrintCallable)
 	void RacingLevel();
 

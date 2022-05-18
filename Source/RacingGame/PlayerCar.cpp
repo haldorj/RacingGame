@@ -75,6 +75,8 @@ APlayerCar::APlayerCar()
 	Millisecond = 0;
 	Second = 0;
 	Minute = 0;
+	CountDownSeconds = 5.f;
+	SetCountingDown();
 
 	// Creating & rooting Player Mesh
 	PlayerMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("PlayerMesh"));
@@ -154,6 +156,11 @@ void APlayerCar::BeginPlay()
 
 	ExhaustR->Deactivate();
 	ExhaustL->Deactivate();
+
+	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+	APlayerController* TempController = PlayerController;
+
+	APlayerCar::DisableInput(PlayerController);
 }
 
 // Called every frame
@@ -183,16 +190,36 @@ void APlayerCar::Tick(float DeltaTime)
 	// Checking Surface Normal
 	Raycast();
 
-	// Time
-	Millisecond += DeltaTime * 1000;
-	if (Millisecond > 999) 
-	{
-		Millisecond -= 1000;
-		Second++;
-		if (Second > 59)
+
+	// Time, countown and similarities
+	if (bCountingDown) 
+	{ 
+		CountDownSeconds -= DeltaTime; 
+		GEngine->AddOnScreenDebugMessage(-1, 1.0, FColor::Red, FString::SanitizeFloat(GetCountDownSeconds()));
+		if (CountDownSeconds <= 0.f)
 		{
-			Second -= 60;
-			Minute++;
+			CountDownSeconds = 0.f;
+			bCountingDown = false;
+
+			APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+			APlayerController* TempController = PlayerController;
+
+			APlayerCar::EnableInput(TempController);
+		}
+	}
+
+	if (!bCountingDown)
+	{
+		Millisecond += DeltaTime * 1000;
+		if (Millisecond > 999)
+		{
+			Millisecond -= 1000;
+			Second++;
+			if (Second > 59)
+			{
+				Second -= 60;
+				Minute++;
+			}
 		}
 	}
 
@@ -595,7 +622,7 @@ void APlayerCar::LoadGame(bool SetPosition)
 
 	if (SetPosition)
 	{
-		SetActorLocation((LoadGameInstance->CharacterStats.Location)+(FVector(0, 0, 100.f)));
+		SetActorLocation((LoadGameInstance->CharacterStats.Location) + (FVector(0, 0, 100.f)));
 		SetActorRotation(LoadGameInstance->CharacterStats.Rotation);
 	}
 }
@@ -612,6 +639,21 @@ void APlayerCar::HealthFunction()
 void APlayerCar::HealthMinus()
 {
 	Health -= 10;
+}
+
+bool APlayerCar::IsCountingDown()
+{
+	return bCountingDown;
+}
+
+void APlayerCar::SetCountingDown()
+{
+	bCountingDown = true;
+}
+
+float APlayerCar::GetCountDownSeconds()
+{
+	return CountDownSeconds;
 }
 
 void APlayerCar::RestartLevel()
