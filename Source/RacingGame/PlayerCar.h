@@ -294,7 +294,4 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Audio")
 		UAudioComponent* EngineSoundComponent = nullptr;
-
-	UPROPERTY(EditAnywhere, Category = "Audio")
-		USoundBase* Impact = nullptr;
 };
