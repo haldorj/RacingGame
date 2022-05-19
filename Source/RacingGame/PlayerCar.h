@@ -4,9 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
+#include "Camera/CameraComponent.h"
+#include "Components/AudioComponent.h"
 #include "Components/PrimitiveComponent.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "Camera/CameraComponent.h"
+#include "Sound/SoundCue.h"
 #include "PlayerCar.generated.h"
 
 UCLASS()
@@ -44,15 +46,6 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerVariables")
 		UCameraComponent* RearCamera = nullptr;
-
-	UPROPERTY(EditAnywhere, Category = "PlayerVariables")
-		USoundBase* Shooting = nullptr;
-
-	UPROPERTY(EditAnywhere, Category = "PlayerVariables")
-		USoundBase* OutOfEnergy = nullptr;
-
-	UPROPERTY(EditAnywhere, Category = "PlayerVariables")
-		USoundBase* Reloading = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerVariables")
 		class UHoverComponent* HoverComponentFL = nullptr;
@@ -264,17 +257,41 @@ protected:
 
 
 private:
-	// VFX for thrusters
-	UPROPERTY(EditAnywhere, Category = "PlayerVariables")
+	// Visual Effects
+	UPROPERTY(EditAnywhere, Category = "VFX")
 		UParticleSystemComponent* ExhaustR = nullptr;
 
-	UPROPERTY(EditAnywhere, Category = "PlayerVariables")
+	UPROPERTY(EditAnywhere, Category = "VFX")
 		UParticleSystemComponent* ExhaustL = nullptr;
 
-	// Sounds and effects
-	UPROPERTY(EditAnywhere, Category = "PlayerVariables")
+	UPROPERTY(EditAnywhere, Category = "VFX")
 		UParticleSystem* ExplosionFX = nullptr;
 
-	UPROPERTY(EditAnywhere, Category = "PlayerVariables")
+	// Sound Effects
+	UPROPERTY(EditAnywhere, Category = "Audio")
+		USoundBase* Ambiance = nullptr;
+
+	UPROPERTY(EditAnywhere, Category = "Audio")
+		USoundBase* Shooting = nullptr;
+
+	UPROPERTY(EditAnywhere, Category = "Audio")
+		USoundBase* OutOfEnergy = nullptr;
+
+	UPROPERTY(EditAnywhere, Category = "Audio")
+		USoundBase* Repairing = nullptr;
+
+	UPROPERTY(EditAnywhere, Category = "Audio")
+		USoundBase* Reloading = nullptr;
+
+	UPROPERTY(EditAnywhere, Category = "Audio")
 		USoundBase* ExplosionSound = nullptr;
+
+	UPROPERTY(EditAnywhere, Category = "Audio")
+		USoundCue* EngineSoundCue;
+
+	UPROPERTY(EditAnywhere, Category = "Audio")
+		UAudioComponent* EngineSoundComponent = nullptr;
+
+	UPROPERTY(EditAnywhere, Category = "Audio")
+		USoundBase* Impact = nullptr;
 };

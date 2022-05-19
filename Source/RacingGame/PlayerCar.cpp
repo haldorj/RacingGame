@@ -145,6 +145,14 @@ APlayerCar::APlayerCar()
 		BestMillisecond = 9999;
 	}
 
+	static ConstructorHelpers::FObjectFinder<USoundCue> EngineCue(TEXT("'/Game/Audio/Tank/Engine.Engine'"));
+	EngineSoundCue = EngineCue.Object;
+
+	EngineSoundComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("EngineSound"));	
+	EngineSoundComponent->bAutoActivate = false;
+	EngineSoundComponent->AttachTo(PlayerMesh);
+	EngineSoundComponent->SetRelativeLocation(FVector(100.0f, 0.0f, 0.0f));
+	EngineSoundComponent->SetSound(EngineSoundCue);
 }
 
 // Called when the game starts or when spawned
@@ -177,6 +185,14 @@ void APlayerCar::BeginPlay()
 
 	ExhaustR->Deactivate();
 	ExhaustL->Deactivate();
+
+	float StartTime = 9.0f;
+	float Volume = 1.0f;
+	float FadeTime = 1.0f;
+	EngineSoundComponent->FadeIn(FadeTime, Volume, StartTime);
+
+	UWorld* World = GetWorld();
+	if (World) { UGameplayStatics::PlaySound2D(World, Ambiance, 1.f, 1.f, 0.f, 0); }
 
 	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
 	APlayerController* TempController = PlayerController;
@@ -247,6 +263,14 @@ void APlayerCar::Tick(float DeltaTime)
 	{
 		Winner();
 	}
+
+	// Engine Audio
+	float Velocity = GetVelocity().Size(); // Hovertank Velocity
+	Velocity *= (3.6f / 100.f); // From cm/s to km/h
+
+	float RPM = Velocity / 54.f; // 54.f is "MaxSpeed"
+
+	EngineSoundComponent->SetFloatParameter(FName("RPM"), RPM);
 
 	//// Anti-Gravity Movement Prototype
 	//float Gravity;
@@ -379,7 +403,6 @@ void APlayerCar::Shoot()
 				UE_LOG(LogTemp, Warning, TEXT("ERROR: World is FALSE"));
 			}
 		}
-
 		else if (Energy <= 0)
 		{
 			Energy = 0;
@@ -390,10 +413,12 @@ void APlayerCar::Shoot()
 			}
 		}
 	}
+
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("ERROR: ActorToSpawn is NULL"));
 	}
+
 	if (HomingTarget)
 	{
 		HomingTarget->SetRenderCustomDepth(false);
@@ -555,6 +580,12 @@ void APlayerCar::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 		}
 	}
 
+	//if (OtherActor->IsA(ADestructableMesh::StaticClass()))
+	//{
+	//	UWorld* World = GetWorld();
+	//	if (World) { UGameplayStatics::PlaySound2D(World, Impact, 1.f, 1.f, 0.f, 0); }
+	//}
+
 	if (OtherActor->IsA(ACheckPoint::StaticClass()))
 	{
 		SaveGame();
@@ -610,7 +641,6 @@ void APlayerCar::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 	{
 		WinnerTimeAttack();
 	}
-
 }
 
 void APlayerCar::SwitchLevel(FName LevelName)

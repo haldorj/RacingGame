@@ -39,4 +39,7 @@ private:
 
 public:
 	void Respawn();
+
+	UPROPERTY(EditAnywhere, Category = "Audio")
+		USoundBase* Repairing = nullptr;
 };
