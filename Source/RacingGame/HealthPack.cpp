@@ -42,11 +42,7 @@ void AHealthPack::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Ot
 		SetActorEnableCollision(false);
 
 		APlayerCar* PlayerCar = Cast<APlayerCar>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
-		PlayerCar->Health+= 35;
-		GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AHealthPack::Respawn, 5.f, false);
-
-		APlayerCar* PlayerCar = Cast<APlayerCar>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
-		PlayerCar->Health+= 35;
+		PlayerCar->Health += 35;
 		GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AHealthPack::Respawn, 5.f, false);
 
 		UWorld* NewWorld = GetWorld();
@@ -64,7 +60,7 @@ void AHealthPack::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Ot
 		SetActorEnableCollision(false);
 		SetActorHiddenInGame(true);
 
-		EnemyRef->Health+= 35;
+		EnemyRef->Health += 35;
 
 		if (EnemyRef->Health > EnemyRef->Health)
 		{
@@ -72,15 +68,8 @@ void AHealthPack::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Ot
 		}
 
 		UWorld* NewWorld = GetWorld();
-		UGameplayStatics::PlaySound2D(NewWorld, Repairing, 1.f, 1.f, 0.f, 0);
-
-	if (OtherActor->IsA(AEnemy::StaticClass()))
-	{
-		SetActorEnableCollision(false);
-		SetActorHiddenInGame(true);
-
-		UWorld* NewWorld = GetWorld();
 		UGameplayStatics::PlaySoundAtLocation(NewWorld, Repairing, GetActorLocation(), 1.0f, 1.0f, 0.f);
+
 		GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AHealthPack::Respawn, 5.f, false);
 	}
 }

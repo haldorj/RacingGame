@@ -28,7 +28,6 @@
 #include "Kismet/GameplayStatics.h"
 #include "PhysicsEngine/RadialForceComponent.h"
 #include "Kismet/GameplayStatics.h"
-#include "Containers/Array.h" 
 
 // Sets default values
 AHomingProjectile::AHomingProjectile()

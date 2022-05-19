@@ -451,7 +451,7 @@ UStaticMeshComponent* APlayerCar::Target()
 	if (Hit) {
 		if (FirstHomingTarget)
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("Hit")));
+			//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("Hit")));
 			FirstHomingTarget->SetRenderCustomDepth(true);
 			HomingTarget = FirstHomingTarget;
 		}
@@ -459,7 +459,7 @@ UStaticMeshComponent* APlayerCar::Target()
 		{
 			//FirstHomingTarget->SetRenderCustomDepth(false);
 			HomingTarget = nullptr;
-			GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("Not A PhysicsBody ")));
+			//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("Not A PhysicsBody ")));
 		}
 	}
 	else
@@ -467,7 +467,7 @@ UStaticMeshComponent* APlayerCar::Target()
 		if (HomingTarget) {
 			HomingTarget->SetRenderCustomDepth(false);
 			HomingTarget = nullptr;
-			GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("No Hit")));
+			//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("No Hit")));
 		}
 	}
 	return HomingTarget;
@@ -618,12 +618,6 @@ void APlayerCar::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 	else if (OtherActor->IsA(ATimeAttackGoal::StaticClass()) && CurrentCheckpoint == 7)
 	{
 		WinnerTimeAttack();
-	}
-
-	else
-	{
-		UWorld* World = GetWorld();
-		if (World) { UGameplayStatics::PlaySound2D(World, Impact, 1.f, 1.f, 0.f, 0); }
 	}
 }
 
