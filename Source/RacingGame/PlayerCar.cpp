@@ -179,10 +179,13 @@ void APlayerCar::BeginPlay()
 	ExhaustR->Deactivate();
 	ExhaustL->Deactivate();
 
-	float startTime = 9.0f;
-	float volume = 1.0f;
-	float fadeTime = 1.0f;
-	EngineSoundComponent->FadeIn(fadeTime, volume, startTime);
+	float StartTime = 9.0f;
+	float Volume = 1.0f;
+	float FadeTime = 1.0f;
+	EngineSoundComponent->FadeIn(FadeTime, Volume, StartTime);
+
+	UWorld* World = GetWorld();
+	if (World) { UGameplayStatics::PlaySound2D(World, Ambiance, 1.f, 1.f, 0.f, 0); }
 
 	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
 	APlayerController* TempController = PlayerController;
@@ -562,9 +565,6 @@ void APlayerCar::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 	if (OtherActor->IsA(AHealthPack::StaticClass()))
 	{
 		Health += 30;
-
-		UWorld* NewWorld = GetWorld();
-		UGameplayStatics::PlaySound2D(NewWorld, Repairing, 1.f, 1.f, 0.f, 0);
 
 		if (Health > MaxHealth)
 		{

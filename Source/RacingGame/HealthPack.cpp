@@ -5,6 +5,8 @@
 #include "PlayerCar.h"
 #include "Enemy.h"
 
+#include "Kismet/GameplayStatics.h"
+
 // Sets default values
 AHealthPack::AHealthPack()
 {
@@ -38,6 +40,9 @@ void AHealthPack::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Ot
 	{
 		SetActorHiddenInGame(true);
 		SetActorEnableCollision(false);
+
+		UWorld* NewWorld = GetWorld();
+		UGameplayStatics::PlaySound2D(NewWorld, Repairing, 1.f, 1.f, 0.f, 0);
 
 		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("Player Picked Up Health")));
 		GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AHealthPack::Respawn, 5.f, false);

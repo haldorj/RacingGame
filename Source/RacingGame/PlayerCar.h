@@ -272,6 +272,9 @@ private:
 
 	// Sound Effects
 	UPROPERTY(EditAnywhere, Category = "Audio")
+		USoundBase* Ambiance = nullptr;
+
+	UPROPERTY(EditAnywhere, Category = "Audio")
 		USoundBase* Shooting = nullptr;
 
 	UPROPERTY(EditAnywhere, Category = "Audio")
