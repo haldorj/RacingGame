@@ -45,7 +45,7 @@ void ASplineFollowAlteration::OnOverlap(UPrimitiveComponent* OverlappedComponent
 		SplineFollow->ObjectDistance = 400;
 		SplineFollow->ThrottleMultiplier = 0.05;
 
-		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("Overlap")));
+		//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("Overlap")));
 	}
 }
 

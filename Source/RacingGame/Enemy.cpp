@@ -372,16 +372,6 @@ void AEnemy::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherAc
 
 	}
 
-	if (OtherActor->IsA(AEnergyPack::StaticClass()))
-	{
-		Energy++;
-
-		if (Energy > MaxEnergy)
-		{
-			Energy = MaxEnergy;
-		}
-	}
-
 	if (OtherActor->IsA(AHomingProjectile::StaticClass()))
 	{
 		Health -= 35.f;
@@ -427,7 +417,7 @@ void AEnemy::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherAc
 
 	if (OtherActor->IsA(AAdjustTorqueVolume::StaticClass()))
 	{
-		TurnTorque = 30000;
+		this->SetActorLocation(FVector(11345, 1110, 250));
 	}
 
 	if (OtherActor->IsA(ANitroVolumeNPC::StaticClass()))

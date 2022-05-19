@@ -32,6 +32,10 @@ public:
 		void OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent,
 			int32 OtherbodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
+	// Ref to enemy class
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "EnemyRef")
+		class AEnemy* EnemyRef;
+
 
 private:
 	// Timer

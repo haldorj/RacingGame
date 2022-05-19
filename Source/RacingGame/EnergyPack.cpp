@@ -57,6 +57,13 @@ void AEnergyPack::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Ot
 		SetActorEnableCollision(false);
 		SetActorHiddenInGame(true);
 
+		EnemyRef->Energy++;
+
+		if (EnemyRef->Energy > EnemyRef->MaxEnergy)
+		{
+			EnemyRef->Energy = EnemyRef->MaxEnergy;
+		}
+
 		GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AEnergyPack::Respawn, 5.f, false);
 	}
 }

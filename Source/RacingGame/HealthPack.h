@@ -28,6 +28,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PickUp")
 		class UStaticMeshComponent* HealthPackMesh = nullptr;
 
+	// Ref to enemy class
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "EnemyRef")
+		class AEnemy* EnemyRef;
+
 	// Collision
 	UFUNCTION()
 		void OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent,

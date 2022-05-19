@@ -55,6 +55,13 @@ void AHealthPack::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Ot
 		SetActorEnableCollision(false);
 		SetActorHiddenInGame(true);
 
+		EnemyRef->Health+= 35;
+
+		if (EnemyRef->Health > EnemyRef->Health)
+		{
+			EnemyRef->Health = EnemyRef->MaxHealth;
+		}
+
 		UWorld* NewWorld = GetWorld();
 		UGameplayStatics::PlaySoundAtLocation(NewWorld, Repairing, GetActorLocation(), 1.0f, 1.0f, 0.f);
 		GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AHealthPack::Respawn, 5.f, false);

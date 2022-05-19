@@ -444,7 +444,7 @@ UStaticMeshComponent* APlayerCar::Target()
 	ActorsToIgnore.Add(this);
 
 	bool Hit = (UKismetSystemLibrary::LineTraceSingleForObjects(GetWorld(), Start, End, objectTypesArray, true, ActorsToIgnore,
-		EDrawDebugTrace::Type::ForDuration, OutHit, true));
+		EDrawDebugTrace::Type::None, OutHit, true));
 
 	UStaticMeshComponent* FirstHomingTarget = Cast<UStaticMeshComponent>(OutHit.GetComponent());
 
@@ -563,17 +563,8 @@ void APlayerCar::KillPlayer()
 void APlayerCar::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent,
 	int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (OtherActor->IsA(AHealthPack::StaticClass()))
-	{
-		Health += 30;
 
-		if (Health > MaxHealth)
-		{
-			Health = MaxHealth;
-		}
-	}
-
-	else if (OtherActor->IsA(ACheckPoint::StaticClass()))
+	if (OtherActor->IsA(ACheckPoint::StaticClass()))
 	{
 		SaveGame();
 	}

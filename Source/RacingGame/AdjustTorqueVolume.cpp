@@ -42,7 +42,7 @@ void AAdjustTorqueVolume::OnOverlap(UPrimitiveComponent* OverlappedComponent, AA
 		SplineFollow->ObjectDistance = 3200;
 		SplineFollow->ThrottleMultiplier = 1;
 
-		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("Overlap")));
+		//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("Overlap")));
 	}
 }
 
