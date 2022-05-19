@@ -43,7 +43,7 @@ void ASplineFollowAlteration::OnOverlap(UPrimitiveComponent* OverlappedComponent
 	if ((OtherActor->IsA(AEnemy::StaticClass())))
 	{
 		SplineFollow->ObjectDistance = 400;
-		SplineFollow->ThrottleMultiplier = 0.02;
+		SplineFollow->ThrottleMultiplier = 0.05;
 
 		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("Overlap")));
 	}

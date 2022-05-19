@@ -52,8 +52,8 @@ APlayerCar::APlayerCar()
 	PrimaryActorTick.bCanEverTick = true;
 
 	// Defining Player Values
-	Energy = 3;
-	Health = 20.f;
+	Energy = 0;
+	Health = 100.f;
 	Armour = 0.f;
 	MaxEnergy = 3;
 	MaxHealth = 100.f;

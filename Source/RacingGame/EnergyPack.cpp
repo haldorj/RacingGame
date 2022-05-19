@@ -35,7 +35,7 @@ void AEnergyPack::Tick(float DeltaTime)
 
 void AEnergyPack::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, int32 OtherbodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if ((OtherActor->IsA(APlayerCar::StaticClass())) || ((OtherActor->IsA(AEnemy::StaticClass()))))
+	if (OtherActor->IsA(APlayerCar::StaticClass()))
 	{
 		SetActorEnableCollision(false);
 		SetActorHiddenInGame(true);
@@ -47,6 +47,13 @@ void AEnergyPack::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Ot
 		{
 			PlayerCar->Energy = PlayerCar->MaxEnergy;
 		}
+	}
+	if (OtherActor->IsA(AEnemy::StaticClass()))
+	{
+		SetActorEnableCollision(false);
+		SetActorHiddenInGame(true);
+
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AEnergyPack::Respawn, 5.f, false);
 	}
 }
 

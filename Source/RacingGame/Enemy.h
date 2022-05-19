@@ -20,10 +20,6 @@ protected:
 	virtual void BeginPlay() override;
 
 public:	
-	// The Controller for the NPC - similar to the PlayerController
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = AI)
-		class AAIController* AIController = nullptr;
-
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
@@ -66,6 +62,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlayerStats")
 		float Armour;
 
+	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"));
+	TSubclassOf<AActor> ActorToSpawn;
+
 	float SteeringValue;
 
 	FVector SteeringVector;
@@ -81,6 +80,8 @@ private:
 	void Raycast();
 	float Steering();
 	void Stun();
+	void Nitro();
+	void Shoot();
 
 	//brings up menu when NPC wins
 	void EnemyWinner();
@@ -159,5 +160,8 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "PlayerVariables")
 		USoundBase* ExplosionSound = nullptr;
+
+	UPROPERTY(EditAnywhere, Category = "PlayerVariables")
+		UParticleSystemComponent* Exhaust = nullptr;
 
 };

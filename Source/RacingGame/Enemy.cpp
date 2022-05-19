@@ -16,12 +16,13 @@
 #include "CheckPoint.h"
 #include "OutOfBoundsVolume.h"
 #include "RacingGameGameModeBase.h"
-#include "AIController.h"	//Unreals AIController class
 #include "CP1.h"
 #include "CP2.h"
 #include "CP3.h"
 #include "SplineFollowAlteration.h"
 #include "SplineFollowAlterationReset.h"
+#include "NitroVolumeNPC.h"
+#include "EnemyFireVolume.h"
 
 #include "Components/SphereComponent.h"
 #include "Components/BoxComponent.h"
@@ -30,6 +31,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "DrawDebugHelpers.h"
 #include "Components/SplineComponent.h"
+#include "Particles/ParticleSystemComponent.h"
 
 // Sets default values
 AEnemy::AEnemy()
@@ -75,7 +77,7 @@ AEnemy::AEnemy()
 	HoverLength = 100.f;
 	TraceLength = 130;
 
-	Energy = 3;
+	Energy = 0;
 	Health = 100.f;
 	Armour = 0.f;
 	MaxEnergy = 3;
@@ -86,6 +88,9 @@ AEnemy::AEnemy()
 	bForwards = true;
 	bNitro = false;
 	bStun = false;
+
+	Exhaust = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("Exhaust"));
+	Exhaust->AttachTo(PlayerMesh);
 }
 
 // Called when the game starts or when spawned
@@ -93,7 +98,7 @@ void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
 
-	AIController = Cast<AAIController>(GetController());
+	Exhaust->Deactivate();
 	
 	PlayerMesh->SetAngularDamping(AngularDamping);
 	PlayerMesh->SetLinearDamping(LinearDamping);
@@ -152,6 +157,19 @@ void AEnemy::Tick(float DeltaTime)
 		EnemyWinner();
 	}
 
+	// If the Nitro is on, increase the forward force, else, reduce it back 
+	if (bNitro) {
+		if (NitroTime > 0) {
+			NitroTime -= DeltaTime;
+			Exhaust->Activate();
+		}
+		else {
+			bNitro = false;
+			NitroTime = 0;
+			ForwardForce /= 1.3f;
+			Exhaust->Deactivate();
+		}
+	}
 }
 
 // Called to bind functionality to input
@@ -212,6 +230,32 @@ void AEnemy::Stun()
 
 		StunTime = 2.f;
 		ForwardForce *= 0.2f;
+	}
+}
+
+void AEnemy::Nitro() {
+	if (bNitro == false && Energy >= 2) {
+		bNitro = true;
+		Energy -= 2;
+
+		NitroTime = 3.f;
+		ForwardForce *= 1.3f;
+	}
+}
+
+void AEnemy::Shoot()
+{
+	FVector Location = GetActorLocation() + FVector(0, 0, 200);
+	FRotator Rotation = GetActorRotation();
+
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		if (Energy >= 1)
+		{
+			World->SpawnActor<AActor>(ActorToSpawn, Location, Rotation);
+			Energy--;
+		}
 	}
 }
 
@@ -385,12 +429,22 @@ void AEnemy::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherAc
 
 	if (OtherActor->IsA(ASplineFollowAlteration::StaticClass()))
 	{
-		TurnTorque = 12000000;
+		TurnTorque = 10000000;
 	}
 
 	if (OtherActor->IsA(ASplineFollowAlterationReset::StaticClass()))
 	{
 		TurnTorque = 1000000;
+	}
+
+	if (OtherActor->IsA(ANitroVolumeNPC::StaticClass()))
+	{
+		Nitro();
+	}
+
+	if (OtherActor->IsA(AEnemyFireVolume::StaticClass()))
+	{
+		Shoot();
 	}
 }
 

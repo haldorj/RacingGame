@@ -5,6 +5,8 @@
 #include "PlayerCar.h"
 #include "Enemy.h"
 
+#include "Kismet/GameplayStatics.h"
+
 // Sets default values
 AHealthPack::AHealthPack()
 {
@@ -34,12 +36,25 @@ void AHealthPack::Tick(float DeltaTime)
 void AHealthPack::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent,
 	int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if ((OtherActor->IsA(APlayerCar::StaticClass())) || ((OtherActor->IsA(AEnemy::StaticClass()))))
+	if (OtherActor->IsA(APlayerCar::StaticClass()))
 	{
 		SetActorHiddenInGame(true);
 		SetActorEnableCollision(false);
 
-		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::Printf(TEXT("Player Picked Up Health")));
+		APlayerCar* PlayerCar = Cast<APlayerCar>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
+		PlayerCar->Health+= 35;
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AHealthPack::Respawn, 5.f, false);
+		if (PlayerCar->Health > PlayerCar->MaxHealth)
+		{
+			PlayerCar->Health = PlayerCar->MaxHealth;
+		}
+	}
+
+	if (OtherActor->IsA(AEnemy::StaticClass()))
+	{
+		SetActorEnableCollision(false);
+		SetActorHiddenInGame(true);
+
 		GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AHealthPack::Respawn, 5.f, false);
 	}
 }
