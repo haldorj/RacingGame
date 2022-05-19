@@ -234,15 +234,6 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Time")
 		FString Medal;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Time")
-		int BestMillisecond;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Time")
-		int BestSecond;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Time")
-		int BestMinute;
-
 	//timer:
 	FTimerHandle TimerHandle;
 

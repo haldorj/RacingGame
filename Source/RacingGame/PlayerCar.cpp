@@ -138,13 +138,6 @@ APlayerCar::APlayerCar()
 	Barrel = CreateDefaultSubobject<USceneComponent>(TEXT("Barrel"));
 	Barrel->AttachTo(Turret);
 
-	if (BestMillisecond == NULL)
-	{
-		BestMinute = 9999;
-		BestSecond = 9999;
-		BestMillisecond = 9999;
-	}
-
 }
 
 // Called when the game starts or when spawned
@@ -268,7 +261,7 @@ void APlayerCar::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 
 	PlayerInputComponent->BindAction("Shoot", EInputEvent::IE_Pressed, this, &APlayerCar::Shoot);
 	PlayerInputComponent->BindAction("Target", EInputEvent::IE_Pressed, this, &APlayerCar::SetTarget);
-	PlayerInputComponent->BindAction("Reload", EInputEvent::IE_Pressed, this, &APlayerCar::Reload);
+	//PlayerInputComponent->BindAction("Reload", EInputEvent::IE_Pressed, this, &APlayerCar::Reload);
 	PlayerInputComponent->BindAction("Nitro", EInputEvent::IE_Pressed, this, &APlayerCar::Nitro);
 	PlayerInputComponent->BindAction("ChangeCameraView", EInputEvent::IE_Pressed, this, &APlayerCar::ChangeCameraView);
 
@@ -721,12 +714,12 @@ void APlayerCar::WinnerTimeAttack()
 	WinnerSecond = Second;
 	WinnerMinute = Minute;
 
-	if ((WinnerMinute <= 1) && (WinnerSecond <= 25))
+	if ((WinnerMinute <= 1) && (WinnerSecond <= 30))
 	{
 	Medal = (TEXT("GOLD"));
 	}
 
-	else if ((WinnerMinute <= 1) && (WinnerSecond <= 40) && (WinnerSecond > 25))
+	else if ((WinnerMinute <= 1) && (WinnerSecond <= 45) && (WinnerSecond > 30))
 	{
 		Medal = (TEXT("SILVER"));
 	}

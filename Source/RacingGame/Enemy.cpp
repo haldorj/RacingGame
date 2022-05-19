@@ -23,6 +23,7 @@
 #include "SplineFollowAlterationReset.h"
 #include "NitroVolumeNPC.h"
 #include "EnemyFireVolume.h"
+#include "AdjustTorqueVolume.h"
 
 #include "Components/SphereComponent.h"
 #include "Components/BoxComponent.h"
@@ -422,6 +423,11 @@ void AEnemy::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherAc
 	if (OtherActor->IsA(ASplineFollowAlterationReset::StaticClass()))
 	{
 		TurnTorque = 1000000;
+	}
+
+	if (OtherActor->IsA(AAdjustTorqueVolume::StaticClass()))
+	{
+		TurnTorque = 30000;
 	}
 
 	if (OtherActor->IsA(ANitroVolumeNPC::StaticClass()))
