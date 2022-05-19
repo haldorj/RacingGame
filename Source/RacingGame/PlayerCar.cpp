@@ -137,6 +137,15 @@ APlayerCar::APlayerCar()
 
 	Barrel = CreateDefaultSubobject<USceneComponent>(TEXT("Barrel"));
 	Barrel->AttachTo(Turret);
+
+	static ConstructorHelpers::FObjectFinder<USoundCue> EngineCue(TEXT("'/Game/Audio/Tank/Engine.Engine'"));
+	EngineSoundCue = EngineCue.Object;
+
+	EngineSoundComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("EngineSound"));	
+	EngineSoundComponent->bAutoActivate = false;
+	EngineSoundComponent->AttachTo(PlayerMesh);
+	EngineSoundComponent->SetRelativeLocation(FVector(100.0f, 0.0f, 0.0f));
+	EngineSoundComponent->SetSound(EngineSoundCue);
 }
 
 // Called when the game starts or when spawned
@@ -169,6 +178,11 @@ void APlayerCar::BeginPlay()
 
 	ExhaustR->Deactivate();
 	ExhaustL->Deactivate();
+
+	float startTime = 9.0f;
+	float volume = 1.0f;
+	float fadeTime = 1.0f;
+	EngineSoundComponent->FadeIn(fadeTime, volume, startTime);
 
 	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
 	APlayerController* TempController = PlayerController;
@@ -239,6 +253,14 @@ void APlayerCar::Tick(float DeltaTime)
 	{
 		Winner();
 	}
+
+	float Velocity = GetVelocity().Size(); // Hovertank Velocity
+	Velocity *= (3.6f / 100.f); // From cm/s to km/h
+
+	float RPM = Velocity / 54.f; // 54.f is "MaxSpeed"
+
+	EngineSoundComponent->SetFloatParameter(FName("RPM"), RPM);
+	GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::Green, FString::SanitizeFloat(RPM));
 
 	//// Anti-Gravity Movement Prototype
 	//float Gravity;
