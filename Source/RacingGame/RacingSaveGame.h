@@ -24,16 +24,19 @@ struct FCharacterStats
 		float Health;
 
 	UPROPERTY(VisibleAnywhere, Category = "SaveGameData")
-		float MaxArmour;
-
-	UPROPERTY(VisibleAnywhere, Category = "SaveGameData")
-		float Armour;
-
-	UPROPERTY(VisibleAnywhere, Category = "SaveGameData")
 		FVector Location;
 
 	UPROPERTY(VisibleAnywhere, Category = "SaveGameData")
 		FRotator Rotation;
+
+	UPROPERTY(VisibleAnywhere, Category = "SaveGameData")
+		int Minute;
+
+	UPROPERTY(VisibleAnywhere, Category = "SaveGameData")
+		int Second;
+
+	UPROPERTY(VisibleAnywhere, Category = "SaveGameData")
+		int Millisecond;
 };
 
 /**
