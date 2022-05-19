@@ -412,7 +412,7 @@ void AEnemy::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherAc
 
 	if (OtherActor->IsA(ASplineFollowAlterationReset::StaticClass()))
 	{
-		TurnTorque = 800000;
+		TurnTorque = 1600000;
 	}
 
 	if (OtherActor->IsA(AAdjustTorqueVolume::StaticClass()))

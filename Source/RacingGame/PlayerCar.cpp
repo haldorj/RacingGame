@@ -729,12 +729,12 @@ void APlayerCar::WinnerTimeAttack()
 	WinnerSecond = Second;
 	WinnerMinute = Minute;
 
-	if ((WinnerMinute <= 1) && (WinnerSecond <= 30))
+	if ((WinnerMinute <= 1) && (WinnerSecond <= 29))
 	{
 	Medal = (TEXT("GOLD"));
 	}
 
-	else if ((WinnerMinute <= 1) && (WinnerSecond <= 45) && (WinnerSecond > 30))
+	else if ((WinnerMinute <= 1) && (WinnerSecond <= 44) && (WinnerSecond > 29))
 	{
 		Medal = (TEXT("SILVER"));
 	}
