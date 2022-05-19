@@ -137,6 +137,7 @@ APlayerCar::APlayerCar()
 
 	Barrel = CreateDefaultSubobject<USceneComponent>(TEXT("Barrel"));
 	Barrel->AttachTo(Turret);
+
 }
 
 // Called when the game starts or when spawned
@@ -750,11 +751,12 @@ void APlayerCar::WinnerTimeAttack()
 
 void APlayerCar::SaveBestTime()
 {
-	URacingSaveGame* SaveGameInstance = Cast<URacingSaveGame>(UGameplayStatics::CreateSaveGameObject(URacingSaveGame::StaticClass()));
+	
 
-	if ((WinnerMinute <= SaveGameInstance->CharacterStats.Minute) && (WinnerSecond <= SaveGameInstance->CharacterStats.Second) &&
-		(WinnerMillisecond < SaveGameInstance->CharacterStats.Millisecond) || (SaveGameInstance->CharacterStats.Millisecond == NULL))
+	if ((WinnerMinute <= BestMinute) && (WinnerSecond <= BestSecond) && (WinnerMillisecond < BestMillisecond))
 	{
+		URacingSaveGame* SaveGameInstance = Cast<URacingSaveGame>(UGameplayStatics::CreateSaveGameObject(URacingSaveGame::StaticClass()));
+
 		SaveGameInstance->CharacterStats.Minute = WinnerMinute;
 		SaveGameInstance->CharacterStats.Second = WinnerSecond;
 		SaveGameInstance->CharacterStats.Millisecond = WinnerMillisecond;
@@ -767,9 +769,9 @@ void APlayerCar::LoadBestTime()
 {
 	URacingSaveGame* LoadGameInstance = Cast<URacingSaveGame>(UGameplayStatics::CreateSaveGameObject(URacingSaveGame::StaticClass()));
 
-	LoadGameInstance = Cast<URacingSaveGame>(UGameplayStatics::LoadGameFromSlot(LoadGameInstance->PlayerName, LoadGameInstance->UserIndex));
+		LoadGameInstance = Cast<URacingSaveGame>(UGameplayStatics::LoadGameFromSlot(LoadGameInstance->PlayerName, LoadGameInstance->UserIndex));
 
-	BestMinute = LoadGameInstance->CharacterStats.Minute;
-	BestSecond = LoadGameInstance->CharacterStats.Second;
-	BestMillisecond = LoadGameInstance->CharacterStats.Millisecond;
+		BestMinute = LoadGameInstance->CharacterStats.Minute;
+		BestSecond = LoadGameInstance->CharacterStats.Second;
+		BestMillisecond = LoadGameInstance->CharacterStats.Millisecond;
 }
