@@ -254,13 +254,13 @@ void APlayerCar::Tick(float DeltaTime)
 		Winner();
 	}
 
+	// Engine Audio
 	float Velocity = GetVelocity().Size(); // Hovertank Velocity
 	Velocity *= (3.6f / 100.f); // From cm/s to km/h
 
 	float RPM = Velocity / 54.f; // 54.f is "MaxSpeed"
 
 	EngineSoundComponent->SetFloatParameter(FName("RPM"), RPM);
-	GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::Green, FString::SanitizeFloat(RPM));
 
 	//// Anti-Gravity Movement Prototype
 	//float Gravity;
@@ -562,6 +562,9 @@ void APlayerCar::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 	if (OtherActor->IsA(AHealthPack::StaticClass()))
 	{
 		Health += 30;
+
+		UWorld* NewWorld = GetWorld();
+		UGameplayStatics::PlaySound2D(NewWorld, Repairing, 1.f, 1.f, 0.f, 0);
 
 		if (Health > MaxHealth)
 		{

@@ -278,6 +278,9 @@ private:
 		USoundBase* OutOfEnergy = nullptr;
 
 	UPROPERTY(EditAnywhere, Category = "Audio")
+		USoundBase* Repairing = nullptr;
+
+	UPROPERTY(EditAnywhere, Category = "Audio")
 		USoundBase* Reloading = nullptr;
 
 	UPROPERTY(EditAnywhere, Category = "Audio")

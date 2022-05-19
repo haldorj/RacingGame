@@ -37,4 +37,7 @@ private:
 	FTimerHandle TimerHandle;
 
 	void Respawn();
+
+	UPROPERTY(EditAnywhere, Category = "Audio")
+		USoundBase* Reloading = nullptr;
 };
