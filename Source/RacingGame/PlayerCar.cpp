@@ -396,7 +396,6 @@ void APlayerCar::Shoot()
 				UE_LOG(LogTemp, Warning, TEXT("ERROR: World is FALSE"));
 			}
 		}
-
 		else if (Energy <= 0)
 		{
 			Energy = 0;
@@ -407,10 +406,12 @@ void APlayerCar::Shoot()
 			}
 		}
 	}
+
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("ERROR: ActorToSpawn is NULL"));
 	}
+
 	if (HomingTarget)
 	{
 		HomingTarget->SetRenderCustomDepth(false);
@@ -572,6 +573,12 @@ void APlayerCar::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 		}
 	}
 
+	//if (OtherActor->IsA(ADestructableMesh::StaticClass()))
+	//{
+	//	UWorld* World = GetWorld();
+	//	if (World) { UGameplayStatics::PlaySound2D(World, Impact, 1.f, 1.f, 0.f, 0); }
+	//}
+
 	if (OtherActor->IsA(ACheckPoint::StaticClass()))
 	{
 		SaveGame();
@@ -627,7 +634,6 @@ void APlayerCar::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 	{
 		WinnerTimeAttack();
 	}
-
 }
 
 void APlayerCar::SwitchLevel(FName LevelName)
