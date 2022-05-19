@@ -11,24 +11,6 @@ struct FEnemyStats
 {
 	GENERATED_BODY()
 
-		UPROPERTY(VisibleAnywhere, Category = "SaveGameData")
-		int32 MaxEnergy;
-
-	UPROPERTY(VisibleAnywhere, Category = "SaveGameData")
-		int32 Energy;
-
-	UPROPERTY(VisibleAnywhere, Category = "SaveGameData")
-		float MaxHealth;
-
-	UPROPERTY(VisibleAnywhere, Category = "SaveGameData")
-		float Health;
-
-	UPROPERTY(VisibleAnywhere, Category = "SaveGameData")
-		float MaxArmour;
-
-	UPROPERTY(VisibleAnywhere, Category = "SaveGameData")
-		float Armour;
-
 	UPROPERTY(VisibleAnywhere, Category = "SaveGameData")
 		FVector Location;
 

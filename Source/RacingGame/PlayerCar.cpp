@@ -633,11 +633,6 @@ void APlayerCar::SaveGame()
 {
 	URacingSaveGame* SaveGameInstance = Cast<URacingSaveGame>(UGameplayStatics::CreateSaveGameObject(URacingSaveGame::StaticClass()));
 
-	SaveGameInstance->CharacterStats.Health = Health;
-	SaveGameInstance->CharacterStats.MaxHealth = MaxHealth;
-	SaveGameInstance->CharacterStats.Energy = Energy;
-	SaveGameInstance->CharacterStats.MaxEnergy = MaxEnergy;
-
 	SaveGameInstance->CharacterStats.Location = GetActorLocation();
 	SaveGameInstance->CharacterStats.Rotation = GetActorRotation();
 
@@ -658,11 +653,6 @@ void APlayerCar::LoadGame(bool SetPosition)
 
 	LoadGameInstance = Cast<URacingSaveGame>(UGameplayStatics::LoadGameFromSlot(LoadGameInstance->PlayerName, LoadGameInstance->UserIndex));
 
-	Health = LoadGameInstance->CharacterStats.Health;
-	MaxHealth = LoadGameInstance->CharacterStats.MaxHealth;
-	Energy = LoadGameInstance->CharacterStats.Energy;
-	MaxEnergy = LoadGameInstance->CharacterStats.MaxEnergy;
-
 	if (SetPosition)
 	{
 		SetActorLocation((LoadGameInstance->CharacterStats.Location) + (FVector(0, 0, 100.f)));
@@ -676,6 +666,7 @@ void APlayerCar::HealthFunction()
 	{
 		Health = 0.01;
 		KillPlayer();
+		Health = 100;
 	}
 }
 
@@ -745,40 +736,10 @@ void APlayerCar::WinnerTimeAttack()
 		Medal = (TEXT("BRONZE"));
 	}
 
-	SaveBestTime();
-	LoadBestTime();
-
 	AMainPlayerController* MainPlayerController = Cast<AMainPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
 
 	if (MainPlayerController)
 	{
 		MainPlayerController->DisplayTimeAttackWinScreen();
 	}
-}
-
-void APlayerCar::SaveBestTime()
-{
-	
-
-	if ((WinnerMinute <= BestMinute) && (WinnerSecond <= BestSecond) && (WinnerMillisecond < BestMillisecond))
-	{
-		URacingSaveGame* SaveGameInstance = Cast<URacingSaveGame>(UGameplayStatics::CreateSaveGameObject(URacingSaveGame::StaticClass()));
-
-		SaveGameInstance->CharacterStats.Minute = WinnerMinute;
-		SaveGameInstance->CharacterStats.Second = WinnerSecond;
-		SaveGameInstance->CharacterStats.Millisecond = WinnerMillisecond;
-
-		UGameplayStatics::SaveGameToSlot(SaveGameInstance, SaveGameInstance->PlayerName, SaveGameInstance->UserIndex);
-	}
-}
-
-void APlayerCar::LoadBestTime()
-{
-	URacingSaveGame* LoadGameInstance = Cast<URacingSaveGame>(UGameplayStatics::CreateSaveGameObject(URacingSaveGame::StaticClass()));
-
-		LoadGameInstance = Cast<URacingSaveGame>(UGameplayStatics::LoadGameFromSlot(LoadGameInstance->PlayerName, LoadGameInstance->UserIndex));
-
-		BestMinute = LoadGameInstance->CharacterStats.Minute;
-		BestSecond = LoadGameInstance->CharacterStats.Second;
-		BestMillisecond = LoadGameInstance->CharacterStats.Millisecond;
 }

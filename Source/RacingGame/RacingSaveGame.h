@@ -12,31 +12,11 @@ struct FCharacterStats
 	GENERATED_BODY()
 
 	UPROPERTY(VisibleAnywhere, Category = "SaveGameData")
-		int32 MaxEnergy;
-
-	UPROPERTY(VisibleAnywhere, Category = "SaveGameData")
-		int32 Energy;
-
-	UPROPERTY(VisibleAnywhere, Category = "SaveGameData")
-		float MaxHealth;
-
-	UPROPERTY(VisibleAnywhere, Category = "SaveGameData")
-		float Health;
-
-	UPROPERTY(VisibleAnywhere, Category = "SaveGameData")
 		FVector Location;
 
 	UPROPERTY(VisibleAnywhere, Category = "SaveGameData")
 		FRotator Rotation;
 
-	UPROPERTY(VisibleAnywhere, Category = "SaveGameData")
-		int Minute;
-
-	UPROPERTY(VisibleAnywhere, Category = "SaveGameData")
-		int Second;
-
-	UPROPERTY(VisibleAnywhere, Category = "SaveGameData")
-		int Millisecond;
 };
 
 /**

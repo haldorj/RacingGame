@@ -326,19 +326,13 @@ void AEnemy::HealthFunction()
 	{
 		Health = 0.01;
 		KillPlayer();
+		Health = 100;
 	}
 }
 
 void AEnemy::EnemySaveGame()
 {
 	UEnemySaveGame* SaveGameInstance = Cast<UEnemySaveGame>(UGameplayStatics::CreateSaveGameObject(UEnemySaveGame::StaticClass()));
-
-	SaveGameInstance->EnemyStats.Health = Health;
-	SaveGameInstance->EnemyStats.MaxHealth = MaxHealth;
-	SaveGameInstance->EnemyStats.Energy = Energy;
-	SaveGameInstance->EnemyStats.MaxEnergy = MaxEnergy;
-	SaveGameInstance->EnemyStats.Armour = Armour;
-	SaveGameInstance->EnemyStats.MaxArmour = MaxArmour;
 
 	SaveGameInstance->EnemyStats.Location = GetActorLocation();
 	SaveGameInstance->EnemyStats.Rotation = GetActorRotation();
@@ -354,13 +348,6 @@ void AEnemy::EnemyLoadGame(bool SetPosition)
 	UEnemySaveGame* LoadGameInstance = Cast<UEnemySaveGame>(UGameplayStatics::CreateSaveGameObject(UEnemySaveGame::StaticClass()));
 
 	LoadGameInstance = Cast<UEnemySaveGame>(UGameplayStatics::LoadGameFromSlot(LoadGameInstance->EnemyName, LoadGameInstance->EnemyIndex));
-
-	Health = LoadGameInstance->EnemyStats.Health;
-	MaxHealth = LoadGameInstance->EnemyStats.MaxHealth;
-	Energy = LoadGameInstance->EnemyStats.Energy;
-	MaxEnergy = LoadGameInstance->EnemyStats.MaxEnergy;
-	Armour = LoadGameInstance->EnemyStats.Armour;
-	MaxArmour = LoadGameInstance->EnemyStats.MaxArmour;
 
 	if (SetPosition)
 	{

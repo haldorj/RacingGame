@@ -103,9 +103,6 @@ private:
 	void Winner();
 	void WinnerTimeAttack();
 
-	void SaveBestTime();
-	void LoadBestTime();
-
 	UFUNCTION(BluePrintCallable)
 		void KillPlayer();
 
