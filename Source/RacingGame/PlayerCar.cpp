@@ -180,6 +180,7 @@ void APlayerCar::BeginPlay()
 void APlayerCar::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
 	// If the Nitro is on, increase the forward force, else, reduce it back 
 	if (bNitro) {
 		if (NitroTime > 0) {
@@ -243,6 +244,8 @@ void APlayerCar::Tick(float DeltaTime)
 	//float Gravity;
 	//Gravity = 981.f;
 	//PlayerMesh->AddForceAtLocation(-SurfaceImpactNormal * Gravity * PlayerMesh->GetMass(), PlayerMesh->GetCenterOfMass());
+
+	//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("CurrentCheckPoint %d"), CurrentCheckpoint));
 }
 
 // Called to bind functionality to input
@@ -321,7 +324,7 @@ void APlayerCar::MoveCameraX(float Value)
 	if (!bCameraMode) { SpringArm->SetRelativeRotation(FRotator(PiValue, YaValue, 0.f)); }
 	else if (bCameraMode) { SpringArm->SetRelativeRotation(FRotator(PiValue, YaValue + 180.f, 0.f)); }
 
-	//Turret->SetWorldRotation(FRotator(0.f, YaValue - 90.f, 0.f));
+	Turret->SetRelativeLocation(FVector(0.f, 0.f, this->GetActorUpVector().Z));
 	Turret->SetWorldRotation(FRotator(this->GetActorRotation().Pitch, YaValue, this->GetActorRotation().Roll));
 }
 
@@ -567,8 +570,39 @@ void APlayerCar::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 
 	if (OtherActor->IsA(ACP3::StaticClass()) && CurrentCheckpoint == 2)
 	{
+		CurrentCheckpoint += 1;
+	}
+
+	if (OtherActor->IsA(ACP4::StaticClass()) && CurrentCheckpoint == 3)
+	{
+		CurrentCheckpoint += 1;
+	}
+
+	if (OtherActor->IsA(ACP5::StaticClass()) && CurrentCheckpoint == 4)
+	{
+		CurrentCheckpoint += 1;
+	}
+
+	if (OtherActor->IsA(ACP6::StaticClass()) && CurrentCheckpoint == 5)
+	{
+		CurrentCheckpoint += 1;
+	}
+
+	if (OtherActor->IsA(ACP7::StaticClass()) && CurrentCheckpoint == 6)
+	{
+		CurrentCheckpoint += 1;
+	}
+
+	if (OtherActor->IsA(ACP8::StaticClass()) && CurrentCheckpoint == 7)
+	{
 		CurrentCheckpoint = 0;
 	}
+
+	if (OtherActor->IsA(ATimeAttackGoal::StaticClass()) && CurrentCheckpoint == 7)
+	{
+		WinnerTimeAttack();
+	}
+
 }
 
 void APlayerCar::SwitchLevel(FName LevelName)
@@ -595,8 +629,6 @@ void APlayerCar::SaveGame()
 	SaveGameInstance->CharacterStats.MaxHealth = MaxHealth;
 	SaveGameInstance->CharacterStats.Energy = Energy;
 	SaveGameInstance->CharacterStats.MaxEnergy = MaxEnergy;
-	SaveGameInstance->CharacterStats.Armour = Armour;
-	SaveGameInstance->CharacterStats.MaxArmour = MaxArmour;
 
 	SaveGameInstance->CharacterStats.Location = GetActorLocation();
 	SaveGameInstance->CharacterStats.Rotation = GetActorRotation();
@@ -622,8 +654,6 @@ void APlayerCar::LoadGame(bool SetPosition)
 	MaxHealth = LoadGameInstance->CharacterStats.MaxHealth;
 	Energy = LoadGameInstance->CharacterStats.Energy;
 	MaxEnergy = LoadGameInstance->CharacterStats.MaxEnergy;
-	Armour = LoadGameInstance->CharacterStats.Armour;
-	MaxArmour = LoadGameInstance->CharacterStats.MaxArmour;
 
 	if (SetPosition)
 	{
@@ -692,7 +722,6 @@ void APlayerCar::WinnerTimeAttack()
 	WinnerSecond = Second;
 	WinnerMinute = Minute;
 
-
 	if ((WinnerMinute <= 1) && (WinnerSecond <= 25))
 	{
 	Medal = (TEXT("GOLD"));
@@ -708,10 +737,39 @@ void APlayerCar::WinnerTimeAttack()
 		Medal = (TEXT("BRONZE"));
 	}
 
+	SaveBestTime();
+	LoadBestTime();
+
 	AMainPlayerController* MainPlayerController = Cast<AMainPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
 
 	if (MainPlayerController)
 	{
 		MainPlayerController->DisplayTimeAttackWinScreen();
 	}
+}
+
+void APlayerCar::SaveBestTime()
+{
+	URacingSaveGame* SaveGameInstance = Cast<URacingSaveGame>(UGameplayStatics::CreateSaveGameObject(URacingSaveGame::StaticClass()));
+
+	if ((WinnerMinute <= SaveGameInstance->CharacterStats.Minute) && (WinnerSecond <= SaveGameInstance->CharacterStats.Second) &&
+		(WinnerMillisecond < SaveGameInstance->CharacterStats.Millisecond) || (SaveGameInstance->CharacterStats.Millisecond == NULL))
+	{
+		SaveGameInstance->CharacterStats.Minute = WinnerMinute;
+		SaveGameInstance->CharacterStats.Second = WinnerSecond;
+		SaveGameInstance->CharacterStats.Millisecond = WinnerMillisecond;
+
+		UGameplayStatics::SaveGameToSlot(SaveGameInstance, SaveGameInstance->PlayerName, SaveGameInstance->UserIndex);
+	}
+}
+
+void APlayerCar::LoadBestTime()
+{
+	URacingSaveGame* LoadGameInstance = Cast<URacingSaveGame>(UGameplayStatics::CreateSaveGameObject(URacingSaveGame::StaticClass()));
+
+	LoadGameInstance = Cast<URacingSaveGame>(UGameplayStatics::LoadGameFromSlot(LoadGameInstance->PlayerName, LoadGameInstance->UserIndex));
+
+	BestMinute = LoadGameInstance->CharacterStats.Minute;
+	BestSecond = LoadGameInstance->CharacterStats.Second;
+	BestMillisecond = LoadGameInstance->CharacterStats.Millisecond;
 }

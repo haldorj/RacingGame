@@ -103,6 +103,9 @@ private:
 	void Winner();
 	void WinnerTimeAttack();
 
+	void SaveBestTime();
+	void LoadBestTime();
+
 	UFUNCTION(BluePrintCallable)
 		void KillPlayer();
 
@@ -204,7 +207,6 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Time")
 		int Second;
 
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Time")
 		int Minute;
 
@@ -234,6 +236,15 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Time")
 		FString Medal;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Time")
+		int BestMillisecond;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Time")
+		int BestSecond;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Time")
+		int BestMinute;
 
 	//timer:
 	FTimerHandle TimerHandle;

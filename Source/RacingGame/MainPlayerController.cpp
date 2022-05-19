@@ -153,12 +153,14 @@ void AMainPlayerController::RemoveLoseScreen_Implementation()
 	{
 		LoseScreen->SetVisibility(ESlateVisibility::Visible);
 
-		FInputModeGameAndUI InputModeGameAndUI;
+		FInputModeGameOnly InputModeGameOnly;
 
-		SetInputMode(InputModeGameAndUI);
-		bShowMouseCursor = true;
+		SetInputMode(InputModeGameOnly);
+		bShowMouseCursor = false;
 
-		UGameplayStatics::SetGamePaused(GetWorld(), true);
+		bPauseMenuVisible = false;
+
+		UGameplayStatics::SetGamePaused(GetWorld(), false);
 	}
 }
 
