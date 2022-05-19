@@ -38,4 +38,7 @@ public:
 	// Ref to enemy class
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SplineFollow")
 	class AEnemy* EnemyRef;
+
+	float ObjectDistance;
+	float ThrottleMultiplier;
 };

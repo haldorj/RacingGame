@@ -20,6 +20,8 @@
 #include "CP1.h"
 #include "CP2.h"
 #include "CP3.h"
+#include "SplineFollowAlteration.h"
+#include "SplineFollowAlterationReset.h"
 
 #include "Components/SphereComponent.h"
 #include "Components/BoxComponent.h"
@@ -379,6 +381,16 @@ void AEnemy::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherAc
 	if (OtherActor->IsA(ACP3::StaticClass()) && CurrentCheckpoint == 2)
 	{
 		CurrentCheckpoint = 0;
+	}
+
+	if (OtherActor->IsA(ASplineFollowAlteration::StaticClass()))
+	{
+		TurnTorque = 12000000;
+	}
+
+	if (OtherActor->IsA(ASplineFollowAlterationReset::StaticClass()))
+	{
+		TurnTorque = 1000000;
 	}
 }
 

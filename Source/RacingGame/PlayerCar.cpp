@@ -138,6 +138,13 @@ APlayerCar::APlayerCar()
 	Barrel = CreateDefaultSubobject<USceneComponent>(TEXT("Barrel"));
 	Barrel->AttachTo(Turret);
 
+	if (BestMillisecond == NULL)
+	{
+		BestMinute = 9999;
+		BestSecond = 9999;
+		BestMillisecond = 9999;
+	}
+
 }
 
 // Called when the game starts or when spawned

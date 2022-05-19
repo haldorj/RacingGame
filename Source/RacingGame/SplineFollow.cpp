@@ -31,6 +31,9 @@ ASplineFollow::ASplineFollow()
 void ASplineFollow::BeginPlay()
 {
 	Super::BeginPlay();
+
+	ObjectDistance = 2200;
+	ThrottleMultiplier = 0.6;
 	
 }
 
@@ -49,7 +52,7 @@ void ASplineFollow::Follow()
 	FVector RightVector = SplineComponent->FindRightVectorClosestToWorldLocation(EnemyLocation, ESplineCoordinateSpace::Local);
 	FRotator Rotator = UKismetMathLibrary::MakeRotationFromAxes(RightVector,FVector(0), FVector(0));
 	FRotator NewRotator = Rotator + FRotator(0, 0, -180);
-	FVector ForwardVector = UKismetMathLibrary::GetForwardVector(Rotator) * 400; // distance of leading object from AI.
+	FVector ForwardVector = UKismetMathLibrary::GetForwardVector(Rotator) * ObjectDistance; // distance of leading object from AI.
 
 	FVector Location = SplineComponent->FindLocationClosestToWorldLocation(EnemyLocation + ForwardVector, ESplineCoordinateSpace::World); // - or + ForwardVector to change direction.
 	FVector ArrowLocation = SplineComponent->FindLocationClosestToWorldLocation(EnemyLocation, ESplineCoordinateSpace::World);
@@ -68,7 +71,7 @@ void ASplineFollow::Follow()
 	FVector XY = FVector(EnemyLocation.X- ArrowLocationWorld.X, EnemyLocation.Y- ArrowLocationWorld.Y, 0.0f);
 	float XYSize = XY.Size();
 
-	float MapRangeUnclamped = UKismetMathLibrary::MapRangeUnclamped(Speed*XYSize, 0, 800, 1, 0.2);
+	float MapRangeUnclamped = UKismetMathLibrary::MapRangeUnclamped(Speed*XYSize, 0, 800, 1, ThrottleMultiplier);
 	float select = UKismetMathLibrary::SelectFloat(1, MapRangeUnclamped, (Speed*XYSize) < 0);
 	EnemyRef->Throttle = UKismetMathLibrary::SelectFloat(1, select, XYSize < 0);
 

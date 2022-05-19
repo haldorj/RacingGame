@@ -160,15 +160,4 @@ private:
 	UPROPERTY(EditAnywhere, Category = "PlayerVariables")
 		USoundBase* ExplosionSound = nullptr;
 
-	//public:
-	// Sphere that will detect the player
-	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CombatSphere")
-	//	class USphereComponent* CombatSphere = nullptr;
-	//private:
-	//UFUNCTION()
-	//	void CombatSphereOnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-	//		UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex, bool bFromSweep,
-	//		const FHitResult& SweepResult);
-	//UFUNCTION()
-	//	void CombatSphereOnOverlapEnd(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 };
