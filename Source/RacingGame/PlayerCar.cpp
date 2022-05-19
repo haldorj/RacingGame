@@ -138,6 +138,14 @@ APlayerCar::APlayerCar()
 	Barrel = CreateDefaultSubobject<USceneComponent>(TEXT("Barrel"));
 	Barrel->AttachTo(Turret);
 
+	static ConstructorHelpers::FObjectFinder<USoundCue> EngineCue(TEXT("'/Game/Audio/Tank/Engine.Engine'"));
+	EngineSoundCue = EngineCue.Object;
+
+	EngineSoundComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("EngineSound"));	
+	EngineSoundComponent->bAutoActivate = false;
+	EngineSoundComponent->AttachTo(PlayerMesh);
+	EngineSoundComponent->SetRelativeLocation(FVector(100.0f, 0.0f, 0.0f));
+	EngineSoundComponent->SetSound(EngineSoundCue);
 }
 
 // Called when the game starts or when spawned
@@ -170,6 +178,14 @@ void APlayerCar::BeginPlay()
 
 	ExhaustR->Deactivate();
 	ExhaustL->Deactivate();
+
+	float StartTime = 9.0f;
+	float Volume = 1.0f;
+	float FadeTime = 1.0f;
+	EngineSoundComponent->FadeIn(FadeTime, Volume, StartTime);
+
+	UWorld* World = GetWorld();
+	if (World) { UGameplayStatics::PlaySound2D(World, Ambiance, 1.f, 1.f, 0.f, 0); }
 
 	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
 	APlayerController* TempController = PlayerController;
@@ -240,6 +256,14 @@ void APlayerCar::Tick(float DeltaTime)
 	{
 		Winner();
 	}
+
+	// Engine Audio
+	float Velocity = GetVelocity().Size(); // Hovertank Velocity
+	Velocity *= (3.6f / 100.f); // From cm/s to km/h
+
+	float RPM = Velocity / 54.f; // 54.f is "MaxSpeed"
+
+	EngineSoundComponent->SetFloatParameter(FName("RPM"), RPM);
 
 	//// Anti-Gravity Movement Prototype
 	//float Gravity;
@@ -372,7 +396,6 @@ void APlayerCar::Shoot()
 				UE_LOG(LogTemp, Warning, TEXT("ERROR: World is FALSE"));
 			}
 		}
-
 		else if (Energy <= 0)
 		{
 			Energy = 0;
@@ -383,10 +406,12 @@ void APlayerCar::Shoot()
 			}
 		}
 	}
+
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("ERROR: ActorToSpawn is NULL"));
 	}
+
 	if (HomingTarget)
 	{
 		HomingTarget->SetRenderCustomDepth(false);
@@ -548,62 +573,67 @@ void APlayerCar::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 		}
 	}
 
-	if (OtherActor->IsA(ACheckPoint::StaticClass()))
+	else if (OtherActor->IsA(ACheckPoint::StaticClass()))
 	{
 		SaveGame();
 	}
 
-	if (OtherActor->IsA(AOutOfBoundsVolume::StaticClass()))
+	else if (OtherActor->IsA(AOutOfBoundsVolume::StaticClass()))
 	{
 		LoadGame(true);
 	}
 
-	if (OtherActor->IsA(ACP1::StaticClass()) && CurrentCheckpoint == 0)
+	else if (OtherActor->IsA(ACP1::StaticClass()) && CurrentCheckpoint == 0)
 	{
 		CurrentCheckpoint += 1;
 		CurrentLap += 1;
 	}
 
-	if (OtherActor->IsA(ACP2::StaticClass()) && CurrentCheckpoint == 1)
+	else if (OtherActor->IsA(ACP2::StaticClass()) && CurrentCheckpoint == 1)
 	{
 		CurrentCheckpoint += 1;
 	}
 
-	if (OtherActor->IsA(ACP3::StaticClass()) && CurrentCheckpoint == 2)
+	else if (OtherActor->IsA(ACP3::StaticClass()) && CurrentCheckpoint == 2)
 	{
 		CurrentCheckpoint += 1;
 	}
 
-	if (OtherActor->IsA(ACP4::StaticClass()) && CurrentCheckpoint == 3)
+	else if (OtherActor->IsA(ACP4::StaticClass()) && CurrentCheckpoint == 3)
 	{
 		CurrentCheckpoint += 1;
 	}
 
-	if (OtherActor->IsA(ACP5::StaticClass()) && CurrentCheckpoint == 4)
+	else if (OtherActor->IsA(ACP5::StaticClass()) && CurrentCheckpoint == 4)
 	{
 		CurrentCheckpoint += 1;
 	}
 
-	if (OtherActor->IsA(ACP6::StaticClass()) && CurrentCheckpoint == 5)
+	else if (OtherActor->IsA(ACP6::StaticClass()) && CurrentCheckpoint == 5)
 	{
 		CurrentCheckpoint += 1;
 	}
 
-	if (OtherActor->IsA(ACP7::StaticClass()) && CurrentCheckpoint == 6)
+	else if (OtherActor->IsA(ACP7::StaticClass()) && CurrentCheckpoint == 6)
 	{
 		CurrentCheckpoint += 1;
 	}
 
-	if (OtherActor->IsA(ACP8::StaticClass()) && CurrentCheckpoint == 7)
+	else if (OtherActor->IsA(ACP8::StaticClass()) && CurrentCheckpoint == 7)
 	{
 		CurrentCheckpoint = 0;
 	}
 
-	if (OtherActor->IsA(ATimeAttackGoal::StaticClass()) && CurrentCheckpoint == 7)
+	else if (OtherActor->IsA(ATimeAttackGoal::StaticClass()) && CurrentCheckpoint == 7)
 	{
 		WinnerTimeAttack();
 	}
 
+	else
+	{
+		UWorld* World = GetWorld();
+		if (World) { UGameplayStatics::PlaySound2D(World, Impact, 1.f, 1.f, 0.f, 0); }
+	}
 }
 
 void APlayerCar::SwitchLevel(FName LevelName)

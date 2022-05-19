@@ -55,6 +55,8 @@ void AHealthPack::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Ot
 		SetActorEnableCollision(false);
 		SetActorHiddenInGame(true);
 
+		UWorld* NewWorld = GetWorld();
+		UGameplayStatics::PlaySoundAtLocation(NewWorld, Repairing, GetActorLocation(), 1.0f, 1.0f, 0.f);
 		GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AHealthPack::Respawn, 5.f, false);
 	}
 }
