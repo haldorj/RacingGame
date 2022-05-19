@@ -580,66 +580,66 @@ void APlayerCar::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 		}
 	}
 
-	//if (OtherActor->IsA(ADestructableMesh::StaticClass()))
-	//{
-	//	UWorld* World = GetWorld();
-	//	if (World) { UGameplayStatics::PlaySound2D(World, Impact, 1.f, 1.f, 0.f, 0); }
-	//}
-
-	if (OtherActor->IsA(ACheckPoint::StaticClass()))
+	else if (OtherActor->IsA(ACheckPoint::StaticClass()))
 	{
 		SaveGame();
 	}
 
-	if (OtherActor->IsA(AOutOfBoundsVolume::StaticClass()))
+	else if (OtherActor->IsA(AOutOfBoundsVolume::StaticClass()))
 	{
 		LoadGame(true);
 	}
 
-	if (OtherActor->IsA(ACP1::StaticClass()) && CurrentCheckpoint == 0)
+	else if (OtherActor->IsA(ACP1::StaticClass()) && CurrentCheckpoint == 0)
 	{
 		CurrentCheckpoint += 1;
 		CurrentLap += 1;
 	}
 
-	if (OtherActor->IsA(ACP2::StaticClass()) && CurrentCheckpoint == 1)
+	else if (OtherActor->IsA(ACP2::StaticClass()) && CurrentCheckpoint == 1)
 	{
 		CurrentCheckpoint += 1;
 	}
 
-	if (OtherActor->IsA(ACP3::StaticClass()) && CurrentCheckpoint == 2)
+	else if (OtherActor->IsA(ACP3::StaticClass()) && CurrentCheckpoint == 2)
 	{
 		CurrentCheckpoint += 1;
 	}
 
-	if (OtherActor->IsA(ACP4::StaticClass()) && CurrentCheckpoint == 3)
+	else if (OtherActor->IsA(ACP4::StaticClass()) && CurrentCheckpoint == 3)
 	{
 		CurrentCheckpoint += 1;
 	}
 
-	if (OtherActor->IsA(ACP5::StaticClass()) && CurrentCheckpoint == 4)
+	else if (OtherActor->IsA(ACP5::StaticClass()) && CurrentCheckpoint == 4)
 	{
 		CurrentCheckpoint += 1;
 	}
 
-	if (OtherActor->IsA(ACP6::StaticClass()) && CurrentCheckpoint == 5)
+	else if (OtherActor->IsA(ACP6::StaticClass()) && CurrentCheckpoint == 5)
 	{
 		CurrentCheckpoint += 1;
 	}
 
-	if (OtherActor->IsA(ACP7::StaticClass()) && CurrentCheckpoint == 6)
+	else if (OtherActor->IsA(ACP7::StaticClass()) && CurrentCheckpoint == 6)
 	{
 		CurrentCheckpoint += 1;
 	}
 
-	if (OtherActor->IsA(ACP8::StaticClass()) && CurrentCheckpoint == 7)
+	else if (OtherActor->IsA(ACP8::StaticClass()) && CurrentCheckpoint == 7)
 	{
 		CurrentCheckpoint = 0;
 	}
 
-	if (OtherActor->IsA(ATimeAttackGoal::StaticClass()) && CurrentCheckpoint == 7)
+	else if (OtherActor->IsA(ATimeAttackGoal::StaticClass()) && CurrentCheckpoint == 7)
 	{
 		WinnerTimeAttack();
+	}
+
+	else
+	{
+		UWorld* World = GetWorld();
+		if (World) { UGameplayStatics::PlaySound2D(World, Impact, 1.f, 1.f, 0.f, 0); }
 	}
 }
 

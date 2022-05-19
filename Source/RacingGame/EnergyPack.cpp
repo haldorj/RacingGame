@@ -44,7 +44,7 @@ void AEnergyPack::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Ot
 		PlayerCar->Energy++;
 
 		UWorld* NewWorld = GetWorld();
-		UGameplayStatics::PlaySound2D(NewWorld, Reloading, 1.f, 1.f, 0.f, 0);
+		UGameplayStatics::PlaySoundAtLocation(NewWorld, Reloading, GetActorLocation(), 1.0f, 1.0f, 0.f);
 
 		GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AEnergyPack::Respawn, 5.f, false);
 		if (PlayerCar->Energy > PlayerCar->MaxEnergy)
