@@ -135,7 +135,7 @@ void AEnemy::Tick(float DeltaTime)
 	
 	if (Player != NULL && Player->IsCountingDown() == false)
 	{
-		MoveForward(Throttle);
+		MoveForward(Throttle * 0.33);
 		MoveRight(Steering());
 		Raycast();
 		HealthFunction();

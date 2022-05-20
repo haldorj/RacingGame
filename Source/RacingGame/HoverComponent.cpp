@@ -70,8 +70,8 @@ void UHoverComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 		MeshComp->AddForceAtLocation(Force, Location);
 
 		// Debug Line and Impact Box
-		//DrawDebugLine(GetWorld(), Start, End, FColor::Green);
-		//DrawDebugSolidBox(GetWorld(), OutHit.ImpactPoint, FVector(5.f, 5.f, 5.f), FColor::Green);
+		DrawDebugLine(GetWorld(), Start, End, FColor::Green);
+		DrawDebugSolidBox(GetWorld(), OutHit.ImpactPoint, FVector(5.f, 5.f, 5.f), FColor::Green);
 	}
 
 	else
@@ -79,6 +79,6 @@ void UHoverComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 		MeshComp->AddForce(FVector(0.f, 0.f, -1) * InAirGravityForce * MeshComp->GetMass());
 
 		// Displays a red Debug Line if the line doesn't hit a surface
-		//DrawDebugLine(GetWorld(), Start, End, FColor::Red);
+		DrawDebugLine(GetWorld(), Start, End, FColor::Red);
 	}
 }
